@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { ethers } from "ethers";
 
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 
+import * as actions from "../store/actions/web3Actions";
 import store from "../store/myStore";
 import EthIcon from "../img/ethereum.svg";
 import Icon from "@material-ui/core/Icon";
@@ -24,6 +25,7 @@ export default function Balances() {
   const web3State = useSelector((state) => state.Web3Reducer);
   const [ethbal, setEthBal] = useState(0);
   const [daibal, setDaiBal] = useState(0);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     setTimeout(getBlances, 1000);
@@ -45,10 +47,8 @@ export default function Balances() {
     }
   }
 
-  async function mintTokens() {
-    const Dai = web3State.Dai;
-
-    await Dai.mintTokens(web3State.account);
+  function mintTokens() {
+    dispatch(actions.mintTokens(web3State.account));
   }
 
   return (
