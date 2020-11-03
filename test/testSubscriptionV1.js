@@ -45,23 +45,25 @@ contract("SubscriptionFactory", (accounts) => {
   });
 
   xcontext("With subscribing to contract", async () => {
-    xit("Should return subscription hash", async () => {
+    it("Should return subscription hash", async () => {
       const hash = await subscription.getSubscriptionHash(
         bob.address,
         5,
         dai.address,
+        0,
         0
       );
 
       // some sort of assert here?
     });
 
-    xit("Should create new subscription", async () => {
+    it("Should create new subscription", async () => {
       subscription = subscription.connect(alice);
       const hash = await subscription.getSubscriptionHash(
         charlie.address,
         5,
         dai.address,
+        0,
         0
       );
 
@@ -78,12 +80,13 @@ contract("SubscriptionFactory", (accounts) => {
       assert.strictEqual(parseInt(subLength), 2);
     });
 
-    xit("Should not allow repeat subscription", async () => {
+    it("Should not allow repeat subscription", async () => {
       subscription = subscription.connect(alice);
       const hash = await subscription.getSubscriptionHash(
         charlie.address,
         5,
         dai.address,
+        0,
         0
       );
 
@@ -105,12 +108,13 @@ contract("SubscriptionFactory", (accounts) => {
       );
     });
 
-    xit("Should not allow wrong paymentToken", async () => {
+    it("Should not allow wrong paymentToken", async () => {
       subscription = subscription.connect(alice);
       const hash = await subscription.getSubscriptionHash(
         charlie.address,
         5,
         charlie.address,
+        0,
         0
       );
 
@@ -126,12 +130,13 @@ contract("SubscriptionFactory", (accounts) => {
       );
     });
 
-    xit("Should not allow wrong value", async () => {
+    it("Should not allow wrong value", async () => {
       subscription = subscription.connect(alice);
       const hash = await subscription.getSubscriptionHash(
         charlie.address,
         4,
         dai.address,
+        0,
         0
       );
 
@@ -148,7 +153,7 @@ contract("SubscriptionFactory", (accounts) => {
     });
   });
 
-  context("With executing subscription", async () => {
+  xcontext("With executing subscription", async () => {
     it("Should update timestamp and transfer tokens to contract when executed", async () => {
       dai = dai.connect(alice);
       subscription = subscription.connect(alice);
@@ -162,6 +167,7 @@ contract("SubscriptionFactory", (accounts) => {
         charlie.address,
         5,
         dai.address,
+        0,
         0
       );
 
@@ -204,6 +210,7 @@ contract("SubscriptionFactory", (accounts) => {
         charlie.address,
         5,
         dai.address,
+        0,
         0
       );
 
@@ -219,6 +226,202 @@ contract("SubscriptionFactory", (accounts) => {
       await subscription.executeSubscription(hash);
 
       await utils.shouldThrow(subscription.executeSubscription(hash));
+    });
+  });
+
+  context("With modifying subscription status", async () => {
+    it("Should allow to change status", async () => {
+      dai = dai.connect(alice);
+      subscription = subscription.connect(alice);
+      await dai.mintTokens(charlie.address);
+      const nonce = dai.nonces(charlie.address);
+
+      daiCharlie = dai.connect(charlie);
+      await daiCharlie.approve(subscription.address, 1000);
+
+      const hash = await subscription.getSubscriptionHash(
+        charlie.address,
+        5,
+        dai.address,
+        0,
+        0
+      );
+
+      const signedHash = await charlie.signMessage(ethers.utils.arrayify(hash));
+
+      await subscription.createSubscription(
+        charlie.address,
+        5,
+        dai.address,
+        signedHash
+      );
+
+      var subscriber = await subscription.allSubscribers(1);
+
+      const modifyHash = await subscription.getSubscriptionHash(
+        charlie.address,
+        5,
+        dai.address,
+        subscriber.nonce++,
+        1 // PAUSED
+      );
+
+      const signedModifyHash = await charlie.signMessage(
+        ethers.utils.arrayify(modifyHash)
+      );
+
+      await subscription.modifySubscription(
+        charlie.address,
+        5,
+        dai.address,
+        1, //Paused
+        hash,
+        signedModifyHash
+      );
+
+      subscriber = await subscription.allSubscribers(1);
+
+      assert.strictEqual(parseInt(subscriber.status), 1);
+    });
+
+    it("Should throw when status is not active", async () => {
+      dai = dai.connect(alice);
+      subscription = subscription.connect(alice);
+      await dai.mintTokens(charlie.address);
+      const nonce = dai.nonces(charlie.address);
+
+      daiCharlie = dai.connect(charlie);
+      await daiCharlie.approve(subscription.address, 1000);
+
+      const hash = await subscription.getSubscriptionHash(
+        charlie.address,
+        5,
+        dai.address,
+        0,
+        0
+      );
+
+      const signedHash = await charlie.signMessage(ethers.utils.arrayify(hash));
+
+      await subscription.createSubscription(
+        charlie.address,
+        5,
+        dai.address,
+        signedHash
+      );
+
+      var subscriber = await subscription.allSubscribers(1);
+
+      const modifyHash = await subscription.getSubscriptionHash(
+        charlie.address,
+        5,
+        dai.address,
+        subscriber.nonce++,
+        1 // PAUSED
+      );
+
+      const signedModifyHash = await charlie.signMessage(
+        ethers.utils.arrayify(modifyHash)
+      );
+
+      await subscription.modifySubscription(
+        charlie.address,
+        5,
+        dai.address,
+        1, //Paused
+        hash,
+        signedModifyHash
+      );
+
+      const oldHashToSubNumber = await subscription.hashToSubscription(hash);
+      assert.strictEqual(parseInt(oldHashToSubNumber), 0);
+
+      await utils.shouldThrow(subscription.executeSubscription(hash));
+      await utils.shouldThrow(subscription.executeSubscription(modifyHash));
+    });
+
+    it("Should execute when status is changed back to active", async () => {
+      dai = dai.connect(alice);
+      subscription = subscription.connect(alice);
+      await dai.mintTokens(charlie.address);
+      const nonce = dai.nonces(charlie.address);
+
+      daiCharlie = dai.connect(charlie);
+      await daiCharlie.approve(subscription.address, 1000);
+
+      const hash = await subscription.getSubscriptionHash(
+        charlie.address,
+        5,
+        dai.address,
+        0,
+        0
+      );
+
+      const signedHash = await charlie.signMessage(ethers.utils.arrayify(hash));
+
+      await subscription.createSubscription(
+        charlie.address,
+        5,
+        dai.address,
+        signedHash
+      );
+
+      var subscriber = await subscription.allSubscribers(1);
+
+      const modifyHash = await subscription.getSubscriptionHash(
+        charlie.address,
+        5,
+        dai.address,
+        subscriber.nonce++,
+        1 // PAUSED
+      );
+
+      const signedModifyHash = await charlie.signMessage(
+        ethers.utils.arrayify(modifyHash)
+      );
+
+      await subscription.modifySubscription(
+        charlie.address,
+        5,
+        dai.address,
+        1, //Paused
+        hash,
+        signedModifyHash
+      );
+
+      subscriber = await subscription.allSubscribers(1);
+
+      const activeHash = await subscription.getSubscriptionHash(
+        charlie.address,
+        5,
+        dai.address,
+        subscriber.nonce++,
+        0 // ACTIVE
+      );
+
+      const signedActiveHash = await charlie.signMessage(
+        ethers.utils.arrayify(activeHash)
+      );
+
+      await subscription.modifySubscription(
+        charlie.address,
+        5,
+        dai.address,
+        0, // ACTIVE
+        modifyHash,
+        signedActiveHash
+      );
+
+      await subscription.executeSubscription(activeHash);
+
+      assert.strictEqual(
+        parseInt(await dai.balanceOf(subscription.address)),
+        5
+      );
+
+
+
+
     });
   });
 

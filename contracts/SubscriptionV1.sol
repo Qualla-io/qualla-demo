@@ -21,6 +21,7 @@ contract SubscriptionV1 is Enum {
         Enum.Status status;
         uint256 value;
         uint256 nextWithdraw;
+        uint256 nonce;
         bytes signedHash;
     }
 
@@ -69,6 +70,7 @@ contract SubscriptionV1 is Enum {
                 Enum.Status.EXPIRED,
                 0,
                 0,
+                0,
                 abi.encode(0)
             )
         );
@@ -104,6 +106,7 @@ contract SubscriptionV1 is Enum {
         address subscriber,
         uint256 value,
         address paymentToken,
+        uint256 nonce,
         Enum.Status status
     ) public pure returns (bytes32) {
         return
@@ -113,6 +116,7 @@ contract SubscriptionV1 is Enum {
                     bytes1(0),
                     subscriber,
                     value,
+                    nonce,
                     paymentToken,
                     status
                 )
@@ -145,10 +149,9 @@ contract SubscriptionV1 is Enum {
             _subscriber,
             _value,
             _paymentToken,
+            0,
             Enum.Status.ACTIVE
         );
-
-        emit bytesEvent(_subscriptionHash);
 
         require(
             hashToSubscription[_subscriptionHash] == 0,
@@ -168,6 +171,7 @@ contract SubscriptionV1 is Enum {
                 Enum.Status.ACTIVE,
                 _value,
                 block.timestamp - 1,
+                0,
                 _signedHash
             )
         );
@@ -182,6 +186,55 @@ contract SubscriptionV1 is Enum {
         uint256 subNumber = hashToSubscription[subscriptionHash];
         _transferTokens(subNumber);
         _updateTimestamp(subNumber);
+    }
+
+    function modifySubscription(
+        address _subscriber,
+        uint256 _value,
+        address _paymentToken,
+        Enum.Status status,
+        bytes32 _currentSubscriptionHash,
+        bytes memory _signedModifyHash
+    ) public {
+        require(validToken[_paymentToken] == true, "INVALID TOKEN");
+        require(validValue[_value] == true, "INVALID VALUE");
+
+        uint256 subNumber = hashToSubscription[_currentSubscriptionHash];
+        require(subNumber != 0, "INVALID SUBSCRIPTION");
+
+        Subscriber memory _sub = allSubscribers[subNumber];
+
+        bytes32 _modifySubscriptionHash = getSubscriptionHash(
+            _subscriber,
+            _value,
+            _paymentToken,
+            _sub.nonce++,
+            status
+        );
+
+        address _signer = _getHashSigner(
+            _modifySubscriptionHash,
+            _signedModifyHash
+        );
+
+        require(_signer == _subscriber, "INVALID SIGNATURE");
+        require(
+            _signer == allSubscribers[subNumber].subscriber,
+            "INVALID SIGNATURE"
+        );
+
+        allSubscribers[subNumber] = Subscriber(
+            _subscriber,
+            _paymentToken,
+            status,
+            _value,
+            _sub.nextWithdraw,
+            _sub.nonce++,
+            _signedModifyHash
+        );
+
+        hashToSubscription[_modifySubscriptionHash] = subNumber;
+        hashToSubscription[_currentSubscriptionHash] = 0;
     }
 
     // ------------------------ Internal Functions ------------------------------------
@@ -214,9 +267,8 @@ contract SubscriptionV1 is Enum {
         );
 
         require(
-            _startingBal.add(_sub.value) == ERC20(_sub.paymentToken).balanceOf(
-                address(this)
-            ),
+            _startingBal.add(_sub.value) ==
+                ERC20(_sub.paymentToken).balanceOf(address(this)),
             "TRANSFER FAILED"
         );
     }
