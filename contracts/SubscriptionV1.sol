@@ -61,6 +61,17 @@ contract SubscriptionV1 is Enum {
         for (uint256 i = 0; i < acceptedValues.length; i++) {
             validValue[acceptedValues[i]] = true;
         }
+
+        allSubscribers.push(
+            Subscriber(
+                address(0),
+                address(0),
+                Enum.Status.EXPIRED,
+                0,
+                0,
+                abi.encode(0)
+            )
+        );
     }
 
     function withdraw() external {
@@ -112,6 +123,16 @@ contract SubscriptionV1 is Enum {
         return allSubscribers.length;
     }
 
+    function isHashValid(bytes32 subscriptionHash) public view returns (bool) {
+        uint256 subNumber = hashToSubscription[subscriptionHash];
+        Subscriber memory _sub = allSubscribers[subNumber];
+        return (_sub.subscriber != address(0) &&
+            _sub.nextWithdraw < block.timestamp &&
+            _sub.status == Enum.Status.ACTIVE &&
+            _sub.subscriber ==
+            _getHashSigner(subscriptionHash, _sub.signedHash));
+    }
+
     // ------------------------ Public Functions ------------------------------------
 
     function createSubscription(
@@ -130,11 +151,7 @@ contract SubscriptionV1 is Enum {
         emit bytesEvent(_subscriptionHash);
 
         require(
-            allSubscribers.length == 0 ||
-                (allSubscribers.length > 0 &&
-                    allSubscribers[hashToSubscription[_subscriptionHash]]
-                        .subscriber ==
-                    address(0)),
+            hashToSubscription[_subscriptionHash] == 0,
             "REPEAT SUBSCRIPTION"
         );
 
@@ -160,6 +177,13 @@ contract SubscriptionV1 is Enum {
         emit newSubscriber(_subscriber, _value);
     }
 
+    function executeSubscription(bytes32 subscriptionHash) public {
+        require(isHashValid(subscriptionHash), "INVALID HASH");
+        uint256 subNumber = hashToSubscription[subscriptionHash];
+        _transferTokens(subNumber);
+        _updateTimestamp(subNumber);
+    }
+
     // ------------------------ Internal Functions ------------------------------------
     function _getHashSigner(bytes32 subscriptionHash, bytes memory signatures)
         internal
@@ -167,5 +191,33 @@ contract SubscriptionV1 is Enum {
         returns (address)
     {
         return subscriptionHash.toEthSignedMessageHash().recover(signatures);
+    }
+
+    function _updateTimestamp(uint256 _subNumber) internal {
+        // Defaults to one month
+        allSubscribers[_subNumber].nextWithdraw = allSubscribers[_subNumber]
+            .nextWithdraw
+            .add(2592000);
+    }
+
+    function _transferTokens(uint256 _subNumber) internal {
+        Subscriber memory _sub = allSubscribers[_subNumber];
+
+        uint256 _startingBal = ERC20(_sub.paymentToken).balanceOf(
+            address(this)
+        );
+
+        ERC20(_sub.paymentToken).transferFrom(
+            _sub.subscriber,
+            address(this),
+            _sub.value
+        );
+
+        require(
+            _startingBal.add(_sub.value) == ERC20(_sub.paymentToken).balanceOf(
+                address(this)
+            ),
+            "TRANSFER FAILED"
+        );
     }
 }
