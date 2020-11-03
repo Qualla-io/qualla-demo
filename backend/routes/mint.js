@@ -5,11 +5,21 @@ const {provider, acount, dai} = require("../web3");
 
 router.route("/").post(async (req, res) => {
   const user = req.body.account;
-  console.log(`Old balance: ${await dai.balanceOf(user)}`);
 
-  await dai.mintTokens(user);
+  const initBal = await dai.balanceOf(user);
+  console.log(`Old balance: ${initBal}`);
 
-  console.log(`New balance: ${await dai.balanceOf(user)}`);
+  if (initBal < 5000000000000000000000) {
+    await dai.mintTokens(user);
+    res.status(200);
+  } else {
+    return res.status(400).json({error: "Excess Funds"});
+  }
+
+  const finalBal = await dai.balanceOf(user);
+  console.log(`New balance: ${finalBal}`);
+
+  return res.send(`New Funds: ${finalBal}`);
 });
 
 module.exports = router;

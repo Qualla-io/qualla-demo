@@ -23,7 +23,7 @@ export default function Topbar() {
     <div className={classes.grow}>
       <AppBar style={{ margin: 0, background: "#000" }} position="fixed">
         <Toolbar>
-          <Balances />
+          {/* <Balances /> */}
         </Toolbar>
       </AppBar>
       <Toolbar />

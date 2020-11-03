@@ -1,14 +1,14 @@
-import React, { useEffect } from "react";
+import React, {useEffect} from "react";
 // import { useSelector, useDispatch } from "react-redux";
-import { useDispatch } from "react-redux";
-import { BrowserRouter as Router } from "react-router-dom";
+import {useDispatch} from "react-redux";
+import {BrowserRouter as Router} from "react-router-dom";
 import BaseRouter from "./routes";
 import * as actions from "./store/actions/web3Actions";
 import store from "./store/myStore";
 import DaiContract from "./contracts/TestDai.json";
 
-import { ethers } from "ethers";
-// import getWeb3 from "./getWeb3";
+import {ethers} from "ethers";
+import {SnackbarProvider} from "notistack";
 
 import Web3Modal from "web3modal";
 // import Fortmatic from "fortmatic";
@@ -110,10 +110,12 @@ export default function App() {
   return (
     <div className="App">
       <Router>
-        <CssBaseline />
-        <Layout>
-          <BaseRouter />
-        </Layout>
+        <SnackbarProvider maxSnack={3}>
+          <CssBaseline />
+          <Layout>
+            <BaseRouter />
+          </Layout>
+        </SnackbarProvider>
       </Router>
     </div>
   );
