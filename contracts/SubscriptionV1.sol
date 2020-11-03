@@ -5,8 +5,9 @@ import "@openzeppelin/contracts/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 import "./interfaces/ISubscriptionFactory.sol";
+import "./Enum.sol";
 
-contract SubscriptionV1 {
+contract SubscriptionV1 is Enum {
     using SafeMath for uint256;
     using ECDSA for bytes32;
 
@@ -17,7 +18,7 @@ contract SubscriptionV1 {
     struct Subscriber {
         address subscriber;
         address paymentToken;
-        // Enum.Status status;
+        Enum.Status status;
         uint256 value;
         uint256 nextWithdraw;
         bytes signedHash;
@@ -32,6 +33,11 @@ contract SubscriptionV1 {
 
     event Received(address indexed sender, uint256 value);
     event newSubscriber(address indexed subscriber, uint256 value);
+    event bytesEvent(bytes32 test);
+
+    mapping(bytes32 => uint256) public hashToSubscription;
+    mapping(address => bool) public validToken;
+    mapping(uint256 => bool) public validValue;
 
     constructor() public {
         factory = msg.sender;
@@ -47,6 +53,14 @@ contract SubscriptionV1 {
         publisher = _publisher;
         paymentTokens = _paymentTokens;
         acceptedValues = _acceptedValues;
+
+        for (uint256 i = 0; i < paymentTokens.length; i++) {
+            validToken[paymentTokens[i]] = true;
+        }
+
+        for (uint256 i = 0; i < acceptedValues.length; i++) {
+            validValue[acceptedValues[i]] = true;
+        }
     }
 
     function withdraw() external {
@@ -73,11 +87,14 @@ contract SubscriptionV1 {
     }
 
     // ------------------------ View Functions ------------------------------------
+
+    // Used for initiating and modifying
     function getSubscriptionHash(
         address subscriber,
         uint256 value,
-        address paymentToken
-    ) public view returns (bytes32) {
+        address paymentToken,
+        Enum.Status status
+    ) public pure returns (bytes32) {
         return
             keccak256(
                 abi.encodePacked(
@@ -85,16 +102,70 @@ contract SubscriptionV1 {
                     bytes1(0),
                     subscriber,
                     value,
-                    paymentToken
+                    paymentToken,
+                    status
                 )
             );
     }
 
+    function allSubscribersLength() external view returns (uint256) {
+        return allSubscribers.length;
+    }
+
+    // ------------------------ Public Functions ------------------------------------
+
+    function createSubscription(
+        address _subscriber,
+        uint256 _value,
+        address _paymentToken,
+        bytes memory _signedHash
+    ) external {
+        bytes32 _subscriptionHash = getSubscriptionHash(
+            _subscriber,
+            _value,
+            _paymentToken,
+            Enum.Status.ACTIVE
+        );
+
+        emit bytesEvent(_subscriptionHash);
+
+        require(
+            allSubscribers.length == 0 ||
+                (allSubscribers.length > 0 &&
+                    allSubscribers[hashToSubscription[_subscriptionHash]]
+                        .subscriber ==
+                    address(0)),
+            "REPEAT SUBSCRIPTION"
+        );
+
+        require(validToken[_paymentToken] == true, "INVALID TOKEN");
+        require(validValue[_value] == true, "INVALID VALUE");
+
+        address _signer = _getHashSigner(_subscriptionHash, _signedHash);
+        require(_signer == _subscriber, "INVALID SIGNATURE");
+
+        allSubscribers.push(
+            Subscriber(
+                _subscriber,
+                _paymentToken,
+                Enum.Status.ACTIVE,
+                _value,
+                block.timestamp - 1,
+                _signedHash
+            )
+        );
+
+        hashToSubscription[_subscriptionHash] = allSubscribers.length - 1;
+
+        emit newSubscriber(_subscriber, _value);
+    }
+
     // ------------------------ Internal Functions ------------------------------------
-    function _getSubscriptionSigner(
-        bytes32 subscriptionHash,
-        bytes memory signatures
-    ) internal pure returns (address) {
+    function _getHashSigner(bytes32 subscriptionHash, bytes memory signatures)
+        internal
+        pure
+        returns (address)
+    {
         return subscriptionHash.toEthSignedMessageHash().recover(signatures);
     }
 }
