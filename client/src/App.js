@@ -13,9 +13,21 @@ import {SnackbarProvider} from "notistack";
 import Web3Modal from "web3modal";
 // import Fortmatic from "fortmatic";
 // import WalletConnectProvider from "@walletconnect/web3-provider";
-
+import "./App.css";
+import {createMuiTheme, ThemeProvider} from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Layout from "./containers/Layout";
+
+const font = "'Rubik', sans-serif";
+
+const theme = createMuiTheme({
+  typography: {
+    fontFamily: font,
+    button: {
+      // textTransform: "none",
+    },
+  },
+});
 
 export default function App() {
   // const web3State = useSelector((state) => state.Web3Reducer);
@@ -110,12 +122,14 @@ export default function App() {
   return (
     <div className="App">
       <Router>
-        <SnackbarProvider maxSnack={3}>
-          <CssBaseline />
-          <Layout>
-            <BaseRouter />
-          </Layout>
-        </SnackbarProvider>
+        <ThemeProvider theme={theme}>
+          <SnackbarProvider maxSnack={3}>
+            <CssBaseline />
+            <Layout>
+              <BaseRouter />
+            </Layout>
+          </SnackbarProvider>
+        </ThemeProvider>
       </Router>
     </div>
   );
