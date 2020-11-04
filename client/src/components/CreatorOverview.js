@@ -8,7 +8,7 @@ import CardContent from "@material-ui/core/CardContent";
 export default function CreatorOverview() {
   return (
     <Grid container alignItems="stretch">
-      <Grid Item component={Card} xs={4}>
+      <Grid Item component={Card} xs={6}>
         <Grid
           container
           component={CardContent}
@@ -23,7 +23,12 @@ export default function CreatorOverview() {
           <Divider orientation="vertical" flexItem />
           <Grid item xs>
             <Typography variant="h6">0</Typography>
-            <Typography variant="subtitle1">Teirs</Typography>
+            <Typography variant="subtitle1">Active Teirs</Typography>
+          </Grid>
+          <Divider orientation="vertical" flexItem />
+          <Grid item xs>
+            <Typography variant="h6">$0</Typography>
+            <Typography variant="subtitle1">Dai/month (projected)</Typography>
           </Grid>
         </Grid>
       </Grid>

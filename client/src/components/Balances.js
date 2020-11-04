@@ -53,7 +53,7 @@ export default function Balances() {
   async function getBlances() {
     const _web3State = store.getState().Web3Reducer;
 
-    if (_web3State) {
+    if (_web3State.provider) {
       const ethbal = await _web3State.provider.getBalance(_web3State.account);
       setEthBal(parseFloat(ethers.utils.formatEther(ethbal)).toFixed(3));
 
