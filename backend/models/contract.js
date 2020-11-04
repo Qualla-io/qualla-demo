@@ -4,11 +4,12 @@ var Schema = mongoose.Schema;
 var ContractSchema = new Schema(
   {
     _id: {type: String},
-    publisher: { type: String, ref: "Publisher" },
+    publisher: {type: String, ref: "Publisher"},
+    tiers: {type: [], ref: "Tier"},
   },
   {
-    toObject: { virtuals: true },
-    toJSON: { virtuals: true },
+    toObject: {virtuals: true},
+    toJSON: {virtuals: true},
   }
 );
 

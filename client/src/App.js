@@ -3,9 +3,11 @@ import React, {useEffect} from "react";
 import {useDispatch} from "react-redux";
 import {BrowserRouter as Router} from "react-router-dom";
 import BaseRouter from "./routes";
-import * as actions from "./store/actions/web3Actions";
+import * as web3Actions from "./store/actions/web3Actions";
+import * as creatorActions from "./store/actions/CreatorActions";
 import store from "./store/myStore";
 import DaiContract from "./contracts/TestDai.json";
+import SubscriptionFactory from "./contracts/SubscriptionFactory.json";
 
 import {ethers} from "ethers";
 import {SnackbarProvider} from "notistack";
@@ -17,6 +19,7 @@ import "./App.css";
 import {createMuiTheme, ThemeProvider} from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Layout from "./containers/Layout";
+import axios from "axios";
 
 const font = "'Rubik', sans-serif";
 
@@ -34,7 +37,11 @@ export default function App() {
   const dispatch = useDispatch();
 
   function updateWeb3(key, value) {
-    dispatch(actions.updateWeb3(key, value));
+    dispatch(web3Actions.updateWeb3(key, value));
+  }
+
+  function updateCreator(key, value) {
+    dispatch(creatorActions.updateCreator(key, value));
   }
 
   useEffect(() => {
@@ -83,12 +90,33 @@ export default function App() {
       Dai = Dai.connect(signer);
       updateWeb3("Dai", Dai);
 
+      deployedNetwork = SubscriptionFactory.networks[5777];
+      var Factory = new ethers.Contract(
+        deployedNetwork && deployedNetwork.address,
+        DaiContract.abi,
+        provider
+      );
+
+      Factory = Factory.connect(signer);
+      updateWeb3("Factory", Factory);
+
       // // Use web3 to get the user's accounts.
       const account = await signer.getAddress();
       updateWeb3("account", account);
 
       const networkId = await provider.getNetwork();
       updateWeb3("chainId", networkId.chainId);
+
+      // see it user has deployed contract
+      axios
+        .get(`http://localhost:8080/publishers/${account}/contract/`, {
+          params: {publisher_address: account},
+        })
+        .then((res) => {
+          if (res.data) {
+            updateCreator("contract", res.data);
+          }
+        });
 
       setTimeout(moniterWeb3, 1000);
       // moniterWeb3();

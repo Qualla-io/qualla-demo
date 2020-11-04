@@ -2,6 +2,7 @@ var express = require("express");
 var Publisher = require("../models/publisher");
 var Contract = require("../models/contract");
 var router = express.Router();
+const {provider, acount, dai, factory, account} = require("../web3");
 
 router
   .route("/")
@@ -18,7 +19,7 @@ router
         res.send(err);
         return;
       }
-      res.json({ message: "Publisher Saved!" });
+      res.json({message: "Publisher Saved!"});
     });
   })
 
@@ -48,17 +49,31 @@ router
       function (err, publisher) {
         if (err) res.send(err);
 
-        res.json({ message: "Deleted Successfully" });
+        res.json({message: "Deleted Successfully"});
       }
     );
   });
 
-router.route("/:publisher_address/contracts").get(function(req, res){
-    Contract.find({publisher: req.params.publisher_address}, function (err, contracts){
-        if (err) res.send(err);
-        res.json(contracts)
-    })
-})
+router.route("/:publisher_address/contract").get(async (req, res) => {
+  const initAddress = await factory.getSubscription(
+    req.params.publisher_address
+  );
 
+  console.log(initAddress);
+
+  // Contract.findOne({}, function (err, contract) {
+  //   console.log(contract[2].address === initAddress);
+  // });
+
+  Contract.findById(initAddress).exec((err, contract) => {
+    if (err) res.send(err);
+    res.json(contract);
+  });
+
+  // Contract.find({address: initAddress}, function (err, contract) {
+  //   console.log(contract);
+  //   if (err) res.send(err);
+  //   res.json(contract);
+});
 
 module.exports = router;

@@ -19,6 +19,8 @@ export default function TeirCard(props) {
     onTeirChange(props.num, event.target.name, event.target.value);
   }
 
+
+
   return (
     <Card variant="outlined" className={classes.card}>
       <Grid container component={CardContent} direction="column" spacing={4}>

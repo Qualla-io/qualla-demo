@@ -1,5 +1,5 @@
 import * as actionTypes from "../actions/actionTypes";
-import { updateObject } from "../utils";
+import {updateObject} from "../utils";
 
 const initialState = {
   provider: null,
@@ -7,6 +7,7 @@ const initialState = {
   account: null,
   chainId: null,
   Dai: null,
+  Factory: null,
 };
 
 const updateWeb3 = (state, action) => {

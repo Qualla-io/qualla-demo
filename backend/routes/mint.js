@@ -9,11 +9,11 @@ router.route("/").post(async (req, res) => {
   const initBal = await dai.balanceOf(user);
   console.log(`Old balance: ${initBal}`);
 
-  if (initBal < 5000000000000000000000) {
+  if (initBal < 3000000000000000000000) {
     await dai.mintTokens(user);
     res.status(200);
   } else {
-    return res.status(400).json({error: "Excess Funds"});
+    return res.status(400).json({error: "Excess Funds. Don't be greedy!"});
   }
 
   const finalBal = await dai.balanceOf(user);

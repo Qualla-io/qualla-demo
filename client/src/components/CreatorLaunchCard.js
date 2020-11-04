@@ -1,4 +1,6 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
+import axios from "axios";
+import {useSelector, useDispatch} from "react-redux";
 
 import {makeStyles} from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
@@ -9,6 +11,8 @@ import AddIcon from "@material-ui/icons/Add";
 import RemoveIcon from "@material-ui/icons/Remove";
 
 import TeirCard from "./TeirCard";
+
+import {useSnackbar} from "notistack";
 
 const initTeirs = [
   {title: "Tier 1", value: "5", perks: "add free"},
@@ -24,7 +28,6 @@ const useStyles = makeStyles((theme) => ({
     margin: "auto",
     display: "flex",
     direction: "row",
-    // justifyContent: "center",
     alignItems: "center",
   },
   launch: {
@@ -49,7 +52,14 @@ const useStyles = makeStyles((theme) => ({
 
 export default function CreatorLaunchCard() {
   const classes = useStyles();
-  const [teirs, setTeirs] = useState(initTeirs);
+  const web3State = useSelector((state) => state.Web3Reducer);
+  const creatorState = useSelector((state) => state.CreatorReducer);
+  const [teirs, setTeirs] = useState(creatorState.contract.tiers);
+  const {enqueueSnackbar, closeSnackbar} = useSnackbar();
+
+  useEffect(() => {
+    setTeirs(creatorState.contract.tiers);
+  }, [creatorState.contract]);
 
   function addTeir() {
     setTeirs([...teirs, {}]);
@@ -66,6 +76,35 @@ export default function CreatorLaunchCard() {
     setTeirs(temp);
   }
 
+  function deployContract() {
+    // let values = [];
+    // let titles = [];
+    // let perks = [];
+    // for (var i = 0; i < teirs.length; i++) {
+    //   values.push(teirs[i].value);
+    //   titles.push(teirs[i].titles);
+    //   perks.push(teirs[i].perks);
+    // }
+
+    axios
+      .post("http://localhost:8080/deploy", {
+        tiers: teirs,
+        publisher: web3State.account,
+      })
+      .then((res) => {
+        enqueueSnackbar(`Your Contract Address: ${res.data}`, {
+          variant: "success",
+          autoHideDuration: 2000,
+        });
+      })
+      .catch((err) => {
+        enqueueSnackbar(err.response.data.error, {
+          variant: "error",
+          autoHideDuration: 2000,
+        });
+      });
+  }
+
   return (
     <Grid container spacing={2}>
       <Grid item component={Card} xs={10} className={classes.cont}>
@@ -75,7 +114,11 @@ export default function CreatorLaunchCard() {
               Tiers
             </Typography>
             <div className={classes.grow} />
-            <Button variant="contained" color="secondary">
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={deployContract}
+            >
               Launch
             </Button>
           </div>

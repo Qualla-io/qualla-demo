@@ -1,1 +1,2 @@
 export const UPDATE_WEB3 = "UPDATE_WEB3";
+export const UPDATE_CREATOR = "UPDATE_CREATOR";
