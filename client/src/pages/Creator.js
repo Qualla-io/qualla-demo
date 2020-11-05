@@ -20,7 +20,7 @@ export default function Creator() {
   const classes = useStyles();
   return (
     <Container>
-      {state.contract.address? null : (
+      {state.contract.address ? null : (
         <Alert severity="info" className={classes.headings}>
           You do not currently have an active subscription contract. Fill out
           your contract tiers and launch your contract below!
@@ -32,7 +32,7 @@ export default function Creator() {
       </Typography>
       <CreatorOverview />
       <Typography gutterBottom variant="h4" className={classes.headings}>
-        Launch Subscription
+        Subscription Contract
       </Typography>
       <CreatorLaunchCard />
     </Container>

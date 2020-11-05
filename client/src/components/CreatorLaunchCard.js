@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from "react";
 import axios from "axios";
+import {ethers} from "ethers";
 import {useSelector, useDispatch} from "react-redux";
 
 import {makeStyles} from "@material-ui/core/styles";
@@ -68,41 +69,81 @@ export default function CreatorLaunchCard() {
   function subTeir() {
     setTeirs(teirs.slice(0, teirs.length - 1));
   }
+
   function onTeirChange(key, name, value) {
     let temp = [...teirs];
     let teir = temp[key];
-    teir[name] = value;
+    if (name === "value") {
+      teir[name] = parseInt(value);
+    } else {
+      teir[name] = value;
+    }
     temp[key] = teir;
     setTeirs(temp);
   }
 
-  function deployContract() {
-    // let values = [];
-    // let titles = [];
-    // let perks = [];
-    // for (var i = 0; i < teirs.length; i++) {
-    //   values.push(teirs[i].value);
-    //   titles.push(teirs[i].titles);
-    //   perks.push(teirs[i].perks);
-    // }
+  async function deployContract() {
+    if (creatorState.contract.address) {
+      let values = [];
 
-    axios
-      .post("http://localhost:8080/deploy", {
-        tiers: teirs,
-        publisher: web3State.account,
-      })
-      .then((res) => {
-        enqueueSnackbar(`Your Contract Address: ${res.data}`, {
-          variant: "success",
-          autoHideDuration: 2000,
+      for (var i = 0; i < teirs.length; i++) {
+        values.push(parseInt(teirs[i].value));
+      }
+
+      console.log(values);
+
+      var nonce = parseInt(
+        await creatorState.contractInstance.publisherNonce()
+      );
+
+      console.log(nonce);
+      console.log(web3State.Dai.address);
+
+      // get hash
+      const hash = await creatorState.contractInstance.getPublisherModificationHash(
+        [web3State.Dai.address],
+        values,
+        nonce++
+      );
+
+      // sign hash
+
+      const signature = await web3State.signer.signMessage(
+        ethers.utils.arrayify(hash)
+      );
+
+      console.log(signature);
+
+      // modify contract
+
+      axios.post(
+        `http://localhost:8080/publishers/${web3State.account}/contract/`,
+        {
+          tiers: teirs,
+          values,
+          signature,
+          publisher: web3State.account,
+        }
+      );
+    } else {
+      axios
+        .post("http://localhost:8080/deploy", {
+          tiers: teirs,
+          publisher: web3State.account,
+        })
+        .then((res) => {
+          enqueueSnackbar(`Your Contract Address: ${res.data}`, {
+            variant: "success",
+            autoHideDuration: 2000,
+          });
+        })
+        .catch((err) => {
+          enqueueSnackbar(err.response.data.error, {
+            variant: "error",
+            autoHideDuration: 2000,
+          });
         });
-      })
-      .catch((err) => {
-        enqueueSnackbar(err.response.data.error, {
-          variant: "error",
-          autoHideDuration: 2000,
-        });
-      });
+    }
   }
 
   return (
@@ -119,7 +160,7 @@ export default function CreatorLaunchCard() {
               color="secondary"
               onClick={deployContract}
             >
-              Launch
+              {creatorState.contract.address ? "Update" : "Launch"}
             </Button>
           </div>
           <Grid container justify="center" spacing={3}>

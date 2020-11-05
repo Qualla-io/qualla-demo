@@ -8,6 +8,7 @@ import * as creatorActions from "./store/actions/CreatorActions";
 import store from "./store/myStore";
 import DaiContract from "./contracts/TestDai.json";
 import SubscriptionFactory from "./contracts/SubscriptionFactory.json";
+import SubscriptionContract from "./contracts/SubscriptionV1.json";
 
 import {ethers} from "ethers";
 import {SnackbarProvider} from "notistack";
@@ -114,7 +115,16 @@ export default function App() {
         })
         .then((res) => {
           if (res.data) {
+            console.log(res.data);
             updateCreator("contract", res.data);
+
+            var Subscription = new ethers.Contract(
+              res.data.address,
+              SubscriptionContract.abi,
+              signer
+            );
+
+            updateCreator("contractInstance", Subscription);
           }
         });
 
@@ -135,14 +145,8 @@ export default function App() {
       const _account = await _signer.getAddress();
 
       if (_account !== _web3State.account) {
-        updateWeb3("signer", _signer);
-        updateWeb3("account", _account);
+        window.location.reload();
       }
-      // const _networkId = await _web3State.provider.getNetwork();
-
-      // if (_networkId.chainId !== _web3State.chainId) {
-      //   updateWeb3("chainId", _networkId.chainId);
-      // }
       setTimeout(moniterWeb3, 500);
     }
   }

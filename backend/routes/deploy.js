@@ -22,16 +22,7 @@ router.route("/").post(async (req, res) => {
 
   const initAddress = await factory.getSubscription(publisher);
 
-  if (initAddress !== "0x0000000000000000000000000000000000000000") {
-    // update fields
-    var subscription = new ethers.Contract(
-      initAddress,
-      SubscriptionV1.abi,
-      account
-    );
-
-    // Add in this functionality
-  } else {
+  if (initAddress === "0x0000000000000000000000000000000000000000") {
     try {
       // Create new contract
       await factory.createSubscription(publisher, daiAddress, values);
@@ -70,11 +61,17 @@ router.route("/").post(async (req, res) => {
         return resSend.status(400).json({error: error.toString()});
       }
 
-      res.send(address);
+      return res.send(address);
     } catch (err) {
       console.log(err.body);
-      res.status(400).json({error: "Error deploying or updating contract"});
+      return res
+        .status(400)
+        .json({error: "Error deploying or updating contract"});
     }
+  } else {
+    return (
+      res.status(400), json({error: "Publisher already has deployed contract"})
+    );
   }
 });
 

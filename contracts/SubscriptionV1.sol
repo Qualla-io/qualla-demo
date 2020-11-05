@@ -31,6 +31,7 @@ contract SubscriptionV1 is Enum {
     address[] public paymentTokens;
     uint256[] public acceptedValues;
     Subscriber[] public allSubscribers;
+    uint256 public publisherNonce = 0;
 
     event Received(address indexed sender, uint256 value);
     event newSubscriber(address indexed subscriber, uint256 value);
@@ -119,6 +120,26 @@ contract SubscriptionV1 is Enum {
                     nonce,
                     paymentToken,
                     status
+                )
+            );
+    }
+
+    function getPublisherModificationHash(
+        address[] memory _paymentTokens,
+        uint256[] memory _acceptedValues,
+        uint256 _publisherNonce
+    ) public view returns (bytes32) {
+        return
+            keccak256(
+                (
+                    abi.encodePacked(
+                        bytes1(0x19),
+                        bytes1(0),
+                        publisher,
+                        _paymentTokens,
+                        _acceptedValues,
+                        _publisherNonce
+                    )
                 )
             );
     }
@@ -235,6 +256,31 @@ contract SubscriptionV1 is Enum {
 
         hashToSubscription[_modifySubscriptionHash] = subNumber;
         hashToSubscription[_currentSubscriptionHash] = 0;
+    }
+
+    function modifyContract(
+        address[] memory _paymentTokens,
+        uint256[] memory _acceptedValues,
+        bytes memory _signedModifyHash
+    ) public {
+        bytes32 _modifySubscriptionHash = getPublisherModificationHash(
+            _paymentTokens,
+            _acceptedValues,
+            publisherNonce++
+        );
+
+        emit bytesEvent(_modifySubscriptionHash);
+
+        address _signer = _getHashSigner(
+            _modifySubscriptionHash,
+            _signedModifyHash
+        );
+
+        require(_signer == publisher, "INVALID SIGNATURE");
+
+        paymentTokens = _paymentTokens;
+        acceptedValues = _acceptedValues;
+        publisherNonce = publisherNonce++;
     }
 
     // ------------------------ Internal Functions ------------------------------------

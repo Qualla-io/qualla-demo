@@ -229,7 +229,7 @@ contract("SubscriptionFactory", (accounts) => {
     });
   });
 
-  context("With modifying subscription status", async () => {
+  xcontext("With modifying subscription status", async () => {
     it("Should allow to change status", async () => {
       dai = dai.connect(alice);
       subscription = subscription.connect(alice);
@@ -418,15 +418,11 @@ contract("SubscriptionFactory", (accounts) => {
         parseInt(await dai.balanceOf(subscription.address)),
         5
       );
-
-
-
-
     });
   });
 
-  xcontext("With contract functions", async () => {
-    it("Should allow withdraws", async () => {
+  context("With contract functions", async () => {
+    xit("Should allow withdraws", async () => {
       dai = dai.connect(alice);
       subscription = subscription.connect(alice);
       await dai.mintTokens(subscriptionAddress);
@@ -443,12 +439,32 @@ contract("SubscriptionFactory", (accounts) => {
       assert.strictEqual(publisherBal, (initalBal * (100 - fee)) / 100);
     });
 
-    it("Should not allow initialize to be called by accounts", async () => {
+    xit("Should not allow initialize to be called by accounts", async () => {
       subscription = subscription.connect(alice);
 
       utils.shouldThrow(
         subscription.initialize(bob.address, [dai.address], [5])
       );
+    });
+
+    it("Should allow publisher to modify payment tokens and values", async () => {
+      subscription = subscription.connect(alice);
+
+      var nonce = parseInt(await subscription.publisherNonce());
+
+      const hash = await subscription.getPublisherModificationHash(
+        [dai.address],
+        [5, 10, 20],
+        nonce++
+      );
+
+      const signedHash = await bob.signMessage(ethers.utils.arrayify(hash));
+
+      await subscription.modifyContract([dai.address], [5, 10, 20], signedHash);
+
+      const lastVal = await subscription.acceptedValues(2);
+
+      assert.strictEqual(parseInt(lastVal), 20);
     });
   });
 });
