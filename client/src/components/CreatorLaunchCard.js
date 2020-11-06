@@ -2,7 +2,7 @@ import React, {useState, useEffect} from "react";
 import axios from "axios";
 import {ethers} from "ethers";
 import {useSelector} from "react-redux";
-
+import {useDispatch} from "react-redux";
 import {makeStyles} from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Card from "@material-ui/core/Card";
@@ -10,6 +10,7 @@ import CardContent from "@material-ui/core/CardContent";
 import {Button, Typography} from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import RemoveIcon from "@material-ui/icons/Remove";
+import * as creatorActions from "../store/actions/CreatorActions";
 
 import TeirCard from "./TeirCard";
 
@@ -53,6 +54,8 @@ export default function CreatorLaunchCard() {
   const [teirs, setTeirs] = useState(creatorState.contract.tiers);
   const {enqueueSnackbar} = useSnackbar();
 
+  const dispatch = useDispatch();
+
   useEffect(() => {
     setTeirs(creatorState.contract.tiers);
   }, [creatorState.contract]);
@@ -77,6 +80,14 @@ export default function CreatorLaunchCard() {
     setTeirs(temp);
   }
 
+  function updateCreator(key, value) {
+    dispatch(creatorActions.updateCreator(key, value));
+  }
+
+  function updateContract() {
+    dispatch(creatorActions.updateContract());
+  }
+
   async function deployContract() {
     if (creatorState.contract.address) {
       let values = [];
@@ -86,8 +97,6 @@ export default function CreatorLaunchCard() {
           ethers.utils.parseUnits(teirs[i].value.toString(), "ether").toString()
         );
       }
-
-      console.log(values);
 
       var nonce = parseInt(
         await creatorState.contractInstance.publisherNonce()
@@ -109,6 +118,10 @@ export default function CreatorLaunchCard() {
       console.log(signature);
 
       // modify contract
+      enqueueSnackbar(`Request Sent`, {
+        variant: "success",
+        autoHideDuration: 2000,
+      });
 
       axios
         .post(
@@ -125,6 +138,7 @@ export default function CreatorLaunchCard() {
             variant: "success",
             autoHideDuration: 2000,
           });
+          updateContract();
         })
         .catch((err) => {
           enqueueSnackbar(err.response.data.error, {
@@ -133,12 +147,17 @@ export default function CreatorLaunchCard() {
           });
         });
     } else {
+      enqueueSnackbar(`Request Sent`, {
+        variant: "success",
+        autoHideDuration: 2000,
+      });
       axios
         .post("http://localhost:8080/deploy", {
           tiers: teirs,
           publisher: web3State.account,
         })
         .then((res) => {
+          updateContract();
           enqueueSnackbar(`Your Contract Address: ${res.data}`, {
             variant: "success",
             autoHideDuration: 2000,
