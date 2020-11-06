@@ -115,7 +115,6 @@ export default function App() {
         })
         .then((res) => {
           if (res.data) {
-            console.log(res.data);
             updateCreator("contract", res.data);
 
             var Subscription = new ethers.Contract(

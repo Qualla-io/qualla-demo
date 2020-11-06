@@ -11,7 +11,7 @@ export default function CreatorOverview() {
 
   return (
     <Grid container alignItems="stretch">
-      <Grid Item component={Card} xs={6}>
+      <Grid item component={Card} xs={6}>
         <Grid
           container
           component={CardContent}

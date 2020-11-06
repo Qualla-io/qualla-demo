@@ -304,7 +304,8 @@ contract SubscriptionV1 is Enum {
         // Defaults to one month
         allSubscribers[_subNumber].nextWithdraw = allSubscribers[_subNumber]
             .nextWithdraw
-            .add(2592000);
+            .add(5);
+        // .add(2592000); // One Month
     }
 
     function _transferTokens(uint256 _subNumber) internal {

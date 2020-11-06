@@ -1,79 +1,70 @@
-const fs = require("fs");
 require("dotenv").config();
 var mongoose = require("mongoose");
-const Web3 = require("web3");
 mongoose.set("useUnifiedTopology", true);
 mongoose.set("useNewUrlParser", true);
 mongoose.connect("mongodb://root:example@localhost:27017");
-
-const contract = JSON.parse(
-  fs.readFileSync("../client/src/contracts/Subscription.json")
-);
-const abi = JSON.stringify(contract.abi);
-const account = process.env.ACCOUNT;
-const privateKey = process.env.PRIVATE_KEY;
-
+const {ethers} = require("ethers");
+const {provider, account, dai, factory} = require("./web3");
 var Contract = require("./models/contract");
-let web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+var Subscription = require("./models/subscription");
+
+const SubscriptionV1 = require("../client/src/contracts/SubscriptionV1.json");
 
 async function execSubs() {
-  console.log("working");
+  let query = Contract.find();
   Contract.find(async (err, contracts) => {
     for (var i = 0; i < contracts.length; i++) {
-      let address = contracts[i].address;
-      var instance = new web3.eth.Contract(contract.abi, address);
-      var subNumber = await instance.methods.getSubscriberListLength().call();
-      console.log(subNumber)
-      for (var j = 1; j < subNumber; j++) {
-        sub = await instance.methods.SubscriptionList(j).call();
-        console.log(sub.nextWithdraw)
-        const now = Math.floor(Date.now() / 1000)
-        console.log(now)
-        if (sub.status === "0" && sub.nextWithdraw < now) {
-          var hash = await instance.methods
-            .getSubscriptionHash(
-              sub.subscriber,
-              sub.value,
-              sub.data,
-              0,
-              sub.txGas,
-              sub.dataGas,
-              sub.gasPrice,
-              sub.gasToken,
-              sub.meta
-            )
-            .call();
+      let initAddress = contracts[i].address;
+      let contract = contracts[i];
+      var subscription = new ethers.Contract(
+        initAddress,
+        SubscriptionV1.abi,
+        account
+      );
 
-          const tx = instance.methods.executeFromHash(hash);
-          const gas = await tx.estimateGas({ from: account });
-          const gasPrice = await web3.eth.getGasPrice();
-          const data = tx.encodeABI();
-          const nonce = await web3.eth.getTransactionCount(account, "pending");
-          const signedTx = await web3.eth.accounts.signTransaction(
-            {
-              to: address,
-              from: account,
-              data,
-              gas,
-              gasPrice,
-              nonce,
-              chainId: 5777,
-            },
-            privateKey
-          );
+      let subscribers = contract.subscribers;
 
-          web3.eth
-            .sendSignedTransaction(signedTx.rawTransaction)
-            .then((res) => {
-              console.log("Transfered");
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-        }
-      }
+      subscribers.forEach(async function (subscriber) {
+        Subscription.findById(subscriber._id).exec(
+          async (err, subscriberObj) => {
+            if (
+              subscriberObj.nextWithdrawl < Math.floor(Date.now() / 1000) &&
+              subscriberObj.status === 0
+            ) {
+              let allowance = await dai.allowance(
+                account.address,
+                subscription.address
+              );
+
+              let balance = await dai.balanceOf(subscriberObj.subscriber);
+              console.log(parseInt(balance));
+              console.log(parseInt(allowance));
+              if (
+                allowance >= subscriberObj.value &&
+                balance >= subscriberObj.value
+              ) {
+                console.log("calling");
+                subscription
+                  .executeSubscription(subscriberObj.hash)
+                  .then(async () => {
+                    subscriberObj.nextWithdrawl += 5;
+                    await subscriberObj.save();
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                  });
+              } else {
+                console.log("not Calling");
+                // console.log(contract)
+                subscriberObj.status = 1;
+                await subscriberObj.save();
+              }
+            }
+          }
+        );
+      });
     }
   });
 }
 
-module.exports = { execSubs };
+setInterval(execSubs, 5000);

@@ -188,7 +188,7 @@ export default function CreatorLaunchCard() {
                   component={CardContent}
                   direction="column"
                   justify="center"
-                  alignItems="space-between"
+                  alignItems="stretch"
                   className={classes.fullHeightCard}
                 >
                   <Button
@@ -197,7 +197,7 @@ export default function CreatorLaunchCard() {
                     onClick={addTeir}
                     className={classes.btn}
                   >
-                    <AddIcon fontSize="Large" />
+                    <AddIcon fontSize="large" />
                     Add Teir
                   </Button>
                   <Button
@@ -206,7 +206,7 @@ export default function CreatorLaunchCard() {
                     onClick={subTeir}
                     className={classes.btn}
                   >
-                    <RemoveIcon fontSize="Large" />
+                    <RemoveIcon fontSize="large" />
                     Remove Teir
                   </Button>
                 </Grid>
@@ -217,62 +217,4 @@ export default function CreatorLaunchCard() {
       </Grid>
     </Grid>
   );
-
-  //     // <Grid container alignItems="stretch">
-  //     // <Grid Item component={Card} xs={10}>
-  //     //   <CardContent>
-  //     //     <Typography variant="h6" className={classes.header}>
-  //     //       Teirs
-  //     //     </Typography>
-  //     //     <Grid
-  //     //       container
-  //     //       spacing={7}
-  //     //       justify="center"
-  //     //       alignItems="center"
-  //     //       // className={classes.cards}
-  //     //     >
-  //     //       <Grid Item component={Card}>
-  //     //         <Typography>Test</Typography>
-  //     //       </Grid>
-  //     //       <Grid Item component={Card}>
-  //     //         <Typography>Test</Typography>
-  //     //       </Grid>
-
-  //           {/* {teirs.map((teir, i) => (
-  //               <Grid
-  //                 Item
-  //                 component={TeirCard}
-  //                 key={i}
-  //                 props={teir}
-  //                 className={classes.teir}
-
-  //               />
-  //             ))} */}
-  //           {/* <Grid Item component={Card} variant="outlined">
-  //               <Grid container component={CardContent} direction="column">
-  //                 <Button
-  //                   style={{flexShrink: 1}}
-  //                   variant="outlined"
-  //                   color="primary"
-  //                   onClick={addTeir}
-  //                 >
-  //                   <AddIcon fontSize="Large" />
-  //                   Add Teir
-  //                 </Button>
-  //                 <Button
-  //                   style={{flexShrink: 1}}
-  //                   variant="outlined"
-  //                   color="primary"
-  //                   onClick={subTeir}
-  //                 >
-  //                   <RemoveIcon fontSize="Large" />
-  //                   Remove Teir
-  //                 </Button>
-  //               </Grid>
-  //             </Grid> */}
-  //         {/* </Grid>
-  //       </CardContent>
-  //     </Grid> */}
-  //     {/* // </Grid> */}
-  //   );
 }

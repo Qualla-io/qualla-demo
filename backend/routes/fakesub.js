@@ -1,5 +1,7 @@
 var express = require("express");
 var router = express.Router();
+var Contract = require("../models/contract");
+var Subscription = require("../models/subscription");
 const {provider, account, dai, factory} = require("../web3");
 const {ethers} = require("ethers");
 
@@ -42,7 +44,11 @@ router.route("/").post(async (req, res) => {
     );
 
     if (allowance < values) {
-      await dai.approve(subscription.address, values * "5");
+      let allowed = ethers.BigNumber.from(values);
+      allowed = allowed.mul(5);
+      allowed = allowed.toString();
+
+      await dai.approve(subscription.address, allowed);
     }
 
     if (parseInt(await subscription.allSubscribersLength()) === 1) {
@@ -54,8 +60,6 @@ router.route("/").post(async (req, res) => {
         0
       );
 
-      console.log(hash);
-
       const signedHash = await account.signMessage(ethers.utils.arrayify(hash));
 
       await subscription.createSubscription(
@@ -64,8 +68,36 @@ router.route("/").post(async (req, res) => {
         dai.address,
         signedHash
       );
+
+      // Save to database
+      Contract.findById(initAddress).exec(async (err, contract) => {
+        if (err) res.send(err);
+
+        let _subscription = new Subscription();
+        _subscription.subscriber = account.address;
+        _subscription.value = values;
+        _subscription.token = dai.address;
+        _subscription.status = 0;
+        _subscription.hash = hash;
+        _subscription.signedHash = signedHash;
+        _subscription.nextWithdrawl = Math.floor(Date.now() / 1000);
+        _subscription.contract = initAddress;
+
+        contract.subscribers.push(_subscription);
+        await _subscription.save();
+        await contract.save();
+      });
+
       return res.send("New Subscriber!");
     } else {
+      Subscription.findOne({
+        subscriber: account.address,
+        contract: initAddress,
+      }).exec(async (err, _subscription) => {
+        if (err) res.send(err);
+        _subscription.status = 0;
+        _subscription.save();
+      });
       return res.send("Subscriber Updated!");
     }
   } catch (error) {
