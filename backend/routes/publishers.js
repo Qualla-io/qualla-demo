@@ -98,6 +98,7 @@ router
   })
   .post(async (req, res) => {
     const initAddress = await factory.getSubscription(req.body.publisher);
+    console.log(req.body.publisher)
 
     if (initAddress !== "0x0000000000000000000000000000000000000000") {
       var subscription = new ethers.Contract(

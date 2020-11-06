@@ -17,6 +17,7 @@ var mint = require("./routes/mint.js");
 var deploy = require("./routes/deploy.js");
 var permit = require("./routes/permit.js");
 var fakesub = require("./routes/fakesub.js");
+var withdraw = require("./routes/withdraw.js");
 // config
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -49,6 +50,7 @@ app.use("/mint", mint);
 app.use("/deploy", deploy);
 app.use("/permit", permit);
 app.use("/fakesub", fakesub);
+app.use("/withdraw", withdraw);
 
 // Start
 

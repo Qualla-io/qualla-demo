@@ -12,7 +12,7 @@ import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import Grid from "@material-ui/core/Grid";
 import CardContent from "@material-ui/core/CardContent";
-import Divider from "@material-ui/core/Divider";
+import SwapVertIcon from "@material-ui/icons/SwapVert";
 
 import {useSnackbar} from "notistack";
 
@@ -50,7 +50,7 @@ export default function Balances() {
 
   useEffect(() => {
     getBlances();
-  }, [web3State.provider, creatorState.contract.address]);
+  }, [web3State.account, creatorState.contract.address]);
 
   useEffect(() => {
     subscribePersonalDai();
@@ -122,7 +122,7 @@ export default function Balances() {
     const _web3State = store.getState().Web3Reducer;
     const _creatorState = store.getState().CreatorReducer;
 
-    if (_web3State.provider) {
+    if (_web3State.provider && _web3State.account) {
       _web3State.provider.getBalance(_web3State.account).then((ethbal) => {
         setEthBal(parseFloat(ethers.utils.formatEther(ethbal)).toFixed(3));
       });
@@ -162,6 +162,34 @@ export default function Balances() {
       });
   }
 
+  function withdrawTokens() {
+
+    if (contractbal === "0.0") {
+      enqueueSnackbar("No funds to withdraw", {
+        variant: "warning",
+        autoHideDuration: 2000,
+      });
+      return;
+    }
+
+    enqueueSnackbar("Request Processing", {
+      variant: "success",
+      autoHideDuration: 2000,
+    });
+
+    axios
+      .post("http://localhost:8080/withdraw", {
+        publisher: web3State.account,
+      })
+      .then((res) => {})
+      .catch((err) => {
+        enqueueSnackbar(err.response.data.error, {
+          variant: "error",
+          autoHideDuration: 2000,
+        });
+      });
+  }
+
   const contractComp = (
     <>
       <Grid item>
@@ -173,7 +201,10 @@ export default function Balances() {
         <Typography>${contractbal} Dai</Typography>
       </Grid>
       <Grid item>
-        <Divider />
+        <Button onClick={withdrawTokens} color="primary" variant="contained">
+          <SwapVertIcon />
+          Withdraw {"  "}
+        </Button>
       </Grid>
     </>
   );
@@ -185,7 +216,6 @@ export default function Balances() {
           Balances:
         </Typography>
         <Grid container className={classes.container} spacing={1}>
-          <Divider />
           {creatorState.contract.address ? contractComp : null}
           <Grid item>
             <Typography variant="subtitle1" className={classes.underline}>
@@ -201,8 +231,8 @@ export default function Balances() {
           </Grid>
           <Grid item>
             <Button onClick={mintTokens} color="primary" variant="contained">
-              Get Dai {"  "}
               <AttachMoneyIcon />
+              Get Dai {"  "}
             </Button>
           </Grid>
         </Grid>
