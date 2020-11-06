@@ -39,9 +39,12 @@ router.route("/").post(async (req, res) => {
       await dai.mintTokens(account.address);
     }
 
-    const allowance = parseInt(
-      await dai.allowance(account.address, subscription.address)
-    );
+    var allowance = await dai.allowance(account.address, subscription.address);
+
+    allowance = allowance.toString();
+
+    console.log(account.address);
+    console.log(subscription.address);
 
     if (allowance < values) {
       let allowed = ethers.BigNumber.from(values);
@@ -81,7 +84,7 @@ router.route("/").post(async (req, res) => {
         _subscription.hash = hash;
         _subscription.signedHash = signedHash;
         _subscription.nextWithdrawl = Math.floor(Date.now() / 1000);
-        _subscription.contract = initAddress;
+        _subscription.contract = subscription.address;
 
         contract.subscribers.push(_subscription);
         await _subscription.save();
@@ -96,7 +99,7 @@ router.route("/").post(async (req, res) => {
       }).exec(async (err, _subscription) => {
         if (err) res.send(err);
         _subscription.status = 0;
-        _subscription.save();
+        await _subscription.save();
       });
       return res.send("Subscriber Updated!");
     }

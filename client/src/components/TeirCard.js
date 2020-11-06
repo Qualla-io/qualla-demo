@@ -29,7 +29,6 @@ export default function TeirCard(props) {
           name="title"
           component={TextField}
           required
-          id="standard-required"
           label="Title"
           defaultValue={props.teir.title}
           onChange={handleChange}
@@ -39,7 +38,6 @@ export default function TeirCard(props) {
           item
           component={TextField}
           required
-          id="standard-required"
           label="Price"
           type="number"
           defaultValue={props.teir.value}

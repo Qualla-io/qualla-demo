@@ -23,7 +23,6 @@ export const updateContract = () => {
         params: {publisher_address: account},
       })
       .then((res) => {
-        console.log("ran");
         if (res.data) {
           dispatch(updateCreator("contract", res.data));
 

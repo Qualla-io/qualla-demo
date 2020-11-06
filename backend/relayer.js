@@ -31,10 +31,14 @@ async function execSubs() {
               subscriberObj.nextWithdrawl < Math.floor(Date.now() / 1000) &&
               subscriberObj.status === 0
             ) {
+              Subscription.find({}).exec((err, subs) => [console.log(subs)]);
               let allowance = await dai.allowance(
-                account.address,
+                subscriberObj.subscriber,
                 subscription.address
               );
+
+              console.log(subscriberObj.subscriber);
+              console.log(subscription.address);
 
               let balance = await dai.balanceOf(subscriberObj.subscriber);
               console.log(parseInt(balance));
