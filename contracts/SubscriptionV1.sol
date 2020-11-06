@@ -148,6 +148,14 @@ contract SubscriptionV1 is Enum {
         return allSubscribers.length;
     }
 
+    function acceptedValuesLength() external view returns (uint256) {
+        return acceptedValues.length;
+    }
+
+    function paymentTokensLength() external view returns (uint256) {
+        return paymentTokens.length;
+    }
+
     function isHashValid(bytes32 subscriptionHash) public view returns (bool) {
         uint256 subNumber = hashToSubscription[subscriptionHash];
         Subscriber memory _sub = allSubscribers[subNumber];

@@ -12,7 +12,6 @@ router
   .route("/")
 
   .post(function (req, res) {
-    console.log(res.body);
     var publisher = new Publisher();
     publisher._id = req.body.address;
     publisher.username = req.body.username;
@@ -65,7 +64,7 @@ router
       req.params.publisher_address
     );
     let subscriberCount = 0;
-
+    let subValue = ethers.utils.parseEther("0");
     if (initAddress !== "0x0000000000000000000000000000000000000000") {
       var subscription = new ethers.Contract(
         initAddress,
@@ -74,12 +73,25 @@ router
       );
 
       subscriberCount = parseInt(await subscription.allSubscribersLength());
+
+      let _sub;
+
+      for (var i = 1; i < subscriberCount; i++) {
+        _sub = await subscription.allSubscribers(i);
+        console.log(_sub);
+        if (_sub.status === 0) {
+          subValue = subValue.add(_sub.value);
+        }
+      }
+      subValue = subValue.div(ethers.constants.WeiPerEther);
+      subValue = subValue.toString();
     }
 
     Contract.findById(initAddress).exec((err, contract) => {
       if (err) res.send(err);
       if (initAddress !== "0x0000000000000000000000000000000000000000") {
         contract.set("subscriberCount", subscriberCount - 1, {strict: false});
+        contract.set("subscriberValue", subValue, {strict: false});
       }
       res.json(contract);
     });
@@ -100,7 +112,6 @@ router
       const values = req.body.values;
 
       console.log(values);
-      console.log(signature);
 
       subscription
         .modifyContract([dai.address], values, signature)
@@ -117,17 +128,16 @@ router
 
               contract.tiers.push(tier);
             }
-
-            console.log(contract);
             try {
               await contract.save();
+              return res.send("Success");
             } catch (error) {
               return res.status(400).json({error: error.toString()});
             }
           });
         })
         .catch((err) => {
-          console.log("err");
+          console.log(err);
         });
     } else {
       return res

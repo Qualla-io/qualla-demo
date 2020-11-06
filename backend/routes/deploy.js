@@ -17,7 +17,7 @@ router.route("/").post(async (req, res) => {
   let values = [];
 
   for (var i = 0; i < tiers.length; i++) {
-    values.push(tiers[i].value);
+    values.push(ethers.constants.WeiPerEther.mul(tiers[i].value));
   }
 
   const initAddress = await factory.getSubscription(publisher);

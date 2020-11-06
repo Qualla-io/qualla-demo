@@ -1,16 +1,12 @@
 import React, {useState, useEffect} from "react";
-import {useSelector, useDispatch} from "react-redux";
+import {useSelector} from "react-redux";
 import {ethers} from "ethers";
 import axios from "axios";
 
 import Typography from "@material-ui/core/Typography";
 import {makeStyles} from "@material-ui/core/styles";
 
-import * as actions from "../store/actions/web3Actions";
 import store from "../store/myStore";
-import EthIcon from "../img/ethereum.svg";
-import Icon from "@material-ui/core/Icon";
-import PaymentIcon from "@material-ui/icons/Payment";
 import AttachMoneyIcon from "@material-ui/icons/AttachMoney";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
@@ -41,9 +37,8 @@ export default function Balances() {
   const web3State = useSelector((state) => state.Web3Reducer);
   const [ethbal, setEthBal] = useState(0);
   const [daibal, setDaiBal] = useState(0);
-  const dispatch = useDispatch();
 
-  const {enqueueSnackbar, closeSnackbar} = useSnackbar();
+  const {enqueueSnackbar} = useSnackbar();
 
   useEffect(() => {
     setTimeout(getBlances, 1000);

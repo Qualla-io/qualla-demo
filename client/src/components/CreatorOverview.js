@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React from "react";
 import {useSelector} from "react-redux";
 import Card from "@material-ui/core/Card";
 import Typography from "@material-ui/core/Typography";
@@ -39,7 +39,12 @@ export default function CreatorOverview() {
           </Grid>
           <Divider orientation="vertical" flexItem />
           <Grid item xs>
-            <Typography variant="h6">$0</Typography>
+            <Typography variant="h6">
+              $
+              {creatorState.contract.address
+                ? creatorState.contract.subscriberValue
+                : 0}
+            </Typography>
             <Typography variant="subtitle1">Dai/month (projected)</Typography>
           </Grid>
         </Grid>

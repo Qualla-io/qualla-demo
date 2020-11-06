@@ -16,9 +16,10 @@ var publishers = require("./routes/publishers.js");
 var mint = require("./routes/mint.js");
 var deploy = require("./routes/deploy.js");
 var permit = require("./routes/permit.js");
+var fakesub = require("./routes/fakesub.js");
 // config
 
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(cors());
 
@@ -29,7 +30,7 @@ var port = process.env.PORT || 8080;
 var router = express.Router();
 
 router.get("/", function (req, res) {
-  res.json({ message: "Working api!" });
+  res.json({message: "Working api!"});
 });
 
 // Middleware
@@ -47,6 +48,7 @@ app.use("/publishers", publishers);
 app.use("/mint", mint);
 app.use("/deploy", deploy);
 app.use("/permit", permit);
+app.use("/fakesub", fakesub);
 
 // Start
 

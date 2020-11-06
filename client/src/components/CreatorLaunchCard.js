@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react";
 import axios from "axios";
 import {ethers} from "ethers";
-import {useSelector, useDispatch} from "react-redux";
+import {useSelector} from "react-redux";
 
 import {makeStyles} from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
@@ -14,11 +14,6 @@ import RemoveIcon from "@material-ui/icons/Remove";
 import TeirCard from "./TeirCard";
 
 import {useSnackbar} from "notistack";
-
-const initTeirs = [
-  {title: "Tier 1", value: "5", perks: "add free"},
-  {title: "Tier 2", value: "10", perks: "early access"},
-];
 
 const useStyles = makeStyles((theme) => ({
   cont: {
@@ -56,7 +51,7 @@ export default function CreatorLaunchCard() {
   const web3State = useSelector((state) => state.Web3Reducer);
   const creatorState = useSelector((state) => state.CreatorReducer);
   const [teirs, setTeirs] = useState(creatorState.contract.tiers);
-  const {enqueueSnackbar, closeSnackbar} = useSnackbar();
+  const {enqueueSnackbar} = useSnackbar();
 
   useEffect(() => {
     setTeirs(creatorState.contract.tiers);
@@ -87,7 +82,9 @@ export default function CreatorLaunchCard() {
       let values = [];
 
       for (var i = 0; i < teirs.length; i++) {
-        values.push(parseInt(teirs[i].value));
+        values.push(
+          ethers.utils.parseUnits(teirs[i].value.toString(), "ether").toString()
+        );
       }
 
       console.log(values);
@@ -95,9 +92,6 @@ export default function CreatorLaunchCard() {
       var nonce = parseInt(
         await creatorState.contractInstance.publisherNonce()
       );
-
-      console.log(nonce);
-      console.log(web3State.Dai.address);
 
       // get hash
       const hash = await creatorState.contractInstance.getPublisherModificationHash(
@@ -116,15 +110,28 @@ export default function CreatorLaunchCard() {
 
       // modify contract
 
-      axios.post(
-        `http://localhost:8080/publishers/${web3State.account}/contract/`,
-        {
-          tiers: teirs,
-          values,
-          signature,
-          publisher: web3State.account,
-        }
-      );
+      axios
+        .post(
+          `http://localhost:8080/publishers/${web3State.account}/contract/`,
+          {
+            tiers: teirs,
+            values,
+            signature,
+            publisher: web3State.account,
+          }
+        )
+        .then((ans) => {
+          enqueueSnackbar(`Modified Successfully`, {
+            variant: "success",
+            autoHideDuration: 2000,
+          });
+        })
+        .catch((err) => {
+          enqueueSnackbar(err.response.data.error, {
+            variant: "error",
+            autoHideDuration: 2000,
+          });
+        });
     } else {
       axios
         .post("http://localhost:8080/deploy", {
