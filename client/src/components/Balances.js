@@ -15,6 +15,7 @@ import CardContent from "@material-ui/core/CardContent";
 import SwapVertIcon from "@material-ui/icons/SwapVert";
 
 import {useSnackbar} from "notistack";
+import {Hidden} from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -163,7 +164,6 @@ export default function Balances() {
   }
 
   function withdrawTokens() {
-
     if (contractbal === "0.0") {
       enqueueSnackbar("No funds to withdraw", {
         variant: "warning",
@@ -210,33 +210,35 @@ export default function Balances() {
   );
 
   return (
-    <Card className={classes.root} raised>
-      <CardContent>
-        <Typography gutterBottom variant="h5" component="h2">
-          Balances:
-        </Typography>
-        <Grid container className={classes.container} spacing={1}>
-          {creatorState.contract.address ? contractComp : null}
-          <Grid item>
-            <Typography variant="subtitle1" className={classes.underline}>
-              Personal:
-            </Typography>
-          </Grid>
-          <Grid item>
-            <Typography>{ethbal} Eth</Typography>
-          </Grid>
+    <Hidden smDown>
+      <Card className={classes.root} raised>
+        <CardContent>
+          <Typography gutterBottom variant="h5" component="h2">
+            Balances:
+          </Typography>
+          <Grid container className={classes.container} spacing={1}>
+            {creatorState.contract.address ? contractComp : null}
+            <Grid item>
+              <Typography variant="subtitle1" className={classes.underline}>
+                Personal:
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Typography>{ethbal} Eth</Typography>
+            </Grid>
 
-          <Grid item>
-            <Typography>${daibal} Dai</Typography>
+            <Grid item>
+              <Typography>${daibal} Dai</Typography>
+            </Grid>
+            <Grid item>
+              <Button onClick={mintTokens} color="primary" variant="contained">
+                <AttachMoneyIcon />
+                Get Dai {"  "}
+              </Button>
+            </Grid>
           </Grid>
-          <Grid item>
-            <Button onClick={mintTokens} color="primary" variant="contained">
-              <AttachMoneyIcon />
-              Get Dai {"  "}
-            </Button>
-          </Grid>
-        </Grid>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </Hidden>
   );
 }

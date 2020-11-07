@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
   },
   btn: {
     marginRight: theme.spacing(marg),
-    borderRadius: 100,
+    borderRadius: 25,
   },
   center: {
     direction: "row",

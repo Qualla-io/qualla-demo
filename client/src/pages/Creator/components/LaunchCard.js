@@ -12,7 +12,7 @@ import AddIcon from "@material-ui/icons/Add";
 import RemoveIcon from "@material-ui/icons/Remove";
 import * as creatorActions from "../../../store/actions/CreatorActions";
 
-import TeirCard from "./TeirCard";
+import TierCard from "./TierCard";
 
 import {useSnackbar} from "notistack";
 
@@ -51,33 +51,33 @@ export default function CreatorLaunchCard() {
   const classes = useStyles();
   const web3State = useSelector((state) => state.Web3Reducer);
   const creatorState = useSelector((state) => state.CreatorReducer);
-  const [teirs, setTeirs] = useState(creatorState.contract.tiers);
+  const [tiers, setTiers] = useState(creatorState.contract.tiers);
   const {enqueueSnackbar} = useSnackbar();
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    setTeirs(creatorState.contract.tiers);
+    setTiers(creatorState.contract.tiers);
   }, [creatorState.contract]);
 
-  function addTeir() {
-    setTeirs([...teirs, {}]);
+  function addTier() {
+    setTiers([...tiers, {}]);
   }
 
-  function subTeir() {
-    setTeirs(teirs.slice(0, teirs.length - 1));
+  function subTier() {
+    setTiers(tiers.slice(0, tiers.length - 1));
   }
 
-  function onTeirChange(key, name, value) {
-    let temp = [...teirs];
-    let teir = temp[key];
+  function onTierChange(key, name, value) {
+    let temp = [...tiers];
+    let tier = temp[key];
     if (name === "value") {
-      teir[name] = parseInt(value);
+      tier[name] = parseInt(value);
     } else {
-      teir[name] = value;
+      tier[name] = value;
     }
-    temp[key] = teir;
-    setTeirs(temp);
+    temp[key] = tier;
+    setTiers(temp);
   }
 
   function updateCreator(key, value) {
@@ -92,9 +92,9 @@ export default function CreatorLaunchCard() {
     if (creatorState.contract.address) {
       let values = [];
 
-      for (var i = 0; i < teirs.length; i++) {
+      for (var i = 0; i < tiers.length; i++) {
         values.push(
-          ethers.utils.parseUnits(teirs[i].value.toString(), "ether").toString()
+          ethers.utils.parseUnits(tiers[i].value.toString(), "ether").toString()
         );
       }
 
@@ -127,7 +127,7 @@ export default function CreatorLaunchCard() {
         .post(
           `http://localhost:8080/publishers/${web3State.account}/contract/`,
           {
-            tiers: teirs,
+            tiers: tiers,
             values,
             signature,
             publisher: web3State.account,
@@ -153,7 +153,7 @@ export default function CreatorLaunchCard() {
       });
       axios
         .post("http://localhost:8080/deploy", {
-          tiers: teirs,
+          tiers: tiers,
           publisher: web3State.account,
         })
         .then((res) => {
@@ -174,7 +174,7 @@ export default function CreatorLaunchCard() {
 
   return (
     <Grid container spacing={2}>
-      <Grid item component={Card} xs={10} className={classes.cont}>
+      <Grid item component={Card} lg={10} xs={12} className={classes.cont}>
         <CardContent>
           <div className={classes.grow}>
             <Typography variant="h6" className={classes.header}>
@@ -190,17 +190,17 @@ export default function CreatorLaunchCard() {
             </Button>
           </div>
           <Grid container justify="center" spacing={3}>
-            {teirs.map((teir, i) => (
-              <Grid item xs={3} key={i}>
-                <TeirCard
+            {tiers.map((tier, i) => (
+              <Grid item lg={3} md={6} xs={12} key={i}>
+                <TierCard
                   num={i}
-                  teir={teir}
-                  className={classes.teir}
-                  onTeirChange={onTeirChange}
+                  tier={tier}
+                  className={classes.tier}
+                  onTierChange={onTierChange}
                 />
               </Grid>
             ))}
-            <Grid item xs={3}>
+            <Grid item lg={3} md={6} xs={12}>
               <Card className={classes.fullHeightCard} variant="outlined">
                 <Grid
                   container
@@ -213,20 +213,20 @@ export default function CreatorLaunchCard() {
                   <Button
                     variant="outlined"
                     color="primary"
-                    onClick={addTeir}
+                    onClick={addTier}
                     className={classes.btn}
                   >
                     <AddIcon fontSize="large" />
-                    Add Teir
+                    Add Tier
                   </Button>
                   <Button
                     variant="outlined"
                     color="primary"
-                    onClick={subTeir}
+                    onClick={subTier}
                     className={classes.btn}
                   >
                     <RemoveIcon fontSize="large" />
-                    Remove Teir
+                    Remove Tier
                   </Button>
                 </Grid>
               </Card>

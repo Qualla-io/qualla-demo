@@ -5,12 +5,12 @@ import {makeStyles} from "@material-ui/core/styles";
 const useStyles = makeStyles((theme) => ({
   heroRoot: {
     height: "45vh",
-    width: "100vw",
+    width: "100%",
     overflow: "hidden",
-    display: "block"
+    display: "block",
   },
   img: {
-    width: "100vw",
+    width: "100%",
     overflow: "hidden",
   },
 }));

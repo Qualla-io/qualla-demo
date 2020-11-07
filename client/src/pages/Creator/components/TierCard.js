@@ -11,15 +11,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function TeirCard(props) {
+export default function TierCard(props) {
   const classes = useStyles();
-  const onTeirChange = props.onTeirChange;
+  const onTierChange = props.onTierChange;
 
   function handleChange(event) {
-    onTeirChange(props.num, event.target.name, event.target.value);
+    onTierChange(props.num, event.target.name, event.target.value);
   }
-
-
 
   return (
     <Card variant="outlined" className={classes.card}>
@@ -30,7 +28,7 @@ export default function TeirCard(props) {
           component={TextField}
           required
           label="Title"
-          defaultValue={props.teir.title}
+          defaultValue={props.tier.title}
           onChange={handleChange}
         />
         <Grid
@@ -40,7 +38,7 @@ export default function TeirCard(props) {
           required
           label="Price"
           type="number"
-          defaultValue={props.teir.value}
+          defaultValue={props.tier.value}
           InputProps={{
             startAdornment: <InputAdornment position="start">$</InputAdornment>,
           }}
@@ -55,7 +53,7 @@ export default function TeirCard(props) {
           id="outlined-multiline-static"
           rows={4}
           label="Perks"
-          defaultValue={props.teir.perks}
+          defaultValue={props.tier.perks}
           variant="outlined"
           onChange={handleChange}
         />

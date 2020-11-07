@@ -43,31 +43,31 @@ export default function ActivateSubs() {
   }, [creatorState.contract]);
 
   function subscribeAllowance() {
-    console.log("starting");
     if (creatorState.contract.subscribers) {
-      let subsciberAddress = creatorState.contract.subscribers[0].subscriber;
-      let filterAllowance = web3State.Dai.filters.Approval(
-        subsciberAddress,
-        null
-      );
+      if (creatorState.contract.subscribers.length > 0) {
+        let subsciberAddress = creatorState.contract.subscribers[0].subscriber;
+        let filterAllowance = web3State.Dai.filters.Approval(
+          subsciberAddress,
+          null
+        );
 
-      let filterTransfer = web3State.Dai.filters.Transfer(
-        subsciberAddress,
-        creatorState.contract.address
-      );
-
-      let handleApproval = async function (src, guy, wad) {
-
-        web3State.Dai.allowance(
+        let filterTransfer = web3State.Dai.filters.Transfer(
           subsciberAddress,
           creatorState.contract.address
-        ).then((allowance) => {
-          setAllowance(ethers.utils.formatEther(allowance));
-        });
-      };
+        );
 
-      web3State.Dai.on(filterAllowance, handleApproval);
-      web3State.Dai.on(filterTransfer, handleApproval);
+        let handleApproval = async function (src, guy, wad) {
+          web3State.Dai.allowance(
+            subsciberAddress,
+            creatorState.contract.address
+          ).then((allowance) => {
+            setAllowance(ethers.utils.formatEther(allowance));
+          });
+        };
+
+        web3State.Dai.on(filterAllowance, handleApproval);
+        web3State.Dai.on(filterTransfer, handleApproval);
+      }
     }
   }
 

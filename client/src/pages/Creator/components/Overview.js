@@ -5,15 +5,14 @@ import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import Divider from "@material-ui/core/Divider";
 import CardContent from "@material-ui/core/CardContent";
-
+import Hidden from "@material-ui/core/Hidden";
 
 export default function CreatorOverview() {
   const creatorState = useSelector((state) => state.CreatorReducer);
 
-
   return (
     <Grid container alignItems="stretch">
-      <Grid item component={Card} xs={6}>
+      <Grid item component={Card} xs={12} lg={6}>
         <Grid
           container
           component={CardContent}
@@ -21,7 +20,7 @@ export default function CreatorOverview() {
           justify="center"
           alignItems="center"
         >
-          <Grid item xs>
+          <Grid item xs={12} md>
             <Typography variant="h6">
               {" "}
               {creatorState.contract.address
@@ -30,8 +29,13 @@ export default function CreatorOverview() {
             </Typography>
             <Typography variant="subtitle1">Subscribers</Typography>
           </Grid>
-          <Divider orientation="vertical" flexItem />
-          <Grid item xs>
+          <Hidden mdDown>
+            <Divider orientation="vertical" flexItem />
+          </Hidden>
+          <Hidden mdUp>
+          <Divider variant="middle" />
+          </Hidden>
+          <Grid item xs={12} md>
             <Typography variant="h6">
               {creatorState.contract.address
                 ? creatorState.contract.tiers.length
@@ -40,7 +44,7 @@ export default function CreatorOverview() {
             <Typography variant="subtitle1">Active Teirs</Typography>
           </Grid>
           <Divider orientation="vertical" flexItem />
-          <Grid item xs>
+          <Grid item xs={12} md>
             <Typography variant="h6">
               $
               {creatorState.contract.address
