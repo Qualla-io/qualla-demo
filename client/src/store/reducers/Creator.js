@@ -6,7 +6,7 @@ const initialState = {
   contract: {
     address: null,
     tiers: [
-      {title: "Tier 1", value: "5", perks: "add free"},
+      {title: "Tier 1", value: "5", perks: "ad free"},
       {title: "Tier 2", value: "10", perks: "early access"},
     ],
   },

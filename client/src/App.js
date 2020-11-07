@@ -22,6 +22,8 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import Layout from "./containers/Layout";
 import axios from "axios";
 
+import getWeb3 from './getWeb3'
+
 const font = "'Rubik', sans-serif";
 
 const theme = createMuiTheme({
@@ -73,7 +75,14 @@ export default function App() {
       });
       const eth = await web3Modal.connect();
 
+      // let web3 = await getWeb3();
+      updateWeb3("eth", eth);
+
       const provider = new ethers.providers.Web3Provider(eth);
+      // const provider = new ethers.providers.JsonRpcProvider(
+      //   "http://127.0.0.1:8545",
+      //   {chaindId: 5777, name: "local"}
+      // );
 
       // var provider = await getWeb3();
       updateWeb3("provider", provider);

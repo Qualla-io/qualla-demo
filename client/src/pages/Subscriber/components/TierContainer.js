@@ -2,12 +2,13 @@ import React, {useState, useEffect} from "react";
 import {useSelector} from "react-redux";
 import {useDispatch} from "react-redux";
 
-import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
+import axios from "axios";
 import {Grid} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
 
 import TierCard from "./TierCard";
+
+import {signPermit} from "../utils";
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -24,7 +25,30 @@ export default function TierContainer() {
 
   const dispatch = useDispatch();
 
-  function onSubscribe() {}
+  async function onSubscribe() {
+    const Dai = web3State.Dai;
+    const account = web3State.account;
+    let nonce = await Dai.nonces(account);
+
+    nonce = nonce.toString();
+
+    var message = {
+      holder: account,
+      spender: subsciberState.contract.address,
+      allowed: true,
+      nonce,
+      expiry: 0,
+    };
+
+    const res = await signPermit(web3State.eth, message, Dai.address);
+
+    axios.post(`http://localhost:8080/permit/`, {
+      res,
+      message,
+      account,
+      contract: subsciberState.contract.address
+    });
+  }
 
   return (
     <Grid item container spacing={2} className={classes.card} justify="center">
