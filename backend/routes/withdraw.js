@@ -14,8 +14,10 @@ router.route("/").post(async (req, res) => {
       SubscriptionV1.abi,
       account
     );
-      
+
     await subscription.withdraw();
+
+    return res.send("success");
   } else {
     return res.status(404).json({error: "No contract deployed for publisher"});
   }
