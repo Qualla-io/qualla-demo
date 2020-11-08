@@ -1,80 +1,62 @@
 var express = require("express");
 var router = express.Router();
-const Web3 = require("web3");
-const fs = require("fs");
+const {ethers} = require("ethers");
+var Contract = require("../models/contract");
+var Subscription = require("../models/subscription");
 require("dotenv").config();
+const {provider, acount, dai, factory, account} = require("../web3");
 
-const contract = JSON.parse(
-  fs.readFileSync("../client/src/contracts/Subscription.json")
-);
-const abi = JSON.stringify(contract.abi);
-const address = process.env.ACCOUNT;
-const privateKey = process.env.PRIVATE_KEY;
-
-
-let web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+const SubscriptionV1 = require("../../client/src/contracts/SubscriptionV1.json");
 
 router.route("/").post(async (req, res) => {
-  var args = req.body.data;
+  let contractAddress = req.body.contract;
+  let subscriber = req.body.account;
+  let hash = req.body.hash;
+  let signedHash = req.body.signedHash;
+  let value = req.body.value;
 
-  var instance = new web3.eth.Contract(contract.abi, req.body.contract);
-
-  const tx = instance.methods.executeSubscription(
-    args[0],
-    args[1],
-    args[2],
-    args[3],
-    args[4],
-    args[5],
-    args[6],
-    args[7],
-    args[8],
-    req.body.hash
+  var subscription = new ethers.Contract(
+    contractAddress,
+    SubscriptionV1.abi,
+    account
   );
 
-  const gas = await tx.estimateGas({ from: address });
-  const gasPrice = await web3.eth.getGasPrice();
-  const data = tx.encodeABI();
-  const nonce = await web3.eth.getTransactionCount(address, "pending");
+  console.log(`Old subs count: ${await subscription.allSubscribersLength()}`);
 
-  const signedTx = await web3.eth.accounts.signTransaction(
-    {
-      to: req.body.contract,
-      from: address,
-      data,
-      gas,
-      gasPrice,
-      nonce,
-      chainId: 5777,
-    },
-    privateKey
-  );
+  try {
+    await subscription.createSubscription(
+      subscriber,
+      value,
+      dai.address,
+      signedHash
+    );
 
-  console.log(
-    `Old subs count: ${await instance.methods.getSubscriberListLength().call()}`
-  );
+    console.log(
+      `New subs count: ${await await subscription.allSubscribersLength()}`
+    );
 
-  const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+    Contract.findById(contractAddress).exec(async (err, contract) => {
+      if (err) res.send(err);
 
-  //   web3.eth
-  //     .sendSignedTransaction(signedTx.rawTransaction)
-  //     .then((res) => {console.log(`Transaction hash: ${res.transactionHash}`);})
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
+      let _subscription = new Subscription();
+      _subscription.subscriber = subscriber;
+      _subscription.value = value;
+      _subscription.token = dai.address;
+      _subscription.status = 0;
+      _subscription.hash = hash;
+      _subscription.signedHash = signedHash;
+      _subscription.nextWithdrawl = Math.floor(Date.now() / 1000);
+      _subscription.contract = subscription.address;
 
-  console.log(`Transaction hash: ${receipt}`);
+      contract.subscribers.push(_subscription);
+      await _subscription.save();
+      await contract.save();
 
-  const logs = await instance.getPastEvents("allEvents", {
-    fromBlock: receipt.blockNumber,
-    toBlock: receipt.blockNumber,
-  });
-
-  console.log(logs);
-
-  console.log(
-    `New subs count: ${await instance.methods.getSubscriberListLength().call()}`
-  );
+      return res.send("New Subscriber!");
+    });
+  } catch (err) {
+    return res.status(400).send();
+  }
 });
 
 module.exports = router;

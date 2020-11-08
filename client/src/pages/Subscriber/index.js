@@ -39,14 +39,12 @@ export default function Subscriber() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    updateContract()
-  }, []);
-
+    updateContract();
+  }, [web3State.signer]);
 
   function updateContract() {
     dispatch(subsciberActions.updateContract());
   }
-
 
   return (
     <>

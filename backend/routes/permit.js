@@ -11,19 +11,34 @@ router.route("/").post(async (req, res) => {
   const account = req.body.account;
   const subscription = req.body.contract;
 
-  console.log(`Old approval: ${await dai.allowance(account, subscription)}`);
-  const receipt = await dai.permit(
-    account,
-    subscription,
-    message.nonce,
-    message.expiry,
-    message.allowed,
-    result.v,
-    result.r,
-    result.s
-  );
+  const preApproval = await dai.allowance(account, subscription);
 
-  console.log(`New approval: ${await dai.allowance(account, subscription)}`);
+  console.log(`Old approval: ${preApproval}`);
+  console.log(preApproval);
+  if (
+    preApproval.toString() ===
+    "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+  ) {
+    return res.send("Already Permitted");
+  }
+
+  try {
+    const receipt = await dai.permit(
+      account,
+      subscription,
+      message.nonce,
+      message.expiry,
+      message.allowed,
+      result.v,
+      result.r,
+      result.s
+    );
+    console.log(`New approval: ${await dai.allowance(account, subscription)}`);
+    return res.send("Successful Permit");
+  } catch (err) {
+    console.log(err);
+    return res.status(400).send();
+  }
 });
 
 module.exports = router;

@@ -163,7 +163,7 @@ export default function App() {
     <div className="App">
       <Router>
         <ThemeProvider theme={theme}>
-          <SnackbarProvider maxSnack={3}>
+          <SnackbarProvider maxSnack={3} autoHideDuration={4000}>
             <CssBaseline />
             <Layout>
               <BaseRouter />

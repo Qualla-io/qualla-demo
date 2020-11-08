@@ -39,7 +39,7 @@ export default function TierCard(props) {
   const onSubscribe = props.onSubscribe;
 
   function handleClick() {
-    onSubscribe(props.num);
+    onSubscribe(props.tier.value);
   }
 
   return (

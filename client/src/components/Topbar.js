@@ -53,7 +53,7 @@ export default function Topbar() {
             className={classes.title}
             color="inherit"
           >
-            Qualla
+            Quaya
           </Typography>
           <div className={classes.grow}>
             <Typography
