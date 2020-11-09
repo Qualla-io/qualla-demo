@@ -24,6 +24,7 @@ contract SubscriptionFactory {
     constructor(uint256 _fee) public {
         master = msg.sender;
         fee = _fee;
+        emit factoryModified(master, fee);
     }
 
     function allSubscriptionsLength() external view returns (uint256) {
