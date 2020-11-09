@@ -10,8 +10,10 @@ import DaiContract from "./contracts/TestDai.json";
 import SubscriptionFactory from "./contracts/SubscriptionFactory.json";
 import SubscriptionContract from "./contracts/SubscriptionV1.json";
 
+import axios from "axios";
 import {ethers} from "ethers";
 import {SnackbarProvider} from "notistack";
+import {ApolloClient, InMemoryCache, gql, ApolloProvider} from "@apollo/client";
 
 import Web3Modal from "web3modal";
 // import Fortmatic from "fortmatic";
@@ -20,9 +22,17 @@ import "./App.css";
 import {createMuiTheme, ThemeProvider} from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Layout from "./containers/Layout";
-import axios from "axios";
 
-import getWeb3 from './getWeb3'
+if (!process.env.REACT_APP_GRAPHQL_ENDPOINT) {
+  throw new Error(
+    "REACT_APP_GRAPHQL_ENDPOINT environment variable not defined"
+  );
+}
+
+const client = new ApolloClient({
+  uri: process.env.REACT_APP_GRAPHQL_ENDPOINT,
+  cache: new InMemoryCache(),
+});
 
 const font = "'Rubik', sans-serif";
 
@@ -161,16 +171,18 @@ export default function App() {
 
   return (
     <div className="App">
-      <Router>
-        <ThemeProvider theme={theme}>
-          <SnackbarProvider maxSnack={3} autoHideDuration={4000}>
-            <CssBaseline />
-            <Layout>
-              <BaseRouter />
-            </Layout>
-          </SnackbarProvider>
-        </ThemeProvider>
-      </Router>
+      <ApolloProvider client={client}>
+        <Router>
+          <ThemeProvider theme={theme}>
+            <SnackbarProvider maxSnack={3} autoHideDuration={4000}>
+              <CssBaseline />
+              <Layout>
+                <BaseRouter />
+              </Layout>
+            </SnackbarProvider>
+          </ThemeProvider>
+        </Router>
+      </ApolloProvider>
     </div>
   );
 }

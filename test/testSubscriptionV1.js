@@ -153,7 +153,7 @@ contract("SubscriptionFactory", (accounts) => {
     });
   });
 
-  xcontext("With executing subscription", async () => {
+  context("With executing subscription", async () => {
     it("Should update timestamp and transfer tokens to contract when executed", async () => {
       dai = dai.connect(alice);
       subscription = subscription.connect(alice);
@@ -183,13 +183,14 @@ contract("SubscriptionFactory", (accounts) => {
       var subscriber = await subscription.allSubscribers(1);
 
       const initialTimestamp = subscriber.nextWithdraw;
-
+      const initialBal = parseInt(await dai.balanceOf(subscription.address));
+      console.log(initialBal);
       await subscription.executeSubscription(hash);
 
-      assert.strictEqual(
-        parseInt(await dai.balanceOf(subscription.address)),
-        5
-      );
+      const finalBal = parseInt(await dai.balanceOf(subscription.address));
+      console.log(finalBal);
+
+      assert.strictEqual(finalBal - initialBal, 5);
 
       subscriber = await subscription.allSubscribers(1);
       const finalTimestamp = subscriber.nextWithdraw;
@@ -421,8 +422,8 @@ contract("SubscriptionFactory", (accounts) => {
     });
   });
 
-  context("With contract functions", async () => {
-    xit("Should allow withdraws", async () => {
+  xcontext("With contract functions", async () => {
+    it("Should allow withdraws", async () => {
       dai = dai.connect(alice);
       subscription = subscription.connect(alice);
       await dai.mintTokens(subscriptionAddress);
@@ -439,7 +440,7 @@ contract("SubscriptionFactory", (accounts) => {
       assert.strictEqual(publisherBal, (initalBal * (100 - fee)) / 100);
     });
 
-    xit("Should not allow initialize to be called by accounts", async () => {
+    it("Should not allow initialize to be called by accounts", async () => {
       subscription = subscription.connect(alice);
 
       utils.shouldThrow(
