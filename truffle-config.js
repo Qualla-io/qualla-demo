@@ -9,6 +9,7 @@ module.exports = {
       port: 8545,
       network_id: 1337,
       chain_id: 1337,
+      host: "0.0.0.0",
     },
   },
   compilers: {

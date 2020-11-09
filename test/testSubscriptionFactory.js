@@ -30,7 +30,7 @@ contract("SubscriptionFactory", (accounts) => {
     bob = bob.connect(provider);
   });
 
-  xcontext("With updating factory settings", async () => {
+  context("With updating factory settings", async () => {
     it("Should update fee for master", async () => {
       factory = factory.connect(alice);
 
@@ -63,7 +63,7 @@ contract("SubscriptionFactory", (accounts) => {
     });
   });
 
-  xcontext("With creating subscription contracts", async () => {
+  context("With creating subscription contracts", async () => {
     it("Should create a subscription", async () => {
       factory = factory.connect(alice);
 

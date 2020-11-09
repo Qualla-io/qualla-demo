@@ -9,7 +9,14 @@ contract SubscriptionFactory {
     address public master;
     uint256 public fee; //Percentage
 
-    event SubscriptionCreated(address indexed publisher, address subscription);
+    event subscriptionCreated(
+        address indexed publisher,
+        address subscription,
+        address[] paymentTokens,
+        uint256[] acceptedValues
+    );
+
+    event factoryModified(address master, uint256 fee);
 
     address[] public allSubscriptions;
     mapping(address => address) public getSubscription;
@@ -39,7 +46,12 @@ contract SubscriptionFactory {
             paymentTokens,
             acceptedValues
         );
-        emit SubscriptionCreated(publisher, subscription);
+        emit subscriptionCreated(
+            publisher,
+            subscription,
+            paymentTokens,
+            acceptedValues
+        );
 
         getSubscription[publisher] = subscription;
         allSubscriptions.push(subscription);
@@ -49,10 +61,12 @@ contract SubscriptionFactory {
         require(msg.sender == master, "FORBIDDEN");
         require(_fee < fee, "INVALID FEE INCREASE");
         fee = _fee;
+        emit factoryModified(master, fee);
     }
 
     function setMaster(address _master) external {
         require(msg.sender == master, "FORBIDDEN");
         master = _master;
+        emit factoryModified(master, fee);
     }
 }

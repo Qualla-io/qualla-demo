@@ -34,8 +34,32 @@ contract SubscriptionV1 is Enum {
     uint256 public publisherNonce = 0;
 
     event Received(address indexed sender, uint256 value);
-    event newSubscriber(address indexed subscriber, uint256 value);
-    event bytesEvent(bytes32 test);
+    event newSubscriber(
+        address indexed subscriber,
+        address indexed paymentToken,
+        uint256 value,
+        uint256 subNumber,
+        bytes32 subscriptionHash,
+        bytes signedHash
+    );
+    event subscriptionExecuted(
+        address indexed subscriber,
+        uint256 nextWithdraw,
+        uint256 subnumber
+    );
+    event subscriptionModified(
+        address indexed subscriber,
+        Enum.Status status,
+        uint256 value,
+        uint256 nonce,
+        bytes32 subscriptionHash,
+        bytes signedHash
+    );
+    event contractModified(
+        address[] paymentTokens,
+        uint256[] values,
+        uint256 publisherNonce
+    );
 
     mapping(bytes32 => uint256) public hashToSubscription;
     mapping(address => bool) public validToken;
@@ -207,7 +231,14 @@ contract SubscriptionV1 is Enum {
 
         hashToSubscription[_subscriptionHash] = allSubscribers.length - 1;
 
-        emit newSubscriber(_subscriber, _value);
+        emit newSubscriber(
+            _subscriber,
+            _paymentToken,
+            _value,
+            allSubscribers.length - 1,
+            _subscriptionHash,
+            _signedHash
+        );
     }
 
     function executeSubscription(bytes32 subscriptionHash) public {
@@ -215,6 +246,12 @@ contract SubscriptionV1 is Enum {
         uint256 subNumber = hashToSubscription[subscriptionHash];
         _transferTokens(subNumber);
         _updateTimestamp(subNumber);
+        // _payGas(); future implementation for GSN
+        emit subscriptionExecuted(
+            allSubscribers[subNumber].subscriber,
+            allSubscribers[subNumber].nextWithdraw,
+            subNumber
+        );
     }
 
     function modifySubscription(
@@ -264,6 +301,15 @@ contract SubscriptionV1 is Enum {
 
         hashToSubscription[_modifySubscriptionHash] = subNumber;
         hashToSubscription[_currentSubscriptionHash] = 0;
+
+        emit subscriptionModified(
+            _subscriber,
+            status,
+            _value,
+            _sub.nonce++,
+            _modifySubscriptionHash,
+            _signedModifyHash
+        );
     }
 
     function modifyContract(
@@ -277,8 +323,6 @@ contract SubscriptionV1 is Enum {
             publisherNonce++
         );
 
-        emit bytesEvent(_modifySubscriptionHash);
-
         address _signer = _getHashSigner(
             _modifySubscriptionHash,
             _signedModifyHash
@@ -286,9 +330,27 @@ contract SubscriptionV1 is Enum {
 
         require(_signer == publisher, "INVALID SIGNATURE");
 
+        for (uint256 i = 0; i < paymentTokens.length; i++) {
+            validToken[paymentTokens[i]] = false;
+        }
+
+        for (uint256 i = 0; i < acceptedValues.length; i++) {
+            validValue[acceptedValues[i]] = false;
+        }
+
         paymentTokens = _paymentTokens;
         acceptedValues = _acceptedValues;
         publisherNonce = publisherNonce++;
+
+        for (uint256 i = 0; i < paymentTokens.length; i++) {
+            validToken[paymentTokens[i]] = true;
+        }
+
+        for (uint256 i = 0; i < acceptedValues.length; i++) {
+            validValue[acceptedValues[i]] = true;
+        }
+
+        emit contractModified(paymentTokens, acceptedValues, publisherNonce);
     }
 
     // ------------------------ Internal Functions ------------------------------------
