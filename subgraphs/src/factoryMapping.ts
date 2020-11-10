@@ -7,6 +7,7 @@ import {
   SubscriptionContract,
   User
 } from "../generated/schema";
+import { SubscriptionV1 } from "../generated/templates";
 import { BigInt } from "@graphprotocol/graph-ts";
 
 export function handleSubscriptionCreated(event: subscriptionCreated): void {
@@ -43,7 +44,7 @@ export function handleSubscriptionCreated(event: subscriptionCreated): void {
 
   // Creat new contract from template
   // let context = new DataSourceContext();
-  // SubscriptionV1.create(event.params.subscription);
+  SubscriptionV1.create(event.params.subscription);
 }
 
 export function handleFactoryModified(event: factoryModified): void {

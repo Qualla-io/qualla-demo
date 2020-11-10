@@ -12,27 +12,27 @@ type SubscriptionContract @entity {
   paymentTokens: [String!]
   acceptedValues: [BigInt!]
   publisherNonce: BigInt
-  # subscribers: [SubscriptionObj!] @derivedFrom(field: "contract")
+  subscribers: [SubscriptionObj!] @derivedFrom(field: "contract")
 }
 
 type User @entity {
   id: ID!
   contract: SubscriptionContract
-  # subscriptions: [SubscriptionObj!] @derivedFrom(field: "subscriber")
+  subscriptions: [SubscriptionObj!] @derivedFrom(field: "subscriber")
 }
 
 type SubscriptionObj @entity {
   id: ID! # set to `${subscriber.id}-${subscriptioncontract.id}`
-  subscriber: User!
-  contract: SubscriptionContract!
-  status: SubscriptionStatus!
-  value: BigInt!
-  paymentToken: String!
-  subNum: BigInt!
-  hash: Bytes!
-  signedHash: Bytes!
-  nextWithdraw: BigInt!
-  nonce: BigInt!
+  subscriber: User
+  contract: SubscriptionContract
+  status: SubscriptionStatus
+  value: BigInt
+  paymentToken: String
+  subNum: BigInt
+  hash: Bytes
+  signedHash: Bytes
+  nextWithdraw: BigInt
+  nonce: BigInt
 }
 
 enum SubscriptionStatus {

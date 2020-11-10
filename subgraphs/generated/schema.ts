@@ -203,6 +203,23 @@ export class SubscriptionContract extends Entity {
       this.set("publisherNonce", Value.fromBigInt(value as BigInt));
     }
   }
+
+  get subscribers(): Array<string> | null {
+    let value = this.get("subscribers");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set subscribers(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("subscribers");
+    } else {
+      this.set("subscribers", Value.fromStringArray(value as Array<string>));
+    }
+  }
 }
 
 export class User extends Entity {
@@ -251,6 +268,23 @@ export class User extends Entity {
       this.set("contract", Value.fromString(value as string));
     }
   }
+
+  get subscriptions(): Array<string> | null {
+    let value = this.get("subscriptions");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set subscriptions(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("subscriptions");
+    } else {
+      this.set("subscriptions", Value.fromStringArray(value as Array<string>));
+    }
+  }
 }
 
 export class SubscriptionObj extends Entity {
@@ -283,93 +317,173 @@ export class SubscriptionObj extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get subscriber(): string {
+  get subscriber(): string | null {
     let value = this.get("subscriber");
-    return value.toString();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set subscriber(value: string) {
-    this.set("subscriber", Value.fromString(value));
+  set subscriber(value: string | null) {
+    if (value === null) {
+      this.unset("subscriber");
+    } else {
+      this.set("subscriber", Value.fromString(value as string));
+    }
   }
 
-  get contract(): string {
+  get contract(): string | null {
     let value = this.get("contract");
-    return value.toString();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set contract(value: string) {
-    this.set("contract", Value.fromString(value));
+  set contract(value: string | null) {
+    if (value === null) {
+      this.unset("contract");
+    } else {
+      this.set("contract", Value.fromString(value as string));
+    }
   }
 
-  get status(): string {
+  get status(): string | null {
     let value = this.get("status");
-    return value.toString();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set status(value: string) {
-    this.set("status", Value.fromString(value));
+  set status(value: string | null) {
+    if (value === null) {
+      this.unset("status");
+    } else {
+      this.set("status", Value.fromString(value as string));
+    }
   }
 
-  get value(): BigInt {
+  get value(): BigInt | null {
     let value = this.get("value");
-    return value.toBigInt();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
   }
 
-  set value(value: BigInt) {
-    this.set("value", Value.fromBigInt(value));
+  set value(value: BigInt | null) {
+    if (value === null) {
+      this.unset("value");
+    } else {
+      this.set("value", Value.fromBigInt(value as BigInt));
+    }
   }
 
-  get paymentToken(): string {
+  get paymentToken(): string | null {
     let value = this.get("paymentToken");
-    return value.toString();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set paymentToken(value: string) {
-    this.set("paymentToken", Value.fromString(value));
+  set paymentToken(value: string | null) {
+    if (value === null) {
+      this.unset("paymentToken");
+    } else {
+      this.set("paymentToken", Value.fromString(value as string));
+    }
   }
 
-  get subNum(): BigInt {
+  get subNum(): BigInt | null {
     let value = this.get("subNum");
-    return value.toBigInt();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
   }
 
-  set subNum(value: BigInt) {
-    this.set("subNum", Value.fromBigInt(value));
+  set subNum(value: BigInt | null) {
+    if (value === null) {
+      this.unset("subNum");
+    } else {
+      this.set("subNum", Value.fromBigInt(value as BigInt));
+    }
   }
 
-  get hash(): Bytes {
+  get hash(): Bytes | null {
     let value = this.get("hash");
-    return value.toBytes();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
   }
 
-  set hash(value: Bytes) {
-    this.set("hash", Value.fromBytes(value));
+  set hash(value: Bytes | null) {
+    if (value === null) {
+      this.unset("hash");
+    } else {
+      this.set("hash", Value.fromBytes(value as Bytes));
+    }
   }
 
-  get signedHash(): Bytes {
+  get signedHash(): Bytes | null {
     let value = this.get("signedHash");
-    return value.toBytes();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
   }
 
-  set signedHash(value: Bytes) {
-    this.set("signedHash", Value.fromBytes(value));
+  set signedHash(value: Bytes | null) {
+    if (value === null) {
+      this.unset("signedHash");
+    } else {
+      this.set("signedHash", Value.fromBytes(value as Bytes));
+    }
   }
 
-  get nextWithdraw(): BigInt {
+  get nextWithdraw(): BigInt | null {
     let value = this.get("nextWithdraw");
-    return value.toBigInt();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
   }
 
-  set nextWithdraw(value: BigInt) {
-    this.set("nextWithdraw", Value.fromBigInt(value));
+  set nextWithdraw(value: BigInt | null) {
+    if (value === null) {
+      this.unset("nextWithdraw");
+    } else {
+      this.set("nextWithdraw", Value.fromBigInt(value as BigInt));
+    }
   }
 
-  get nonce(): BigInt {
+  get nonce(): BigInt | null {
     let value = this.get("nonce");
-    return value.toBigInt();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
   }
 
-  set nonce(value: BigInt) {
-    this.set("nonce", Value.fromBigInt(value));
+  set nonce(value: BigInt | null) {
+    if (value === null) {
+      this.unset("nonce");
+    } else {
+      this.set("nonce", Value.fromBigInt(value as BigInt));
+    }
   }
 }
