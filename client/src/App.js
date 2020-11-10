@@ -6,6 +6,7 @@ import BaseRouter from "./routes";
 import * as web3Actions from "./store/actions/web3Actions";
 import * as creatorActions from "./store/actions/CreatorActions";
 import store from "./store/myStore";
+
 import DaiContract from "./contracts/TestDai.json";
 import SubscriptionFactory from "./contracts/SubscriptionFactory.json";
 import SubscriptionContract from "./contracts/SubscriptionV1.json";
@@ -29,10 +30,10 @@ if (!process.env.REACT_APP_GRAPHQL_ENDPOINT) {
   );
 }
 
-const client = new ApolloClient({
-  uri: process.env.REACT_APP_GRAPHQL_ENDPOINT,
-  cache: new InMemoryCache(),
-});
+// const client = new ApolloClient({
+//   uri: process.env.REACT_APP_GRAPHQL_ENDPOINT,
+//   cache: new InMemoryCache(),
+// });
 
 const font = "'Rubik', sans-serif";
 
@@ -171,7 +172,7 @@ export default function App() {
 
   return (
     <div className="App">
-      <ApolloProvider client={client}>
+      
         <Router>
           <ThemeProvider theme={theme}>
             <SnackbarProvider maxSnack={3} autoHideDuration={4000}>
@@ -182,7 +183,6 @@ export default function App() {
             </SnackbarProvider>
           </ThemeProvider>
         </Router>
-      </ApolloProvider>
     </div>
   );
 }
