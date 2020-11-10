@@ -10,7 +10,8 @@ import {
   User,
   SubscriptionObj
 } from "../generated/schema";
-import { BigInt } from "@graphprotocol/graph-ts";
+import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { log } from "@graphprotocol/graph-ts";
 
 export function handleNewSubscriber(event: newSubscriber): void {
   let user = User.load(event.params.subscriber.toHexString());
@@ -99,11 +100,12 @@ export function handleContractModified(event: contractModified): void {
   contract.publisherNonce = event.params.publisherNonce;
   contract.acceptedValues = event.params.values;
 
-  var tokenString: string[];
+  let paymentTokens: Bytes[] = [];
 
-  event.params.paymentTokens.forEach(function(token) {
-    tokenString.push(token.toHexString());
-  });
-  contract.paymentTokens = tokenString;
+  for (let i = 0, k = event.params.paymentTokens.length; i < k; i++) {
+    paymentTokens.push(event.params.paymentTokens.pop());
+  }
+
+  contract.paymentTokens = paymentTokens;
   contract.save();
 }

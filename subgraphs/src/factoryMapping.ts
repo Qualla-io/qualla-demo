@@ -8,7 +8,8 @@ import {
   User
 } from "../generated/schema";
 import { SubscriptionV1 } from "../generated/templates";
-import { BigInt } from "@graphprotocol/graph-ts";
+import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { log } from "@graphprotocol/graph-ts";
 
 export function handleSubscriptionCreated(event: subscriptionCreated): void {
   let user = User.load(event.params.publisher.toHexString());
@@ -23,18 +24,20 @@ export function handleSubscriptionCreated(event: subscriptionCreated): void {
     factory = new SubscriptionFactory(event.address.toHexString());
   }
 
-  let contract = new SubscriptionContract(
+  var contract = new SubscriptionContract(
     event.params.subscription.toHexString()
   );
 
   contract.publisher = user.id;
   user.contract = contract.id;
-  var tokenString: string[];
-  event.params.paymentTokens.forEach(function(token) {
-    tokenString.push(token.toHexString());
-  });
 
-  contract.paymentTokens = tokenString;
+  let paymentTokens: Bytes[] = [];
+
+  for (let i = 0, k = event.params.paymentTokens.length; i < k; i++) {
+    paymentTokens.push(event.params.paymentTokens.pop());
+  }
+
+  contract.paymentTokens = paymentTokens;
   contract.acceptedValues = event.params.acceptedValues;
   contract.publisherNonce = BigInt.fromI32(0);
   contract.factory = factory.id;

@@ -9,7 +9,7 @@ type SubscriptionContract @entity {
   id: ID!
   publisher: User
   factory: SubscriptionFactory
-  paymentTokens: [String!]
+  paymentTokens: [Bytes!]
   acceptedValues: [BigInt!]
   publisherNonce: BigInt
   subscribers: [SubscriptionObj!] @derivedFrom(field: "contract")
