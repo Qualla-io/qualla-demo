@@ -2,7 +2,7 @@ specVersion: 0.0.2
 description: Qualla Demo
 repository: https://github.com/ghardin1314/qualla-demo
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: SubscriptionFactory
@@ -19,10 +19,10 @@ dataSources:
         - SubscriptionContract
       abis:
         - name: SubscriptionFactory
-          file: ../client/src/contracts/SubscriptionFactory.json
+          file: client\src\contracts\SubscriptionFactory.json
       eventHandlers:
         - event: subscriptionCreated(indexed address,address,address[],uint256[])
           handler: handleSubscriptionCreated
         - event: factoryModified(address,uint256)
           handler: handleFactoryModified
-      file: ./src/factoryMapping.ts
+      file: SubscriptionFactory\SubscriptionFactory.wasm
