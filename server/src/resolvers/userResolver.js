@@ -1,10 +1,19 @@
+const Contract = require("../models/contract");
 const User = require("../models/user");
 
 const resolver = {
   Query: {
     users: async () => await User.find({}).populate(""),
     user: async (_, args) => {
-      await User.findById(args.address).exec();
+      let user = await User.findById(args.address).exec();
+      if (user) {
+        let contract = await Contract.findOne({
+          publisher: user.address,
+        }).populate("publisher");
+        user.set("contract", contract, {strict: false});
+      }
+      console.log(user);
+      return user;
     },
   },
   Mutation: {
