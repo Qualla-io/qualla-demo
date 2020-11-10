@@ -10,12 +10,16 @@ import {
 import { BigInt } from "@graphprotocol/graph-ts";
 
 export function handleSubscriptionCreated(event: subscriptionCreated): void {
-  let id = event.params.publisher.toHexString();
-
   let user = User.load(event.params.publisher.toHexString());
 
   if (user == null) {
     user = new User(event.params.publisher.toHexString());
+  }
+
+  let factory = SubscriptionFactory.load(event.address.toHexString());
+
+  if (factory == null) {
+    factory = new SubscriptionFactory(event.address.toHexString());
   }
 
   let contract = new SubscriptionContract(
@@ -31,10 +35,11 @@ export function handleSubscriptionCreated(event: subscriptionCreated): void {
 
   contract.paymentTokens = tokenString;
   contract.acceptedValues = event.params.acceptedValues;
-  contract.publisherNonce = new BigInt(0);
-  contract.factory = event.address.toHexString();
+  contract.publisherNonce = BigInt.fromI32(0);
+  contract.factory = factory.id;
   contract.save();
   user.save();
+  factory.save();
 
   // Creat new contract from template
   // let context = new DataSourceContext();

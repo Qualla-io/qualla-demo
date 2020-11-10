@@ -1,17 +1,17 @@
 type SubscriptionFactory @entity {
   id: ID!
-  master: String!
-  fee: BigInt!
+  master: String
+  fee: Int
   contracts: [SubscriptionContract!] @derivedFrom(field: "factory")
 }
 
 type SubscriptionContract @entity {
   id: ID!
   publisher: User
-  factory: SubscriptionFactory!
-  paymentTokens: [String!]!
-  acceptedValues: [BigInt!]!
-  publisherNonce: BigInt!
+  factory: SubscriptionFactory
+  paymentTokens: [String!]
+  acceptedValues: [BigInt!]
+  publisherNonce: BigInt
   # subscribers: [SubscriptionObj!] @derivedFrom(field: "contract")
 }
 

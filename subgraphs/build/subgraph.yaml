@@ -23,6 +23,6 @@ dataSources:
       eventHandlers:
         - event: subscriptionCreated(indexed address,address,address[],uint256[])
           handler: handleSubscriptionCreated
-        - event: factoryModified(address,uint256)
+        - event: factoryModified(address,uint8)
           handler: handleFactoryModified
       file: SubscriptionFactory\SubscriptionFactory.wasm

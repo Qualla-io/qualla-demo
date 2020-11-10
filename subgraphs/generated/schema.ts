@@ -42,22 +42,30 @@ export class SubscriptionFactory extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get master(): string {
+  get master(): string | null {
     let value = this.get("master");
-    return value.toString();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set master(value: string) {
-    this.set("master", Value.fromString(value));
+  set master(value: string | null) {
+    if (value === null) {
+      this.unset("master");
+    } else {
+      this.set("master", Value.fromString(value as string));
+    }
   }
 
-  get fee(): BigInt {
+  get fee(): i32 {
     let value = this.get("fee");
-    return value.toBigInt();
+    return value.toI32();
   }
 
-  set fee(value: BigInt) {
-    this.set("fee", Value.fromBigInt(value));
+  set fee(value: i32) {
+    this.set("fee", Value.fromI32(value));
   }
 
   get contracts(): Array<string> | null {
@@ -128,40 +136,72 @@ export class SubscriptionContract extends Entity {
     }
   }
 
-  get factory(): string {
+  get factory(): string | null {
     let value = this.get("factory");
-    return value.toString();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set factory(value: string) {
-    this.set("factory", Value.fromString(value));
+  set factory(value: string | null) {
+    if (value === null) {
+      this.unset("factory");
+    } else {
+      this.set("factory", Value.fromString(value as string));
+    }
   }
 
-  get paymentTokens(): Array<string> {
+  get paymentTokens(): Array<string> | null {
     let value = this.get("paymentTokens");
-    return value.toStringArray();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
   }
 
-  set paymentTokens(value: Array<string>) {
-    this.set("paymentTokens", Value.fromStringArray(value));
+  set paymentTokens(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("paymentTokens");
+    } else {
+      this.set("paymentTokens", Value.fromStringArray(value as Array<string>));
+    }
   }
 
-  get acceptedValues(): Array<BigInt> {
+  get acceptedValues(): Array<BigInt> | null {
     let value = this.get("acceptedValues");
-    return value.toBigIntArray();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigIntArray();
+    }
   }
 
-  set acceptedValues(value: Array<BigInt>) {
-    this.set("acceptedValues", Value.fromBigIntArray(value));
+  set acceptedValues(value: Array<BigInt> | null) {
+    if (value === null) {
+      this.unset("acceptedValues");
+    } else {
+      this.set("acceptedValues", Value.fromBigIntArray(value as Array<BigInt>));
+    }
   }
 
-  get publisherNonce(): BigInt {
+  get publisherNonce(): BigInt | null {
     let value = this.get("publisherNonce");
-    return value.toBigInt();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
   }
 
-  set publisherNonce(value: BigInt) {
-    this.set("publisherNonce", Value.fromBigInt(value));
+  set publisherNonce(value: BigInt | null) {
+    if (value === null) {
+      this.unset("publisherNonce");
+    } else {
+      this.set("publisherNonce", Value.fromBigInt(value as BigInt));
+    }
   }
 }
 

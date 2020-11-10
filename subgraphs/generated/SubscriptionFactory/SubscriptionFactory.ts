@@ -27,8 +27,8 @@ export class factoryModified__Params {
     return this._event.parameters[0].value.toAddress();
   }
 
-  get fee(): BigInt {
-    return this._event.parameters[1].value.toBigInt();
+  get fee(): i32 {
+    return this._event.parameters[1].value.toI32();
   }
 }
 
@@ -90,19 +90,19 @@ export class SubscriptionFactory extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  fee(): BigInt {
-    let result = super.call("fee", "fee():(uint256)", []);
+  fee(): i32 {
+    let result = super.call("fee", "fee():(uint8)", []);
 
-    return result[0].toBigInt();
+    return result[0].toI32();
   }
 
-  try_fee(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("fee", "fee():(uint256)", []);
+  try_fee(): ethereum.CallResult<i32> {
+    let result = super.tryCall("fee", "fee():(uint8)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
+    return ethereum.CallResult.fromValue(value[0].toI32());
   }
 
   getSubscription(param0: Address): Address {
@@ -223,8 +223,8 @@ export class ConstructorCall__Inputs {
     this._call = call;
   }
 
-  get _fee(): BigInt {
-    return this._call.inputValues[0].value.toBigInt();
+  get _fee(): i32 {
+    return this._call.inputValues[0].value.toI32();
   }
 }
 
@@ -295,8 +295,8 @@ export class SetFeeCall__Inputs {
     this._call = call;
   }
 
-  get _fee(): BigInt {
-    return this._call.inputValues[0].value.toBigInt();
+  get _fee(): i32 {
+    return this._call.inputValues[0].value.toI32();
   }
 }
 
