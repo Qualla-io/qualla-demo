@@ -15,6 +15,7 @@ import * as creatorActions from "../../../store/actions/CreatorActions";
 import TierCard from "./TierCard";
 
 import {useSnackbar} from "notistack";
+import { gql, useQuery } from '@apollo/client';
 
 const useStyles = makeStyles((theme) => ({
   cont: {
@@ -46,6 +47,12 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(2),
   },
 }));
+
+const GET_CREATOR_CONTRACT = gql`
+  query getCreatorContract($publisher: String!) {
+    subscriptionContract()
+  }
+`
 
 export default function CreatorLaunchCard() {
   const classes = useStyles();
