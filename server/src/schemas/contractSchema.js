@@ -8,15 +8,18 @@ export default gql`
     acceptedValues: [Float!]
     paymentTokens: [String!]
     publisherNonce: Int
-
-    # tiers: [Tier]
+    tiers: [Tier]
+  }
+  input TierInput {
+    value: Float!
+    perks: String!
+    title: String!
   }
   extend type Query {
     contract(id: ID!): Contract
     contracts: [Contract!]
   }
   extend type Mutation {
-    #   #   createContract(id: String!, publisher: String!, tiers: [Tier!])
-    createContract(publisher: String!, values: [Float!]!): Contract
+    createContract(publisher: String!, tiers: [TierInput!]!): Contract
   }
 `;

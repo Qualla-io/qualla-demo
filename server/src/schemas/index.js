@@ -2,6 +2,7 @@ import {gql} from "apollo-server";
 
 import contractScheme from "./contractSchema";
 import userScheme from "./userSchema";
+import tierScheme from "./tierSchema";
 
 const linkSchema = gql`
   type Query {
@@ -12,4 +13,4 @@ const linkSchema = gql`
   }
 `;
 
-export default [linkSchema, contractScheme, userScheme];
+export default [linkSchema, contractScheme, userScheme, tierScheme];

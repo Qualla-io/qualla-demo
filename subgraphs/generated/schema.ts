@@ -153,13 +153,21 @@ export class SubscriptionContract extends Entity {
     }
   }
 
-  get paymentTokens(): Array<Bytes> {
+  get paymentTokens(): Array<Bytes> | null {
     let value = this.get("paymentTokens");
-    return value.toBytesArray();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBytesArray();
+    }
   }
 
-  set paymentTokens(value: Array<Bytes>) {
-    this.set("paymentTokens", Value.fromBytesArray(value));
+  set paymentTokens(value: Array<Bytes> | null) {
+    if (value === null) {
+      this.unset("paymentTokens");
+    } else {
+      this.set("paymentTokens", Value.fromBytesArray(value as Array<Bytes>));
+    }
   }
 
   get acceptedValues(): Array<BigInt> | null {

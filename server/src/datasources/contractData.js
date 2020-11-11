@@ -3,6 +3,7 @@ import fetch from "./config";
 const GET_CONTRACT = `
   query GetContract($id: String!) {
     user(id: $id) {
+      id
       contract {
         id
         publisher{

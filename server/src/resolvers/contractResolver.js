@@ -1,10 +1,12 @@
 import Contract from "../models/contract";
 import User from "../models/user";
+import Tier from "../models/tier";
 import {UserInputError} from "apollo-server";
-
+import {ethers} from "ethers";
 import {getContract, getContracts} from "../datasources/contractData";
 import {provider, acount, dai, factory, account} from "../web3";
 import merge from "lodash.merge";
+import mongoose from "mongoose";
 
 const resolver = {
   Query: {
@@ -20,7 +22,7 @@ const resolver = {
         .populate("publisher");
 
       // Stitch
-      contracts = merge(_contracts, contracts);
+      contracts = merge(contracts, _contracts);
 
       return contracts;
     },
@@ -34,13 +36,13 @@ const resolver = {
       }
 
       // Pull from local data
-      const _contract = await Contract.findById(contract.id.toLowerCase())
+      let _contract = await Contract.findById(contract.id.toLowerCase())
         .populate("publisher")
         .exec();
 
       // Stitch
       if (_contract) {
-        contract.publisher = _contract.publisher;
+        contract = merge(contract, _contract);
       }
 
       return contract;
@@ -51,7 +53,7 @@ const resolver = {
       // Check if user has contract
 
       let contract = await getContract(args.publisher.toLowerCase());
-      console.log(contract);
+      // let contract = null;
 
       if (contract) {
         throw new UserInputError("User already has contract", {
@@ -59,49 +61,57 @@ const resolver = {
         });
       }
 
-      // let values = [];
-      // for (var i = 0; i < tiers.length; i++) {
-      //   values.push(ethers.constants.WeiPerEther.mul(tiers[i].value));
-      // }
+      let values = [];
+      for (var i = 0; i < args.tiers.length; i++) {
+        values.push(
+          ethers.constants.WeiPerEther.mul(args.tiers[i].value).toString()
+        );
+      }
+
+      console.log(values[0].toString());
 
       try {
-        console.log(args.values);
+        await factory.createSubscription(args.publisher, [dai.address], values);
 
-        await factory.createSubscription(
-          args.publisher,
-          [dai.address],
-          args.values
-        );
-
-        // Not sure if this works or the turnaround time is too short
+        // Not sure if there is a better way to get the address.
         var address = await factory.getSubscription(
           args.publisher.toLowerCase()
         );
-        console.log(address);
 
         let _contract = new Contract();
         _contract._id = address.toLowerCase();
-        let _publisher = await User.findById(args.publisher);
+        let _publisher = await User.findById(args.publisher).populate(
+          "contract"
+        );
 
         if (_publisher === null) {
           _publisher = await User.create({_id: args.publisher});
         }
 
-        _contract.publisher = _publisher;
+        let tier;
+        for (var j = 0; j < args.tiers.length; j++) {
+          tier = new Tier();
+          tier.id = mongoose.Types.ObjectId();
+          tier.title = args.tiers[j].title;
+          tier.value = args.tiers[j].value;
+          tier.perks = args.tiers[j].perks;
+          tier.save();
+          _contract.tiers.push(tier);
+        }
 
+        _contract.publisher = _publisher;
         await _contract.save();
+        _publisher.contract = _contract._id;
         await _publisher.save();
 
         contract = {};
 
         contract.id = address;
-        contract.acceptedValues = args.values;
+        contract.acceptedValues = values;
         contract.paymentTokens = [dai.address];
         contract.publisher = _publisher;
         contract.publisherNonce = 0;
         contract.subscribers = [];
-
-        console.log(contract);
 
         return contract;
       } catch (err) {
@@ -109,29 +119,6 @@ const resolver = {
         return;
       }
     },
-    //     let contract = await Contract.findById(args.id);
-
-    //     if (contract) {
-    //       throw new UserInputError("Contract address exsists", {
-    //         invalidArgs: Object.keys(args),
-    //       });
-    //     }
-    //     contract = new Contract();
-    //     contract._id = args.id;
-
-    //     let publisher = await User.findById(args.publisher);
-
-    //     if (publisher === null) {
-    //       await User.create({id: args.publisher});
-    //     }
-
-    //     contract.publisher = publisher;
-
-    //     await contract.save();
-    //     contract = await Contract.findById(args.id).populate("publisher");
-    //     console.log(contract);
-    //     return contract;
-    //   },
   },
 };
 
