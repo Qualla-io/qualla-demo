@@ -4,7 +4,6 @@ var Schema = mongoose.Schema;
 var UserSchema = new Schema(
   {
     _id: {type: String},
-    // contracts: [{ type: String, ref: "Contract" }],
     username: {type: String},
     contract: {type: String, ref: "Contract"},
   },

@@ -5,10 +5,10 @@ const resolver = {
   Query: {
     users: async () => await User.find({}).populate(""),
     user: async (_, args) => {
-      let user = await User.findById(args.address).exec();
+      let user = await User.findById(args.id).exec();
       if (user) {
         let contract = await Contract.findOne({
-          publisher: user.address,
+          publisher: user.id,
         }).populate("publisher");
         user.set("contract", contract, {strict: false});
       }
@@ -18,9 +18,9 @@ const resolver = {
   },
   Mutation: {
     user: async (_, args) => {
-      let user = await User.findById(args.address);
+      let user = await User.findById(args.id);
       if (user === null) {
-        user = await User.create({_id: args.address});
+        user = await User.create({_id: args.id});
       }
       user.username = args.username;
       user.save();
