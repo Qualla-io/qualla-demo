@@ -9,12 +9,15 @@ import store from "./store/myStore";
 
 import DaiContract from "./contracts/TestDai.json";
 import SubscriptionFactory from "./contracts/SubscriptionFactory.json";
-import SubscriptionContract from "./contracts/SubscriptionV1.json";
+import SubscriptionV1 from "./contracts/SubscriptionV1.json";
 
 import axios from "axios";
 import {ethers} from "ethers";
 import {SnackbarProvider} from "notistack";
-import {ApolloClient, InMemoryCache, gql, ApolloProvider} from "@apollo/client";
+import {ApolloClient, InMemoryCache} from "@apollo/client";
+import {useApolloClient} from "@apollo/client";
+import {useQuery, gql, useReactiveVar} from "@apollo/client";
+import {accountVar, providerVar, signerVar} from "./cache";
 
 import Web3Modal from "web3modal";
 // import Fortmatic from "fortmatic";
@@ -24,16 +27,30 @@ import {createMuiTheme, ThemeProvider} from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Layout from "./containers/Layout";
 
-if (!process.env.REACT_APP_GRAPHQL_ENDPOINT) {
-  throw new Error(
-    "REACT_APP_GRAPHQL_ENDPOINT environment variable not defined"
-  );
-}
+// if (!process.env.REACT_APP_GRAPHQL_ENDPOINT) {
+//   throw new Error(
+//     "REACT_APP_GRAPHQL_ENDPOINT environment variable not defined"
+//   );
+// }
 
 // const client = new ApolloClient({
 //   uri: process.env.REACT_APP_GRAPHQL_ENDPOINT,
 //   cache: new InMemoryCache(),
 // });
+
+
+
+const INIT_APP = gql`
+  query InitApp($id: String!) {
+    user(id: $id) {
+      id
+      username
+      contract {
+        id
+      }
+    }
+  }
+`;
 
 const font = "'Rubik', sans-serif";
 
@@ -49,6 +66,11 @@ const theme = createMuiTheme({
 export default function App() {
   // const web3State = useSelector((state) => state.Web3Reducer);
   const dispatch = useDispatch();
+  const client = useApolloClient();
+  let account = useReactiveVar(accountVar);
+  const {loading, error, data} = useQuery(INIT_APP, {
+    variables: {id: account},
+  });
 
   function updateWeb3(key, value) {
     dispatch(web3Actions.updateWeb3(key, value));
@@ -57,6 +79,12 @@ export default function App() {
   function updateCreator(key, value) {
     dispatch(creatorActions.updateCreator(key, value));
   }
+
+  useEffect(() => {
+    console.log(error)
+    console.log(data)
+    console.log(loading)
+  }, [loading, data, error])
 
   useEffect(() => {
     initWeb3();
@@ -97,9 +125,11 @@ export default function App() {
 
       // var provider = await getWeb3();
       updateWeb3("provider", provider);
+      providerVar(provider);
 
       const signer = provider.getSigner();
       updateWeb3("signer", signer);
+      signerVar(signer);
 
       var deployedNetwork = DaiContract.networks[5777];
       var Dai = new ethers.Contract(
@@ -125,27 +155,38 @@ export default function App() {
       const account = await signer.getAddress();
       updateWeb3("account", account);
 
+      accountVar(account);
+      console.log(accountVar());
+
       const networkId = await provider.getNetwork();
       updateWeb3("chainId", networkId.chainId);
 
+      // if (contract) {
+      //   var SubscriptionV1 = new ether.Contract(
+      //     contract.id
+      //     SubscriptionV1.abi,
+      //     signer
+      //   );
+      // }
+
       // see it user has deployed contract
-      axios
-        .get(`http://localhost:8080/publishers/${account}/contract/`, {
-          params: {publisher_address: account},
-        })
-        .then((res) => {
-          if (res.data) {
-            updateCreator("contract", res.data);
+      // axios
+      //   .get(`http://localhost:8080/publishers/${account}/contract/`, {
+      //     params: {publisher_address: account},
+      //   })
+      //   .then((res) => {
+      //     if (res.data) {
+      //       updateCreator("contract", res.data);
 
-            var Subscription = new ethers.Contract(
-              res.data.address,
-              SubscriptionContract.abi,
-              signer
-            );
+      //       var Subscription = new ethers.Contract(
+      //         res.data.address,
+      //         SubscriptionContract.abi,
+      //         signer
+      //       );
 
-            updateCreator("contractInstance", Subscription);
-          }
-        });
+      //       updateCreator("contractInstance", Subscription);
+      //     }
+      //   });
 
       setTimeout(moniterWeb3, 1000);
       // moniterWeb3();
@@ -172,17 +213,16 @@ export default function App() {
 
   return (
     <div className="App">
-      
-        <Router>
-          <ThemeProvider theme={theme}>
-            <SnackbarProvider maxSnack={3} autoHideDuration={4000}>
-              <CssBaseline />
-              <Layout>
-                <BaseRouter />
-              </Layout>
-            </SnackbarProvider>
-          </ThemeProvider>
-        </Router>
+      <Router>
+        <ThemeProvider theme={theme}>
+          <SnackbarProvider maxSnack={3} autoHideDuration={4000}>
+            <CssBaseline />
+            <Layout>
+              <BaseRouter />
+            </Layout>
+          </SnackbarProvider>
+        </ThemeProvider>
+      </Router>
     </div>
   );
 }

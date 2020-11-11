@@ -7,7 +7,7 @@ import rootReducer, {client} from "./reducers";
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(
   rootReducer,
-  composeEnhancers(applyMiddleware(thunk), applyMiddleware(client.middleware()))
+  composeEnhancers(applyMiddleware(thunk))
 );
 // const store = createStore(rootReducer, composeWithDevTools(applyMiddleware(thunk)));
 
