@@ -10,6 +10,7 @@ module.exports = {
       network_id: 1337,
       chain_id: 1337,
       host: "0.0.0.0",
+      accounts: 20,
     },
   },
   compilers: {

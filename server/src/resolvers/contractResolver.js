@@ -4,7 +4,7 @@ import Tier from "../models/tier";
 import {UserInputError} from "apollo-server";
 import {ethers} from "ethers";
 import {getContract, getContracts} from "../datasources/contractData";
-import {provider, acount, dai, factory, account} from "../web3";
+import {provider, acount, dai, factory, account, SubscriptionV1} from "../web3";
 import merge from "lodash.merge";
 import mongoose from "mongoose";
 
@@ -49,6 +49,79 @@ const resolver = {
     },
   },
   Mutation: {
+    modifyContract: async (_, args) => {
+      // this works besides the actual on chain modification.
+      // TODO: Test with front end
+
+      // Check if user has contract
+
+      let contract = await getContract(args.publisher.toLowerCase());
+
+      if (!contract) {
+        throw new UserInputError("User does not have active contract", {
+          invalidArgs: Object.keys(args),
+        });
+      }
+
+      let _contract = await Contract.findById(contract.id.toLowerCase())
+        .populate("publisher")
+        .exec();
+
+      var subscriptionV1 = new ethers.Contract(
+        contract.id,
+        SubscriptionV1.abi,
+        account
+      );
+
+      let values = [];
+      for (var i = 0; i < args.tiers.length; i++) {
+        values.push(
+          ethers.constants.WeiPerEther.mul(args.tiers[i].value).toString()
+        );
+      }
+
+      try {
+        await subscriptionV1.modifyContract(
+          [dai.address],
+          values,
+          args.signedHash
+        );
+
+      } catch (err) {
+        console.log(err);
+        throw new UserInputError("Invalid signature or input", {
+          invalidArgs: Object.keys(args),
+        });
+      }
+
+      try {
+        contract.acceptedValues = values;
+        _contract.set("tiers", []);
+
+        let tier;
+        for (var j = 0; j < args.tiers.length; j++) {
+          tier = new Tier();
+          tier.id = mongoose.Types.ObjectId();
+          tier.title = args.tiers[j].title;
+          tier.value = args.tiers[j].value;
+          tier.perks = args.tiers[j].perks;
+          tier.save();
+          _contract.tiers.push(tier);
+        }
+
+        _contract.save();
+
+        contract = merge(contract, _contract);
+
+        return contract;
+      } catch (err) {
+        console.log(err);
+        throw new UserInputError("Local Server Error", {
+          invalidArgs: Object.keys(args),
+        });
+      }
+    },
+
     createContract: async (_, args) => {
       // Check if user has contract
 
@@ -67,8 +140,6 @@ const resolver = {
           ethers.constants.WeiPerEther.mul(args.tiers[i].value).toString()
         );
       }
-
-      console.log(values[0].toString());
 
       try {
         await factory.createSubscription(args.publisher, [dai.address], values);

@@ -21,5 +21,6 @@ export default gql`
   }
   extend type Mutation {
     createContract(publisher: String!, tiers: [TierInput!]!): Contract
+    modifyContract(publisher: String!, tiers: [TierInput!]!, signedHash: String!): Contract
   }
 `;

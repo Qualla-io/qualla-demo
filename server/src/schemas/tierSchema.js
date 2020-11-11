@@ -6,6 +6,6 @@ export default gql`
     contract: Contract
     value: Float
     title: String
-    perk: String
+    perks: String
   }
 `;

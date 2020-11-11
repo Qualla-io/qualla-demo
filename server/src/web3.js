@@ -2,8 +2,10 @@ import {ethers} from "ethers";
 import dotenv from "dotenv";
 dotenv.config();
 
-const Dai = require("../../client/src/contracts/TestDai.json");
-const Factory = require("../../client/src/contracts/SubscriptionFactory.json");
+import Dai from "../../client/src/contracts/TestDai.json";
+import Factory from "../../client/src/contracts/SubscriptionFactory.json";
+import SubscriptionV1 from "../../client/src/contracts/SubscriptionV1.json";
+
 
 const privateKey = process.env.PRIVATE_KEY;
 
@@ -28,4 +30,5 @@ module.exports = {
   account,
   dai,
   factory,
+  SubscriptionV1
 };
