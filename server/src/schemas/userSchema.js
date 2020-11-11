@@ -8,7 +8,7 @@ export default gql`
     suscriptions: [Contract!]
   }
   extend type Query {
-    user(id: ID!): User!
+    user(id: ID!): User
     users: [User!]
   }
   extend type Mutation {

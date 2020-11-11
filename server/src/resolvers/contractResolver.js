@@ -2,8 +2,9 @@ import Contract from "../models/contract";
 import User from "../models/user";
 import {UserInputError} from "apollo-server";
 
-import {getContract, getContracts} from "../datasources/graphProtocol";
+import {getContract, getContracts} from "../datasources/contractData";
 import {provider, acount, dai, factory, account} from "../web3";
+import merge from "lodash.merge";
 
 const resolver = {
   Query: {
@@ -19,19 +20,8 @@ const resolver = {
         .populate("publisher");
 
       // Stitch
-      for (var _contract in _contracts) {
-        // TODO: test this more
-        let found = contracts.find(
-          (element) =>
-            element.id == "0x027e9fa1cc3d5cf71d46f1951a1a5ea186a2ae8e"
-        );
-        console.log(found);
-        let i = contracts.indexOf(found);
-        console.log(i);
-        if (i >= 0) {
-          contracts[i].publisher = _contract.publisher;
-        }
-      }
+      contracts = merge(_contracts, contracts);
+
       return contracts;
     },
     contract: async (_, args) => {
@@ -44,7 +34,6 @@ const resolver = {
       }
 
       // Pull from local data
-      console.log(contract.id);
       const _contract = await Contract.findById(contract.id.toLowerCase())
         .populate("publisher")
         .exec();
