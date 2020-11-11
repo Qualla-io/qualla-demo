@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {useSelector} from "react-redux";
 
 import {makeStyles} from "@material-ui/core/styles";
@@ -10,6 +10,17 @@ import CreatorOverview from "./components/Overview";
 import CreatorLaunchCard from "./components/LaunchCard";
 import ActivateSubBtn from "./components/ActivateSubs";
 
+import {gql, useReactiveVar, useLazyQuery} from "@apollo/client";
+import {accountVar} from "../../cache";
+
+const GET_CONTRACT = gql`
+  query getContract($id: ID!) {
+    contract(id: $id) {
+      id
+    }
+  }
+`;
+
 const useStyles = makeStyles((theme) => ({
   headings: {
     marginTop: theme.spacing(4),
@@ -17,11 +28,21 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Creator() {
-  const state = useSelector((state) => state.CreatorReducer);
+  let account = useReactiveVar(accountVar);
+  const [getContract, {loading, error, data}] = useLazyQuery(GET_CONTRACT);
   const classes = useStyles();
+
+  if (error) console.log(error);
+
+  useEffect(() => {
+    if (account) {
+      getContract({variables: {id: account}});
+    }
+  }, [account]);
+
   return (
     <Container>
-      {state.contract.address ? null : (
+      {data && data.contract ? null : (
         <Alert severity="info" className={classes.headings}>
           You do not currently have an active subscription contract. Fill out
           your contract tiers and launch your contract below!
@@ -33,7 +54,7 @@ export default function Creator() {
       </Typography>
       <CreatorOverview />
       <div className={classes.headings}>
-        {state.contract.address ? <ActivateSubBtn /> : null}
+        {data && data.contract ? <ActivateSubBtn /> : null}
       </div>
       <Typography gutterBottom variant="h4" className={classes.headings}>
         Subscription Contract

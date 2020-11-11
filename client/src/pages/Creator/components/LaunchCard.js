@@ -12,9 +12,25 @@ import AddIcon from "@material-ui/icons/Add";
 import RemoveIcon from "@material-ui/icons/Remove";
 import * as creatorActions from "../../../store/actions/CreatorActions";
 
+import {gql, useReactiveVar, useQuery} from "@apollo/client";
+import {accountVar} from "../../../cache";
+
 import TierCard from "./TierCard";
 
 import {useSnackbar} from "notistack";
+
+const GET_CONTRACT_Details = gql`
+  query getContractDetails($id: ID!) {
+    contract(id: $id) {
+      id
+      tiers {
+        title
+        value
+        perks
+      }
+    }
+  }
+`;
 
 const useStyles = makeStyles((theme) => ({
   cont: {
@@ -47,18 +63,34 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const initialTiers = [
+  {title: "Tier 1", value: "5", perks: "ad free"},
+  {title: "Tier 2", value: "10", perks: "early access"},
+];
+
 export default function CreatorLaunchCard() {
   const classes = useStyles();
-  const web3State = useSelector((state) => state.Web3Reducer);
-  const creatorState = useSelector((state) => state.CreatorReducer);
-  const [tiers, setTiers] = useState(creatorState.contract.tiers);
+  let account = useReactiveVar(accountVar);
+
+  const {error, loading, data} = useQuery(GET_CONTRACT_Details, {
+    variables: {id: account},
+  });
+
+  // useEffect(() => {
+  //   if (account) {
+  //     getContractDetails({variables: {id: account}});
+  //   }
+  // }, [account]);
+
+  const [tiers, setTiers] = useState(initialTiers);
   const {enqueueSnackbar} = useSnackbar();
 
-  const dispatch = useDispatch();
-
   useEffect(() => {
-    setTiers(creatorState.contract.tiers);
-  }, [creatorState.contract]);
+    if (data && data.contract) {
+      console.log(data.contract.tiers);
+      setTiers(data.contract.tiers);
+    }
+  }, [data]);
 
   function addTier() {
     setTiers([...tiers, {}]);
@@ -80,97 +112,97 @@ export default function CreatorLaunchCard() {
     setTiers(temp);
   }
 
-  function updateCreator(key, value) {
-    dispatch(creatorActions.updateCreator(key, value));
-  }
+  // function updateContract() {
+  //   dispatch(creatorActions.updateContract());
+  // }
 
-  function updateContract() {
-    dispatch(creatorActions.updateContract());
-  }
+  async function updateContract() {}
 
-  async function deployContract() {
-    if (creatorState.contract.address) {
-      let values = [];
+  async function deployContract() {}
 
-      for (var i = 0; i < tiers.length; i++) {
-        values.push(
-          ethers.utils.parseUnits(tiers[i].value.toString(), "ether").toString()
-        );
-      }
+  // async function deployContract() {
+  //   if (creatorState.contract.address) {
+  //     let values = [];
 
-      var nonce = parseInt(
-        await creatorState.contractInstance.publisherNonce()
-      );
+  //     for (var i = 0; i < tiers.length; i++) {
+  //       values.push(
+  //         ethers.utils.parseUnits(tiers[i].value.toString(), "ether").toString()
+  //       );
+  //     }
 
-      // get hash
-      const hash = await creatorState.contractInstance.getPublisherModificationHash(
-        [web3State.Dai.address],
-        values,
-        nonce++
-      );
+  //     var nonce = parseInt(
+  //       await creatorState.contractInstance.publisherNonce()
+  //     );
 
-      // sign hash
+  //     // get hash
+  //     const hash = await creatorState.contractInstance.getPublisherModificationHash(
+  //       [web3State.Dai.address],
+  //       values,
+  //       nonce++
+  //     );
 
-      const signature = await web3State.signer.signMessage(
-        ethers.utils.arrayify(hash)
-      );
+  //     // sign hash
 
-      console.log(signature);
+  //     const signature = await web3State.signer.signMessage(
+  //       ethers.utils.arrayify(hash)
+  //     );
 
-      // modify contract
-      enqueueSnackbar(`Request Sent`, {
-        variant: "success",
-        autoHideDuration: 2000,
-      });
+  //     console.log(signature);
 
-      axios
-        .post(
-          `http://localhost:8080/publishers/${web3State.account}/contract/`,
-          {
-            tiers: tiers,
-            values,
-            signature,
-            publisher: web3State.account,
-          }
-        )
-        .then((ans) => {
-          enqueueSnackbar(`Modified Successfully`, {
-            variant: "success",
-            autoHideDuration: 2000,
-          });
-          updateContract();
-        })
-        .catch((err) => {
-          enqueueSnackbar(err.response.data.error, {
-            variant: "error",
-            autoHideDuration: 2000,
-          });
-        });
-    } else {
-      enqueueSnackbar(`Request Sent`, {
-        variant: "success",
-        autoHideDuration: 2000,
-      });
-      axios
-        .post("http://localhost:8080/deploy", {
-          tiers: tiers,
-          publisher: web3State.account,
-        })
-        .then((res) => {
-          updateContract();
-          enqueueSnackbar(`Your Contract Address: ${res.data}`, {
-            variant: "success",
-            autoHideDuration: 2000,
-          });
-        })
-        .catch((err) => {
-          enqueueSnackbar(err.response.data.error, {
-            variant: "error",
-            autoHideDuration: 2000,
-          });
-        });
-    }
-  }
+  //     // modify contract
+  //     enqueueSnackbar(`Request Sent`, {
+  //       variant: "success",
+  //       autoHideDuration: 2000,
+  //     });
+
+  //     axios
+  //       .post(
+  //         `http://localhost:8080/publishers/${web3State.account}/contract/`,
+  //         {
+  //           tiers: tiers,
+  //           values,
+  //           signature,
+  //           publisher: web3State.account,
+  //         }
+  //       )
+  //       .then((ans) => {
+  //         enqueueSnackbar(`Modified Successfully`, {
+  //           variant: "success",
+  //           autoHideDuration: 2000,
+  //         });
+  //         updateContract();
+  //       })
+  //       .catch((err) => {
+  //         enqueueSnackbar(err.response.data.error, {
+  //           variant: "error",
+  //           autoHideDuration: 2000,
+  //         });
+  //       });
+  //   } else {
+  //     enqueueSnackbar(`Request Sent`, {
+  //       variant: "success",
+  //       autoHideDuration: 2000,
+  //     });
+  //     axios
+  //       .post("http://localhost:8080/deploy", {
+  //         tiers: tiers,
+  //         publisher: web3State.account,
+  //       })
+  //       .then((res) => {
+  //         updateContract();
+  //         enqueueSnackbar(`Your Contract Address: ${res.data}`, {
+  //           variant: "success",
+  //           autoHideDuration: 2000,
+  //         });
+  //       })
+  //       .catch((err) => {
+  //         enqueueSnackbar(err.response.data.error, {
+  //           variant: "error",
+  //           autoHideDuration: 2000,
+  //         });
+  //       });
+  //   }
+  // }
 
   return (
     <Grid container spacing={2}>
@@ -186,7 +218,7 @@ export default function CreatorLaunchCard() {
               color="secondary"
               onClick={deployContract}
             >
-              {creatorState.contract.address ? "Update" : "Launch"}
+              {data && data.contract ? "Update" : "Launch"}
             </Button>
           </div>
           <Grid container justify="center" spacing={3}>

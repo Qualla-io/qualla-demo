@@ -7,8 +7,28 @@ import Divider from "@material-ui/core/Divider";
 import CardContent from "@material-ui/core/CardContent";
 import Hidden from "@material-ui/core/Hidden";
 
+import {gql, useReactiveVar, useQuery} from "@apollo/client";
+import {accountVar} from "../../../cache";
+
+const GET_CONTRACT_OVERVIEW = gql`
+  query getContractDetails($id: ID!) {
+    contract(id: $id) {
+      id
+      tiers {
+        title
+      }
+      subscribers {
+        id
+      }
+    }
+  }
+`;
+
 export default function CreatorOverview() {
-  const creatorState = useSelector((state) => state.CreatorReducer);
+  let account = useReactiveVar(accountVar);
+  const {error, loading, data} = useQuery(GET_CONTRACT_OVERVIEW, {
+    variables: {id: account},
+  });
 
   return (
     <Grid container alignItems="stretch">
@@ -23,9 +43,7 @@ export default function CreatorOverview() {
           <Grid item xs={12} md>
             <Typography variant="h6">
               {" "}
-              {creatorState.contract.address
-                ? creatorState.contract.subscriberCount
-                : 0}
+              {data && data.contract ? data.contract.subscribers.length : 0}
             </Typography>
             <Typography variant="subtitle1">Subscribers</Typography>
           </Grid>
@@ -33,23 +51,21 @@ export default function CreatorOverview() {
             <Divider orientation="vertical" flexItem />
           </Hidden>
           <Hidden mdUp>
-          <Divider variant="middle" />
+            <Divider variant="middle" />
           </Hidden>
           <Grid item xs={12} md>
             <Typography variant="h6">
-              {creatorState.contract.address
-                ? creatorState.contract.tiers.length
-                : 0}
+              {data && data.contract ? data.contract.tiers.length : 0}
             </Typography>
             <Typography variant="subtitle1">Active Teirs</Typography>
           </Grid>
           <Divider orientation="vertical" flexItem />
           <Grid item xs={12} md>
             <Typography variant="h6">
-              $
-              {creatorState.contract.address
+              $ 0
+              {/* {creatorState.contract.address
                 ? creatorState.contract.subscriberValue
-                : 0}
+                : 0} */}
             </Typography>
             <Typography variant="subtitle1">Dai/month (projected)</Typography>
           </Grid>

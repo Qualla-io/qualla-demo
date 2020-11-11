@@ -9,15 +9,20 @@ import store from "./store/myStore";
 
 import DaiContract from "./contracts/TestDai.json";
 import SubscriptionFactory from "./contracts/SubscriptionFactory.json";
-import SubscriptionV1 from "./contracts/SubscriptionV1.json";
+import SubscriptionContract from "./contracts/SubscriptionV1.json";
 
-import axios from "axios";
 import {ethers} from "ethers";
 import {SnackbarProvider} from "notistack";
-import {ApolloClient, InMemoryCache} from "@apollo/client";
 import {useApolloClient} from "@apollo/client";
-import {useQuery, gql, useReactiveVar} from "@apollo/client";
-import {accountVar, providerVar, signerVar} from "./cache";
+import {useQuery, gql, useReactiveVar, useLazyQuery} from "@apollo/client";
+import {
+  accountVar,
+  providerVar,
+  signerVar,
+  daiVar,
+  factoryVar,
+  subscriptionVar,
+} from "./cache";
 
 import Web3Modal from "web3modal";
 // import Fortmatic from "fortmatic";
@@ -27,21 +32,8 @@ import {createMuiTheme, ThemeProvider} from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Layout from "./containers/Layout";
 
-// if (!process.env.REACT_APP_GRAPHQL_ENDPOINT) {
-//   throw new Error(
-//     "REACT_APP_GRAPHQL_ENDPOINT environment variable not defined"
-//   );
-// }
-
-// const client = new ApolloClient({
-//   uri: process.env.REACT_APP_GRAPHQL_ENDPOINT,
-//   cache: new InMemoryCache(),
-// });
-
-
-
 const INIT_APP = gql`
-  query InitApp($id: String!) {
+  query InitApp($id: ID!) {
     user(id: $id) {
       id
       username
@@ -68,23 +60,33 @@ export default function App() {
   const dispatch = useDispatch();
   const client = useApolloClient();
   let account = useReactiveVar(accountVar);
-  const {loading, error, data} = useQuery(INIT_APP, {
-    variables: {id: account},
-  });
-
-  function updateWeb3(key, value) {
-    dispatch(web3Actions.updateWeb3(key, value));
-  }
-
-  function updateCreator(key, value) {
-    dispatch(creatorActions.updateCreator(key, value));
-  }
+  let signer = useReactiveVar(signerVar);
+  const [initQuery, {loading, error, data}] = useLazyQuery(INIT_APP);
 
   useEffect(() => {
-    console.log(error)
-    console.log(data)
-    console.log(loading)
-  }, [loading, data, error])
+    if (data && data.user && data.user.contract.id && signer) {
+      var subscriptionV1 = new ethers.Contract(
+        data.user.contract.id,
+        SubscriptionContract.abi,
+        signer
+      );
+      subscriptionVar(subscriptionV1);
+    }
+  }, [data, signer]);
+
+  useEffect(() => {
+    if (account) {
+      initQuery({variables: {id: account}});
+    }
+  }, [account]);
+
+  // useEffect(async () => {
+  //   if (account && signer) {
+  //     if (account !== (await signer.getAddress())) {
+  //       window.location.reload();
+  //     }
+  //   }
+  // }, [account, signer]);
 
   useEffect(() => {
     initWeb3();
@@ -115,7 +117,7 @@ export default function App() {
       const eth = await web3Modal.connect();
 
       // let web3 = await getWeb3();
-      updateWeb3("eth", eth);
+      // updateWeb3("eth", eth);
 
       const provider = new ethers.providers.Web3Provider(eth);
       // const provider = new ethers.providers.JsonRpcProvider(
@@ -123,12 +125,9 @@ export default function App() {
       //   {chaindId: 5777, name: "local"}
       // );
 
-      // var provider = await getWeb3();
-      updateWeb3("provider", provider);
       providerVar(provider);
 
       const signer = provider.getSigner();
-      updateWeb3("signer", signer);
       signerVar(signer);
 
       var deployedNetwork = DaiContract.networks[5777];
@@ -139,7 +138,7 @@ export default function App() {
       );
 
       Dai = Dai.connect(signer);
-      updateWeb3("Dai", Dai);
+      daiVar(Dai);
 
       deployedNetwork = SubscriptionFactory.networks[5777];
       var Factory = new ethers.Contract(
@@ -149,47 +148,14 @@ export default function App() {
       );
 
       Factory = Factory.connect(signer);
-      updateWeb3("Factory", Factory);
+      factoryVar(Factory);
 
       // // Use web3 to get the user's accounts.
       const account = await signer.getAddress();
-      updateWeb3("account", account);
-
       accountVar(account);
-      console.log(accountVar());
 
       const networkId = await provider.getNetwork();
-      updateWeb3("chainId", networkId.chainId);
-
-      // if (contract) {
-      //   var SubscriptionV1 = new ether.Contract(
-      //     contract.id
-      //     SubscriptionV1.abi,
-      //     signer
-      //   );
-      // }
-
-      // see it user has deployed contract
-      // axios
-      //   .get(`http://localhost:8080/publishers/${account}/contract/`, {
-      //     params: {publisher_address: account},
-      //   })
-      //   .then((res) => {
-      //     if (res.data) {
-      //       updateCreator("contract", res.data);
-
-      //       var Subscription = new ethers.Contract(
-      //         res.data.address,
-      //         SubscriptionContract.abi,
-      //         signer
-      //       );
-
-      //       updateCreator("contractInstance", Subscription);
-      //     }
-      //   });
-
-      setTimeout(moniterWeb3, 1000);
-      // moniterWeb3();
+      // updateWeb3("chainId", networkId.chainId);
     } catch (error) {
       alert(
         `Failed to load web3, accounts, or contract. Check console for details.`
@@ -198,18 +164,23 @@ export default function App() {
     }
   }
 
-  async function moniterWeb3() {
-    const _web3State = store.getState().Web3Reducer;
-    if (_web3State.provider !== null) {
-      const _signer = _web3State.provider.getSigner();
-      const _account = await _signer.getAddress();
+  // TODO: redo monotoring
+  // async function moniterWeb3() {
+  //   const _web3State = store.getState().Web3Reducer;
+  //   if (_web3State.provider !== null) {
+  //     const _signer = _web3State.provider.getSigner();
+  //     const _account = await _signer.getAddress();
 
-      if (_account !== _web3State.account) {
-        window.location.reload();
-      }
-      setTimeout(moniterWeb3, 500);
-    }
-  }
+  //     if (_account !== _web3State.account) {
+  //       window.location.reload();
+  //     }
+  //     setTimeout(moniterWeb3, 500);
+  //   }
+  // }
+
+  if (loading) return null;
+
+  if (error) return `Error! ${error}`;
 
   return (
     <div className="App">
@@ -218,6 +189,7 @@ export default function App() {
           <SnackbarProvider maxSnack={3} autoHideDuration={4000}>
             <CssBaseline />
             <Layout>
+              <h1>{data && data.user ? data.user.id : null}</h1>
               <BaseRouter />
             </Layout>
           </SnackbarProvider>
