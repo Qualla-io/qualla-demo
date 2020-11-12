@@ -2,19 +2,17 @@ import fetch from "./config";
 
 const GET_CONTRACT = `
   query GetContract($id: String!) {
-    user(id: $id) {
+    subscriptionContract(id: $id){
       id
-      contract {
+      publisher{
         id
-        publisher{
-          id
-        }
-        publisherNonce
-        factory {
-          id
-          fee
-        }
-        paymentTokens
+      }
+      publisherNonce
+      factory{
+        id
+        fee
+      }
+      paymentTokens
         acceptedValues
         subscribers {
           id
@@ -30,19 +28,17 @@ const GET_CONTRACT = `
           nextWithdraw
           nonce
         }
-      }
     }
   }
 `;
 
 export async function getContract(id) {
-  // This id is actually the publisher's id. May change later
   const res = await fetch({
     query: GET_CONTRACT,
     variables: {id},
   });
-  if (res.data.user) {
-    return res.data.user.contract;
+  if (res.data) {
+    return res.data.subscriptionContract;
   } else {
     return null;
   }
@@ -87,9 +83,55 @@ export async function getContracts() {
   return res.data.subscriptionContracts;
 }
 
+// const GET_USER = `
+//   query GetUser($id: String!) {
+//     user(id: $id) {
+//       id
+//       contract {
+//         id
+//         publisher{
+//           id
+//         }
+//         publisherNonce
+//         factory {
+//           id
+//           fee
+//         }
+//         paymentTokens
+//         acceptedValues
+//         subscribers {
+//           id
+//           subscriber {
+//             id
+//           }
+//           status
+//           value
+//           paymentToken
+//           subNum
+//           hash
+//           signedHash
+//           nextWithdraw
+//           nonce
+//         }
+//       }
+//     }
+//   }
+// `;
+
+const GET_USER = `
+  query GetUser($id: String!) {
+    user(id: $id) {
+      id
+      contract {
+        id
+      }
+    }
+  }
+`;
+
 export async function getUser(id) {
   const res = await fetch({
-    query: GET_CONTRACT,
+    query: GET_USER,
     variables: {id},
   });
   if (res.data.user) {

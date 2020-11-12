@@ -182,23 +182,6 @@ export default function Balances() {
       });
     }
 
-    // axios
-    //   .post("http://localhost:8080/mint", {
-    //     account: web3State.account,
-    //     coin: web3State.Dai.address,
-    //   })
-    //   .then((res) => {
-    //     enqueueSnackbar("Request Processing", {
-    //       variant: "success",
-    //       autoHideDuration: 2000,
-    //     });
-    //   })
-    //   .catch((err) => {
-    //     enqueueSnackbar(err.response.data.error, {
-    //       variant: "warning",
-    //       autoHideDuration: 2000,
-    //     });
-    //   });
   }
 
   function withdrawTokens() {

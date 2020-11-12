@@ -7,6 +7,7 @@ import {getContract, getContracts} from "../datasources/contractData";
 import {provider, acount, dai, factory, account, SubscriptionV1} from "../web3";
 import merge from "lodash.merge";
 import mongoose from "mongoose";
+import {getContractById, getUserById} from "./helpers";
 
 const resolver = {
   Query: {
@@ -16,37 +17,26 @@ const resolver = {
       let ids = contracts.map(({id}) => id);
 
       // Pull from local data
-      let _contracts = await Contract.find()
-        .where("_id")
-        .in(ids)
-        .populate("publisher");
+      let _contracts = await Contract.find().where("_id").in(ids).lean();
+      // .populate("publisher");
 
       // Stitch
-      contracts = merge(contracts, _contracts);
+      contracts = merge(_contracts, contracts);
 
       return contracts;
     },
     contract: async (_, args) => {
       // finds contract by address of publisher
 
-      // Pull from graph protocol
-      let contract = await getContract(args.id.toLowerCase());
-      if (!contract) {
-        return contract;
-      }
-
-      // Pull from local data
-      let _contract = await Contract.findById(contract.id.toLowerCase())
-        .populate("publisher")
-        .exec();
-
-      // Stitch
-      if (_contract) {
-        contract = merge(contract, _contract);
-      }
+      let contract = getContractById(args.id);
 
       return contract;
     },
+  },
+  Contract: {
+    publisher: async(parent) => {
+      return getUserById(parent.publisher.id)
+    }
   },
   Mutation: {
     modifyContract: async (_, args) => {
@@ -86,7 +76,6 @@ const resolver = {
           values,
           args.signedHash
         );
-
       } catch (err) {
         console.log(err);
         throw new UserInputError("Invalid signature or input", {

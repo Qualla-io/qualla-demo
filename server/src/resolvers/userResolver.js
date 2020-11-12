@@ -11,6 +11,7 @@ import merge from "lodash.merge";
 import userSchema from "../schemas/userSchema";
 import {dai} from "../web3";
 import {initial} from "lodash";
+import {getContractById, getUserById} from "./helpers";
 
 const resolver = {
   Query: {
@@ -20,34 +21,22 @@ const resolver = {
 
       let userIds = users.map(({id}) => id);
 
-      let _users = await User.find()
-        .where("_id")
-        .in(userIds)
-        .populate("contract");
+      let _users = await User.find().where("_id").in(userIds).lean();
+      // .populate("contract");
 
-      users = merge(users, _users);
+      users = merge(_users, users);
 
       return users;
     },
     user: async (_, args) => {
-      // pull from graph protocol
-      let user = await getUser(args.id.toLowerCase());
-      console.log(user);
-
-      if (!user) {
-        return user;
-      }
-
-      // pull from local data
-      let _user = await User.findById(user.id.toLowerCase())
-        .populate("contract")
-        .exec();
-
-      if (_user) {
-        user = merge(user, _user);
-      }
+      let user = getUserById(args.id);
 
       return user;
+    },
+  },
+  User: {
+    contract: async (parent) => {
+      return getContractById(parent.contract.id);
     },
   },
   Mutation: {
