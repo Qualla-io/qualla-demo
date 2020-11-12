@@ -12,7 +12,7 @@ import AddIcon from "@material-ui/icons/Add";
 import RemoveIcon from "@material-ui/icons/Remove";
 import * as creatorActions from "../../../store/actions/CreatorActions";
 
-import {gql, useReactiveVar, useQuery} from "@apollo/client";
+import {gql, useReactiveVar, useMutation} from "@apollo/client";
 import {accountVar} from "../../../cache";
 
 import TierCard from "./TierCard";
@@ -20,15 +20,26 @@ import TierCard from "./TierCard";
 import {useSnackbar} from "notistack";
 import {useQueryWithAccount} from "../../../hooks";
 
-const GET_CONTRACT_Details = gql`
+const GET_CONTRACT_DETAILS = gql`
   query getContractDetails($id: ID!) {
-    contract(id: $id) {
+    user(id: $id) {
       id
-      tiers {
-        title
-        value
-        perks
+      contract {
+        id
+        tiers {
+          title
+          value
+          perks
+        }
       }
+    }
+  }
+`;
+
+const DEPLOY_CONTRACT = gql`
+  mutation createContract($publisher: String!, $tiers: [TierInput!]!) {
+    createContract(publisher: $publisher, tiers: $tiers) {
+      id
     }
   }
 `;
@@ -66,30 +77,48 @@ const useStyles = makeStyles((theme) => ({
 
 const initialTiers = [
   {title: "Tier 1", value: "5", perks: "ad free"},
-  {title: "Tier 2", value: "10", perks: "early access"},
+  {title: "Tier 5", value: "10", perks: "premium content"},
+];
+
+const testTiers = [
+  {title: "Tier 1", value: "5", perks: "ad free"},
+  {title: "Tier 2", value: "10", perks: "tits"},
+  {title: "Tier 3", value: "10", perks: "tits"},
 ];
 
 export default function CreatorLaunchCard() {
   const classes = useStyles();
   let account = useReactiveVar(accountVar);
 
-  const {error, loading, data} = useQueryWithAccount(GET_CONTRACT_Details);
-
-  // useEffect(() => {
-  //   if (account) {
-  //     getContractDetails({variables: {id: account}});
-  //   }
-  // }, [account]);
-
-  const [tiers, setTiers] = useState(initialTiers);
+  const {error, loading, data} = useQueryWithAccount(GET_CONTRACT_DETAILS);
+  let [deployContract] = useMutation(DEPLOY_CONTRACT);
+  const [tiers, setTiers] = useState([]);
   const {enqueueSnackbar} = useSnackbar();
 
+  if (error) {
+    console.log(error);
+  }
+
   useEffect(() => {
-    if (data && data.contract) {
-      console.log(data.contract.tiers);
-      setTiers(data.contract.tiers);
+    if (!loading && data) {
+      if (data.user && data.user.contract) {
+        let _tiers = JSON.parse(JSON.stringify(data.user.contract.tiers));
+        console.log(_tiers);
+        setTiers(_tiers);
+      }
     }
-  }, [data]);
+  }, [loading, data]);
+
+  // useEffect(() => {
+  //   if (!data || !data.user || !data.user.contract) {
+  //     console.log("ran");
+  //     setTiers([initialTiers]);
+  //   }
+  // }, []);
+
+  useEffect(() => {
+    // console.log(tiers);
+  }, [tiers]);
 
   function addTier() {
     setTiers([...tiers, {}]);
@@ -117,7 +146,24 @@ export default function CreatorLaunchCard() {
 
   async function updateContract() {}
 
-  async function deployContract() {}
+  async function _deployContract() {
+    if (account) {
+      deployContract({variables: {publisher: account, tiers}}).catch((err) => {
+        console.log(err);
+        enqueueSnackbar(`${err.message}`, {
+          variant: "error",
+        });
+      });
+
+      enqueueSnackbar("Deployment Processing", {
+        variant: "success",
+      });
+    } else {
+      enqueueSnackbar("No account", {
+        variant: "error",
+      });
+    }
+  }
 
   // async function deployContract() {
   //   if (creatorState.contract.address) {
@@ -203,6 +249,71 @@ export default function CreatorLaunchCard() {
   //   }
   // }
 
+  // const defaultTiers = (
+  //   <>
+  //     {tiers.map((tier, i) => (
+  //       <Grid item lg={3} md={6} xs={12} key={i}>
+  //         <TierCard
+  //           num={i}
+  //           tier={tier}
+  //           className={classes.tier}
+  //           onTierChange={onTierChange}
+  //         />
+  //       </Grid>
+  //     ))}
+  //   </>
+  // );
+
+  // const graphTiers = (
+  //   <>
+  //     {data.user.contract.tiers.map((tier, i) => (
+  //       <Grid item lg={3} md={6} xs={12} key={i}>
+  //         <TierCard
+  //           num={i}
+  //           tier={tier}
+  //           className={classes.tier}
+  //           onTierChange={onTierChange}
+  //         />
+  //       </Grid>
+  //     ))}
+  //   </>
+  // );
+
+  // const mapping = () => {
+  //   if (data && data.user && data.user.contract) {
+  //     console.log("graph");
+  //     return (
+  //       <>
+  //         {data.user.contract.tiers.map((tier, i) => (
+  //           <Grid item lg={3} md={6} xs={12} key={i}>
+  //             <TierCard
+  //               num={i}
+  //               tier={tier}
+  //               className={classes.tier}
+  //               onTierChange={onTierChange}
+  //             />
+  //           </Grid>
+  //         ))}
+  //       </>
+  //     );
+  //   } else {
+  //     return (
+  //       <>
+  //         {data.user.contract.tiers.map((tier, i) => (
+  //           <Grid item lg={3} md={6} xs={12} key={i}>
+  //             <TierCard
+  //               num={i}
+  //               tier={tier}
+  //               className={classes.tier}
+  //               onTierChange={onTierChange}
+  //             />
+  //           </Grid>
+  //         ))}
+  //       </>
+  //     );
+  //   }
+  // };
+
   return (
     <Grid container spacing={2}>
       <Grid item component={Card} lg={10} xs={12} className={classes.cont}>
@@ -215,9 +326,9 @@ export default function CreatorLaunchCard() {
             <Button
               variant="contained"
               color="secondary"
-              onClick={deployContract}
+              onClick={_deployContract}
             >
-              {data && data.contract ? "Update" : "Launch"}
+              {data && data.user && data.user.contract ? "Update" : "Launch"}
             </Button>
           </div>
           <Grid container justify="center" spacing={3}>

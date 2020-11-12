@@ -1,11 +1,7 @@
 import Contract from "../models/contract";
 import User from "../models/user";
-import {
-  getContract,
-  getContracts,
-  getUser,
-  getUsers,
-} from "../datasources/contractData";
+import {getContract} from "../datasources/contractData";
+import {getUser} from "../datasources/userData";
 
 import merge from "lodash.merge";
 

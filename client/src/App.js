@@ -58,9 +58,6 @@ const theme = createMuiTheme({
 
 export default function App() {
   // const web3State = useSelector((state) => state.Web3Reducer);
-  const dispatch = useDispatch();
-  const client = useApolloClient();
-  let account = useReactiveVar(accountVar);
   let signer = useReactiveVar(signerVar);
   const {loading, error, data} = useQueryWithAccount(INIT_APP);
 
@@ -184,7 +181,6 @@ export default function App() {
           <SnackbarProvider maxSnack={3} autoHideDuration={4000}>
             <CssBaseline />
             <Layout>
-              <h1>{data && data.user ? data.user.id : null}</h1>
               <BaseRouter />
             </Layout>
           </SnackbarProvider>

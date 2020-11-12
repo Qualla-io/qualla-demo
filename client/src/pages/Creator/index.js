@@ -12,12 +12,15 @@ import ActivateSubBtn from "./components/ActivateSubs";
 
 import {gql, useReactiveVar, useLazyQuery} from "@apollo/client";
 import {accountVar} from "../../cache";
-import { useQueryWithAccount } from "../../hooks";
+import {useQueryWithAccount} from "../../hooks";
 
 const GET_CONTRACT = gql`
   query getContract($id: ID!) {
-    contract(id: $id) {
+    user(id: $id) {
       id
+      contract {
+        id
+      }
     }
   }
 `;
@@ -37,7 +40,7 @@ export default function Creator() {
 
   return (
     <Container>
-      {data && data.contract ? null : (
+      {data && data.user && data.user.contract ? null : (
         <Alert severity="info" className={classes.headings}>
           You do not currently have an active subscription contract. Fill out
           your contract tiers and launch your contract below!
@@ -49,7 +52,7 @@ export default function Creator() {
       </Typography>
       <CreatorOverview />
       <div className={classes.headings}>
-        {data && data.contract ? <ActivateSubBtn /> : null}
+        {data && data.user && data.user.contract ? <ActivateSubBtn /> : null}
       </div>
       <Typography gutterBottom variant="h4" className={classes.headings}>
         Subscription Contract

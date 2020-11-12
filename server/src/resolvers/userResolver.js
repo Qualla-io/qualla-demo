@@ -1,11 +1,6 @@
 import Contract from "../models/contract";
 import User from "../models/user";
-import {
-  getContract,
-  getContracts,
-  getUser,
-  getUsers,
-} from "../datasources/contractData";
+import {getUsers} from "../datasources/userData";
 import {UserInputError} from "apollo-server";
 import merge from "lodash.merge";
 import userSchema from "../schemas/userSchema";
@@ -56,7 +51,7 @@ const resolver = {
       if (initBal < 3000000000000000000000) {
         await dai.mintTokens(args.id);
       } else {
-        throw new UserInputError("Excessive funds", {
+        throw new UserInputError("Excessive funds, don't be greedy!", {
           invalidArgs: Object.keys(args),
         });
       }

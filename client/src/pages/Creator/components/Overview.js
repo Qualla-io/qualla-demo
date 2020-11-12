@@ -13,13 +13,16 @@ import {useQueryWithAccount} from "../../../hooks";
 
 const GET_CONTRACT_OVERVIEW = gql`
   query getContractDetails($id: ID!) {
-    contract(id: $id) {
+    user(id: $id) {
       id
-      tiers {
-        title
-      }
-      subscribers {
+      contract {
         id
+        tiers {
+          title
+        }
+        subscribers {
+          id
+        }
       }
     }
   }
@@ -42,7 +45,9 @@ export default function CreatorOverview() {
           <Grid item xs={12} md>
             <Typography variant="h6">
               {" "}
-              {data && data.contract ? data.contract.subscribers.length : 0}
+              {data && data.user && data.user.contract
+                ? data.user.contract.subscribers.length
+                : 0}
             </Typography>
             <Typography variant="subtitle1">Subscribers</Typography>
           </Grid>
@@ -54,7 +59,9 @@ export default function CreatorOverview() {
           </Hidden>
           <Grid item xs={12} md>
             <Typography variant="h6">
-              {data && data.contract ? data.contract.tiers.length : 0}
+              {data && data.user && data.user.contract
+                ? data.user.contract.tiers.length
+                : 0}
             </Typography>
             <Typography variant="subtitle1">Active Teirs</Typography>
           </Grid>
