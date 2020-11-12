@@ -40,6 +40,12 @@ const DEPLOY_CONTRACT = gql`
   mutation createContract($publisher: String!, $tiers: [TierInput!]!) {
     createContract(publisher: $publisher, tiers: $tiers) {
       id
+      publisher {
+        id
+        contract {
+          id
+        }
+      }
     }
   }
 `;
@@ -101,7 +107,7 @@ export default function CreatorLaunchCard() {
 
   useEffect(() => {
     if (!loading && data) {
-      if (data.user && data.user.contract) {
+      if (data.user && data.user.contract && data.user.contract.tiers) {
         let _tiers = JSON.parse(JSON.stringify(data.user.contract.tiers));
         console.log(_tiers);
         setTiers(_tiers);
@@ -115,10 +121,6 @@ export default function CreatorLaunchCard() {
   //     setTiers([initialTiers]);
   //   }
   // }, []);
-
-  useEffect(() => {
-    // console.log(tiers);
-  }, [tiers]);
 
   function addTier() {
     setTiers([...tiers, {}]);
@@ -148,12 +150,21 @@ export default function CreatorLaunchCard() {
 
   async function _deployContract() {
     if (account) {
-      deployContract({variables: {publisher: account, tiers}}).catch((err) => {
-        console.log(err);
-        enqueueSnackbar(`${err.message}`, {
-          variant: "error",
+      deployContract({
+        variables: {publisher: account, tiers},
+      })
+        .then((data) => {
+          console.log(data);
+          enqueueSnackbar("Deployment Successful", {
+            variant: "success",
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+          enqueueSnackbar(`${err.message}`, {
+            variant: "error",
+          });
         });
-      });
 
       enqueueSnackbar("Deployment Processing", {
         variant: "success",
@@ -248,71 +259,6 @@ export default function CreatorLaunchCard() {
   //       });
   //   }
   // }
-
-  // const defaultTiers = (
-  //   <>
-  //     {tiers.map((tier, i) => (
-  //       <Grid item lg={3} md={6} xs={12} key={i}>
-  //         <TierCard
-  //           num={i}
-  //           tier={tier}
-  //           className={classes.tier}
-  //           onTierChange={onTierChange}
-  //         />
-  //       </Grid>
-  //     ))}
-  //   </>
-  // );
-
-  // const graphTiers = (
-  //   <>
-  //     {data.user.contract.tiers.map((tier, i) => (
-  //       <Grid item lg={3} md={6} xs={12} key={i}>
-  //         <TierCard
-  //           num={i}
-  //           tier={tier}
-  //           className={classes.tier}
-  //           onTierChange={onTierChange}
-  //         />
-  //       </Grid>
-  //     ))}
-  //   </>
-  // );
-
-  // const mapping = () => {
-  //   if (data && data.user && data.user.contract) {
-  //     console.log("graph");
-  //     return (
-  //       <>
-  //         {data.user.contract.tiers.map((tier, i) => (
-  //           <Grid item lg={3} md={6} xs={12} key={i}>
-  //             <TierCard
-  //               num={i}
-  //               tier={tier}
-  //               className={classes.tier}
-  //               onTierChange={onTierChange}
-  //             />
-  //           </Grid>
-  //         ))}
-  //       </>
-  //     );
-  //   } else {
-  //     return (
-  //       <>
-  //         {data.user.contract.tiers.map((tier, i) => (
-  //           <Grid item lg={3} md={6} xs={12} key={i}>
-  //             <TierCard
-  //               num={i}
-  //               tier={tier}
-  //               className={classes.tier}
-  //               onTierChange={onTierChange}
-  //             />
-  //           </Grid>
-  //         ))}
-  //       </>
-  //     );
-  //   }
-  // };
 
   return (
     <Grid container spacing={2}>

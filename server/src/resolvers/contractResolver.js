@@ -114,7 +114,7 @@ const resolver = {
     createContract: async (_, args) => {
       // Check if user has contract
 
-      console.log(args)
+      
 
       let contract = await getContract(args.publisher.toLowerCase());
       // let contract = null;
@@ -174,7 +174,6 @@ const resolver = {
         contract.publisher = _publisher;
         contract.publisherNonce = 0;
         contract.subscribers = [];
-
         return contract;
       } catch (err) {
         console.log(err);

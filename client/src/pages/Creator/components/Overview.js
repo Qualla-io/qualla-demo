@@ -59,7 +59,10 @@ export default function CreatorOverview() {
           </Hidden>
           <Grid item xs={12} md>
             <Typography variant="h6">
-              {data && data.user && data.user.contract
+              {data &&
+              data.user &&
+              data.user.contract &&
+              data.user.contract.tiers
                 ? data.user.contract.tiers.length
                 : 0}
             </Typography>
