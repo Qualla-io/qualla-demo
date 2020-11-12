@@ -12,6 +12,7 @@ export default gql`
     users: [User!]
   }
   extend type Mutation {
-    user(id: String!, username: String!): User
+    user(id: ID!, username: String!): User
+    mintTokens(id: ID!): User
   }
 `;

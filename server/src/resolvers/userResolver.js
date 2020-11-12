@@ -6,9 +6,11 @@ import {
   getUser,
   getUsers,
 } from "../datasources/contractData";
-
+import {UserInputError} from "apollo-server";
 import merge from "lodash.merge";
 import userSchema from "../schemas/userSchema";
+import {dai} from "../web3";
+import {initial} from "lodash";
 
 const resolver = {
   Query: {
@@ -57,6 +59,20 @@ const resolver = {
       user.username = args.username;
       user.save();
       return user;
+    },
+    mintTokens: async (_, args) => {
+      const initBal = await dai.balanceOf(args.id);
+      console.log(`Old balance: ${initBal}`);
+
+      if (initBal < 3000000000000000000000) {
+        await dai.mintTokens(args.id);
+      } else {
+        throw new UserInputError("Excessive funds", {
+          invalidArgs: Object.keys(args),
+        });
+      }
+      const finalBal = await dai.balanceOf(args.id);
+      console.log(`New balance: ${finalBal}`);
     },
   },
 };

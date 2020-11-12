@@ -23,6 +23,7 @@ import {
   factoryVar,
   subscriptionVar,
 } from "./cache";
+import {useQueryWithAccount} from "./hooks";
 
 import Web3Modal from "web3modal";
 // import Fortmatic from "fortmatic";
@@ -61,7 +62,7 @@ export default function App() {
   const client = useApolloClient();
   let account = useReactiveVar(accountVar);
   let signer = useReactiveVar(signerVar);
-  const [initQuery, {loading, error, data}] = useLazyQuery(INIT_APP);
+  const {loading, error, data} = useQueryWithAccount(INIT_APP);
 
   useEffect(() => {
     if (data && data.user && data.user.contract.id && signer) {
@@ -74,11 +75,11 @@ export default function App() {
     }
   }, [data, signer]);
 
-  useEffect(() => {
-    if (account) {
-      initQuery({variables: {id: account}});
-    }
-  }, [account]);
+  // useEffect(() => {
+  //   if (account) {
+  //     initQuery({variables: {id: account}});
+  //   }
+  // }, [account]);
 
   // useEffect(async () => {
   //   if (account && signer) {

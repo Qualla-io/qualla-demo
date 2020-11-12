@@ -1,12 +1,9 @@
 import React, {useState, useEffect} from "react";
-import {useSelector} from "react-redux";
 import {ethers} from "ethers";
-import axios from "axios";
 
 import Typography from "@material-ui/core/Typography";
 import {makeStyles} from "@material-ui/core/styles";
 
-import store from "../store/myStore";
 import AttachMoneyIcon from "@material-ui/icons/AttachMoney";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
@@ -16,6 +13,29 @@ import SwapVertIcon from "@material-ui/icons/SwapVert";
 
 import {useSnackbar} from "notistack";
 import {Hidden} from "@material-ui/core";
+
+import {accountVar, providerVar, daiVar} from "../cache";
+import {useReactiveVar, gql, useQuery, useMutation} from "@apollo/client";
+
+const GET_BALACES = gql`
+  query getBalances($id: ID) {
+    user(id: $id) {
+      id
+      username
+      contract {
+        id
+      }
+    }
+  }
+`;
+
+const MINT_TOKENS = gql`
+  mutation mintTokens($id: ID) {
+    mintTokens(id: $id) {
+      id
+    }
+  }
+`;
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -40,9 +60,20 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Balances() {
+  let dai = useReactiveVar(daiVar);
+  let provider = useReactiveVar(providerVar);
+  let account = useReactiveVar(accountVar);
+  let { loading, data} = useQuery(GET_BALACES, {
+    variables: {id: account},
+  });
+
+  let [mintTokens, {error}] = useMutation(MINT_TOKENS);
+
+  if(error) {
+    console.log(error)
+  }
+
   const classes = useStyles();
-  const web3State = useSelector((state) => state.Web3Reducer);
-  const creatorState = useSelector((state) => state.CreatorReducer);
   const [ethbal, setEthBal] = useState(0);
   const [daibal, setDaiBal] = useState(0);
   const [contractbal, setContractbal] = useState(0);
@@ -51,27 +82,24 @@ export default function Balances() {
 
   useEffect(() => {
     getBlances();
-  }, [web3State.account, creatorState.contract.address]);
+  }, [account]);
 
   useEffect(() => {
     subscribePersonalDai();
-  }, [web3State.Dai, web3State.account]);
+  }, [dai, account]);
 
-  useEffect(() => {
-    subscribeContractDai();
-  }, [web3State.Dai, creatorState.contract.address]);
+  // useEffect(() => {
+  //   subscribeContractDai();
+  // }, [dai, creatorState.contract.address]);
 
   async function subscribePersonalDai() {
-    if (web3State.Dai && web3State.account) {
-      let filterFromMe = web3State.Dai.filters.Transfer(
-        web3State.account,
-        null
-      );
+    if (dai && account) {
+      let filterFromMe = dai.filters.Transfer(account, null);
 
-      let filterToMe = web3State.Dai.filters.Transfer(null, web3State.account);
+      let filterToMe = dai.filters.Transfer(null, account);
 
       let handleTransfer = async function (from, to, amount) {
-        web3State.Dai.balanceOf(web3State.account).then((daibal) => {
+        dai.balanceOf(account).then((daibal) => {
           setDaiBal(ethers.utils.formatEther(daibal));
 
           enqueueSnackbar("Personal Balance Updated", {
@@ -81,113 +109,121 @@ export default function Balances() {
         });
       };
 
-      web3State.Dai.on(filterFromMe, handleTransfer);
-      web3State.Dai.on(filterToMe, handleTransfer);
+      dai.on(filterFromMe, handleTransfer);
+      dai.on(filterToMe, handleTransfer);
     }
   }
 
-  async function subscribeContractDai() {
-    if (web3State.Dai && creatorState.contract.address) {
-      // web3State.Dai.removeAllListeners("Transfer");
+  // async function subscribeContractDai() {
+  //   if (web3State.Dai && creatorState.contract.address) {
+  //     // web3State.Dai.removeAllListeners("Transfer");
 
-      let filterFromMe = web3State.Dai.filters.Transfer(
-        creatorState.contract.address,
-        null
-      );
+  //     let filterFromMe = web3State.Dai.filters.Transfer(
+  //       creatorState.contract.address,
+  //       null
+  //     );
 
-      let filterToMe = web3State.Dai.filters.Transfer(
-        null,
-        creatorState.contract.address
-      );
+  //     let filterToMe = web3State.Dai.filters.Transfer(
+  //       null,
+  //       creatorState.contract.address
+  //     );
 
-      let handleTransfer = async function (from, to, amount) {
-        web3State.Dai.balanceOf(creatorState.contract.address).then(
-          (contractbal) => {
-            setContractbal(ethers.utils.formatEther(contractbal));
+  //     let handleTransfer = async function (from, to, amount) {
+  //       web3State.Dai.balanceOf(creatorState.contract.address).then(
+  //         (contractbal) => {
+  //           setContractbal(ethers.utils.formatEther(contractbal));
 
-            enqueueSnackbar("Contract Balance Updated", {
-              variant: "success",
-              autoHideDuration: 2000,
-            });
-          }
-        );
-      };
+  //           enqueueSnackbar("Contract Balance Updated", {
+  //             variant: "success",
+  //             autoHideDuration: 2000,
+  //           });
+  //         }
+  //       );
+  //     };
 
-      web3State.Dai.on(filterFromMe, handleTransfer);
-      web3State.Dai.on(filterToMe, handleTransfer);
-    }
-  }
+  //     web3State.Dai.on(filterFromMe, handleTransfer);
+  //     web3State.Dai.on(filterToMe, handleTransfer);
+  //   }
+  // }
 
   async function getBlances() {
-    // Change this to subscribe to events instead of pinging chain
-    const _web3State = store.getState().Web3Reducer;
-    const _creatorState = store.getState().CreatorReducer;
-
-    if (_web3State.provider && _web3State.account) {
-      _web3State.provider.getBalance(_web3State.account).then((ethbal) => {
+    if (provider && account) {
+      provider.getBalance(account).then((ethbal) => {
         setEthBal(parseFloat(ethers.utils.formatEther(ethbal)).toFixed(3));
       });
 
-      if (_web3State.Dai) {
-        _web3State.Dai.balanceOf(_web3State.account).then((daibal) => {
+      if (dai) {
+        dai.balanceOf(account).then((daibal) => {
           setDaiBal(ethers.utils.formatEther(daibal));
         });
       }
-      if (_creatorState.contract.address) {
-        _web3State.Dai.balanceOf(_creatorState.contract.address).then(
-          (contractbal) => {
-            setContractbal(ethers.utils.formatEther(contractbal));
-          }
-        );
+      if (data && data.contract) {
+        dai.balanceOf(data.contract.id).then((contractbal) => {
+          setContractbal(ethers.utils.formatEther(contractbal));
+        });
       }
     }
   }
 
-  function mintTokens() {
-    axios
-      .post("http://localhost:8080/mint", {
-        account: web3State.account,
-        coin: web3State.Dai.address,
-      })
-      .then((res) => {
+  function _mintTokens() {
+    if (account) {
+      try {
+        mintTokens({variables: {id: account}});
         enqueueSnackbar("Request Processing", {
           variant: "success",
-          autoHideDuration: 2000,
         });
-      })
-      .catch((err) => {
-        enqueueSnackbar(err.response.data.error, {
-          variant: "warning",
-          autoHideDuration: 2000,
-        });
+      } catch (err) {
+        console.log(err)
+      }
+
+    } else {
+      enqueueSnackbar("No account", {
+        variant: "error",
       });
+    }
+
+    // axios
+    //   .post("http://localhost:8080/mint", {
+    //     account: web3State.account,
+    //     coin: web3State.Dai.address,
+    //   })
+    //   .then((res) => {
+    //     enqueueSnackbar("Request Processing", {
+    //       variant: "success",
+    //       autoHideDuration: 2000,
+    //     });
+    //   })
+    //   .catch((err) => {
+    //     enqueueSnackbar(err.response.data.error, {
+    //       variant: "warning",
+    //       autoHideDuration: 2000,
+    //     });
+    //   });
   }
 
   function withdrawTokens() {
-    if (contractbal === "0.0") {
-      enqueueSnackbar("No funds to withdraw", {
-        variant: "warning",
-        autoHideDuration: 2000,
-      });
-      return;
-    }
-
-    enqueueSnackbar("Request Processing", {
-      variant: "success",
-      autoHideDuration: 2000,
-    });
-
-    axios
-      .post("http://localhost:8080/withdraw", {
-        publisher: web3State.account,
-      })
-      .then((res) => {})
-      .catch((err) => {
-        enqueueSnackbar(err.response.data.error, {
-          variant: "error",
-          autoHideDuration: 2000,
-        });
-      });
+    // if (contractbal === "0.0") {
+    //   enqueueSnackbar("No funds to withdraw", {
+    //     variant: "warning",
+    //     autoHideDuration: 2000,
+    //   });
+    //   return;
+    // }
+    // enqueueSnackbar("Request Processing", {
+    //   variant: "success",
+    //   autoHideDuration: 2000,
+    // });
+    // axios
+    //   .post("http://localhost:8080/withdraw", {
+    //     publisher: web3State.account,
+    //   })
+    //   .then((res) => {})
+    //   .catch((err) => {
+    //     enqueueSnackbar(err.response.data.error, {
+    //       variant: "error",
+    //       autoHideDuration: 2000,
+    //     });
+    //   });
   }
 
   const contractComp = (
@@ -217,7 +253,7 @@ export default function Balances() {
             Balances:
           </Typography>
           <Grid container className={classes.container} spacing={1}>
-            {creatorState.contract.address ? contractComp : null}
+            {data && data.contract ? contractComp : null}
             <Grid item>
               <Typography variant="subtitle1" className={classes.underline}>
                 Personal:
@@ -231,7 +267,7 @@ export default function Balances() {
               <Typography>${daibal} Dai</Typography>
             </Grid>
             <Grid item>
-              <Button onClick={mintTokens} color="primary" variant="contained">
+              <Button onClick={_mintTokens} color="primary" variant="contained">
                 <AttachMoneyIcon />
                 Get Dai {"  "}
               </Button>
