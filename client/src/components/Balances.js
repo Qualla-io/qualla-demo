@@ -10,10 +10,11 @@ import Card from "@material-ui/core/Card";
 import Grid from "@material-ui/core/Grid";
 import CardContent from "@material-ui/core/CardContent";
 import SwapVertIcon from "@material-ui/icons/SwapVert";
-
+import DialogTitle from "@material-ui/core/DialogTitle";
+import Dialog from "@material-ui/core/Dialog";
 import {useSnackbar} from "notistack";
-import {Hidden} from "@material-ui/core";
-
+import {DialogContent, Hidden} from "@material-ui/core";
+import Fab from "@material-ui/core/Fab";
 import {accountVar, providerVar, daiVar} from "../cache";
 import {useQueryWithAccount} from "../hooks";
 import {useReactiveVar, gql, useQuery, useMutation} from "@apollo/client";
@@ -73,11 +74,20 @@ export default function Balances() {
   }
 
   const classes = useStyles();
+  const [open, setOpen] = useState(false);
   const [ethbal, setEthBal] = useState(0);
   const [daibal, setDaiBal] = useState(0);
   const [contractbal, setContractbal] = useState(0);
 
   const {enqueueSnackbar} = useSnackbar();
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   useEffect(() => {
     getBlances();
@@ -175,13 +185,11 @@ export default function Balances() {
           variant: "warning",
         });
       });
-
     } else {
       enqueueSnackbar("No account", {
         variant: "error",
       });
     }
-
   }
 
   function withdrawTokens() {
@@ -228,36 +236,59 @@ export default function Balances() {
     </>
   );
 
-  return (
-    <Hidden smDown>
-      <Card className={classes.root} raised>
-        <CardContent>
-          <Typography gutterBottom variant="h5" component="h2">
-            Balances:
+  const balancesCard = (
+    <>
+      <Grid container className={classes.container} spacing={1}>
+        {data && data.contract ? contractComp : null}
+        <Grid item>
+          <Typography variant="subtitle1" className={classes.underline}>
+            Personal:
           </Typography>
-          <Grid container className={classes.container} spacing={1}>
-            {data && data.contract ? contractComp : null}
-            <Grid item>
-              <Typography variant="subtitle1" className={classes.underline}>
-                Personal:
-              </Typography>
-            </Grid>
-            <Grid item>
-              <Typography>{ethbal} Eth</Typography>
-            </Grid>
+        </Grid>
+        <Grid item>
+          <Typography>{ethbal} Eth</Typography>
+        </Grid>
 
-            <Grid item>
-              <Typography>${daibal} Dai</Typography>
-            </Grid>
-            <Grid item>
-              <Button onClick={_mintTokens} color="primary" variant="contained">
-                <AttachMoneyIcon />
-                Get Dai {"  "}
-              </Button>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
-    </Hidden>
+        <Grid item>
+          <Typography>${daibal} Dai</Typography>
+        </Grid>
+        <Grid item>
+          <Button onClick={_mintTokens} color="primary" variant="contained">
+            <AttachMoneyIcon />
+            Get Dai {"  "}
+          </Button>
+        </Grid>
+      </Grid>
+    </>
+  );
+
+  return (
+    <>
+      <Hidden mdUp>
+        <Fab
+          className={classes.root}
+          color="secondary"
+          variant="extended"
+          onClick={handleOpen}
+        >
+          <AttachMoneyIcon />
+          Balances
+        </Fab>
+      </Hidden>
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>Balances:</DialogTitle>
+        <DialogContent dividers>{balancesCard}</DialogContent>
+      </Dialog>
+      <Hidden smDown>
+        <Card className={classes.root} raised>
+          <CardContent>
+            <Typography gutterBottom variant="h5" component="h2">
+              Balances:
+            </Typography>
+            {balancesCard}
+          </CardContent>
+        </Card>
+      </Hidden>
+    </>
   );
 }
