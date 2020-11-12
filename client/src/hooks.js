@@ -12,5 +12,9 @@ export function useQueryWithAccount(QUERY) {
     }
   }, [account]);
 
+  if (error) {
+    console.log(error);
+  }
+
   return {loading, error, data};
 }

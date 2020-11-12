@@ -18,6 +18,7 @@ import {accountVar} from "../../../cache";
 import TierCard from "./TierCard";
 
 import {useSnackbar} from "notistack";
+import {useQueryWithAccount} from "../../../hooks";
 
 const GET_CONTRACT_Details = gql`
   query getContractDetails($id: ID!) {
@@ -72,9 +73,7 @@ export default function CreatorLaunchCard() {
   const classes = useStyles();
   let account = useReactiveVar(accountVar);
 
-  const {error, loading, data} = useQuery(GET_CONTRACT_Details, {
-    variables: {id: account},
-  });
+  const {error, loading, data} = useQueryWithAccount(GET_CONTRACT_Details);
 
   // useEffect(() => {
   //   if (account) {

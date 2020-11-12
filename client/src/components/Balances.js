@@ -15,10 +15,11 @@ import {useSnackbar} from "notistack";
 import {Hidden} from "@material-ui/core";
 
 import {accountVar, providerVar, daiVar} from "../cache";
+import {useQueryWithAccount} from "../hooks";
 import {useReactiveVar, gql, useQuery, useMutation} from "@apollo/client";
 
 const GET_BALACES = gql`
-  query getBalances($id: ID) {
+  query getBalances($id: ID!) {
     user(id: $id) {
       id
       username
@@ -30,7 +31,7 @@ const GET_BALACES = gql`
 `;
 
 const MINT_TOKENS = gql`
-  mutation mintTokens($id: ID) {
+  mutation mintTokens($id: ID!) {
     mintTokens(id: $id) {
       id
     }
@@ -63,14 +64,12 @@ export default function Balances() {
   let dai = useReactiveVar(daiVar);
   let provider = useReactiveVar(providerVar);
   let account = useReactiveVar(accountVar);
-  let { loading, data} = useQuery(GET_BALACES, {
-    variables: {id: account},
-  });
+  let {loading, data} = useQueryWithAccount(GET_BALACES);
 
   let [mintTokens, {error}] = useMutation(MINT_TOKENS);
 
-  if(error) {
-    console.log(error)
+  if (error) {
+    console.log(error.message);
   }
 
   const classes = useStyles();
@@ -167,14 +166,15 @@ export default function Balances() {
 
   function _mintTokens() {
     if (account) {
-      try {
-        mintTokens({variables: {id: account}});
-        enqueueSnackbar("Request Processing", {
-          variant: "success",
+      enqueueSnackbar("Request Processing", {
+        variant: "success",
+      });
+
+      mintTokens({variables: {id: account}}).catch((err) => {
+        enqueueSnackbar(`${err.message}`, {
+          variant: "warning",
         });
-      } catch (err) {
-        console.log(err)
-      }
+      });
 
     } else {
       enqueueSnackbar("No account", {

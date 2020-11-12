@@ -12,6 +12,7 @@ import ActivateSubBtn from "./components/ActivateSubs";
 
 import {gql, useReactiveVar, useLazyQuery} from "@apollo/client";
 import {accountVar} from "../../cache";
+import { useQueryWithAccount } from "../../hooks";
 
 const GET_CONTRACT = gql`
   query getContract($id: ID!) {
@@ -29,16 +30,10 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Creator() {
   let account = useReactiveVar(accountVar);
-  const [getContract, {loading, error, data}] = useLazyQuery(GET_CONTRACT);
+  const {loading, error, data} = useQueryWithAccount(GET_CONTRACT);
   const classes = useStyles();
 
   if (error) console.log(error);
-
-  useEffect(() => {
-    if (account) {
-      getContract({variables: {id: account}});
-    }
-  }, [account]);
 
   return (
     <Container>

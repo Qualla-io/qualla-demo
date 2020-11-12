@@ -75,12 +75,6 @@ export default function App() {
     }
   }, [data, signer]);
 
-  // useEffect(() => {
-  //   if (account) {
-  //     initQuery({variables: {id: account}});
-  //   }
-  // }, [account]);
-
   // useEffect(async () => {
   //   if (account && signer) {
   //     if (account !== (await signer.getAddress())) {

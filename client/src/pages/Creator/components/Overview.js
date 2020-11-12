@@ -9,6 +9,7 @@ import Hidden from "@material-ui/core/Hidden";
 
 import {gql, useReactiveVar, useQuery} from "@apollo/client";
 import {accountVar} from "../../../cache";
+import {useQueryWithAccount} from "../../../hooks";
 
 const GET_CONTRACT_OVERVIEW = gql`
   query getContractDetails($id: ID!) {
@@ -26,9 +27,7 @@ const GET_CONTRACT_OVERVIEW = gql`
 
 export default function CreatorOverview() {
   let account = useReactiveVar(accountVar);
-  const {error, loading, data} = useQuery(GET_CONTRACT_OVERVIEW, {
-    variables: {id: account},
-  });
+  const {error, loading, data} = useQueryWithAccount(GET_CONTRACT_OVERVIEW);
 
   return (
     <Grid container alignItems="stretch">
