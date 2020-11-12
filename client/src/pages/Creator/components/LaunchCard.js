@@ -13,7 +13,7 @@ import RemoveIcon from "@material-ui/icons/Remove";
 import * as creatorActions from "../../../store/actions/CreatorActions";
 
 import {gql, useReactiveVar, useMutation} from "@apollo/client";
-import {accountVar} from "../../../cache";
+import {accountVar, subscriptionVar, daiVar, signerVar} from "../../../cache";
 
 import TierCard from "./TierCard";
 
@@ -40,6 +40,34 @@ const DEPLOY_CONTRACT = gql`
   mutation createContract($publisher: String!, $tiers: [TierInput!]!) {
     createContract(publisher: $publisher, tiers: $tiers) {
       id
+      publisher {
+        id
+        contract {
+          id
+        }
+      }
+    }
+  }
+`;
+
+const MODIFY_CONTRACT = gql`
+  mutation modifyContract(
+    $publisher: String!
+    $tiers: [TierInput!]!
+    $signedHash: String!
+  ) {
+    modifyContract(
+      publisher: $publisher
+      tiers: $tiers
+      signedHash: $signedHash
+    ) {
+      id
+      acceptedValues
+      tiers {
+        title
+        value
+        perks
+      }
       publisher {
         id
         contract {
@@ -95,9 +123,12 @@ const testTiers = [
 export default function CreatorLaunchCard() {
   const classes = useStyles();
   let account = useReactiveVar(accountVar);
-
+  let subscription = useReactiveVar(subscriptionVar);
+  let dai = useReactiveVar(daiVar);
+  let signer = useReactiveVar(signerVar);
   const {error, loading, data} = useQueryWithAccount(GET_CONTRACT_DETAILS);
   let [deployContract] = useMutation(DEPLOY_CONTRACT);
+  let [modifyContract] = useMutation(MODIFY_CONTRACT);
   const [tiers, setTiers] = useState([]);
   const {enqueueSnackbar} = useSnackbar();
 
@@ -109,6 +140,11 @@ export default function CreatorLaunchCard() {
     if (!loading && data) {
       if (data.user && data.user.contract && data.user.contract.tiers) {
         let _tiers = JSON.parse(JSON.stringify(data.user.contract.tiers));
+
+        _tiers.forEach(function (v) {
+          delete v.__typename;
+        });
+
         console.log(_tiers);
         setTiers(_tiers);
       }
@@ -146,7 +182,48 @@ export default function CreatorLaunchCard() {
   //   dispatch(creatorActions.updateContract());
   // }
 
-  async function updateContract() {}
+  async function _modifyContract() {
+    if (account && subscription) {
+      let values = [];
+
+      for (var i = 0; i < tiers.length; i++) {
+        values.push(
+          ethers.utils.parseUnits(tiers[i].value.toString(), "ether").toString()
+        );
+      }
+
+      var nonce = parseInt(await subscription.publisherNonce());
+
+      // get hash
+      const hash = await subscription.getPublisherModificationHash(
+        [dai.address],
+        values,
+        nonce++
+      );
+
+      // sign hash
+
+      const signedHash = await signer.signMessage(ethers.utils.arrayify(hash));
+
+      modifyContract({variables: {publisher: account, tiers, signedHash}})
+        .then((data) => {
+          console.log(data);
+          enqueueSnackbar("Modification Successful", {
+            variant: "success",
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+          enqueueSnackbar(`${err.message}`, {
+            variant: "error",
+          });
+        });
+    } else {
+      enqueueSnackbar("No account", {
+        variant: "error",
+      });
+    }
+  }
 
   async function _deployContract() {
     if (account) {
@@ -272,7 +349,11 @@ export default function CreatorLaunchCard() {
             <Button
               variant="contained"
               color="secondary"
-              onClick={_deployContract}
+              onClick={
+                data && data.user && data.user.contract
+                  ? _modifyContract
+                  : _deployContract
+              }
             >
               {data && data.user && data.user.contract ? "Update" : "Launch"}
             </Button>

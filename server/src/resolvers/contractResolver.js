@@ -34,9 +34,9 @@ const resolver = {
     },
   },
   Contract: {
-    publisher: async(parent) => {
-      return getUserById(parent.publisher.id)
-    }
+    publisher: async (parent) => {
+      return getUserById(parent.publisher.id);
+    },
   },
   Mutation: {
     modifyContract: async (_, args) => {
@@ -45,17 +45,23 @@ const resolver = {
 
       // Check if user has contract
 
-      let contract = await getContract(args.publisher.toLowerCase());
+      let publisher = await getUserById(args.publisher.toLowerCase());
 
-      if (!contract) {
+      if (!publisher) {
+        throw new UserInputError("User does not exsist", {
+          invalidArgs: Object.keys(args),
+        });
+      }
+
+      if (!publisher.contract) {
         throw new UserInputError("User does not have active contract", {
           invalidArgs: Object.keys(args),
         });
       }
 
-      let _contract = await Contract.findById(contract.id.toLowerCase())
-        .populate("publisher")
-        .exec();
+      let contract = await getContractById(publisher.contract.id.toLowerCase());
+
+      let _contract = await Contract.findById(contract.id.toLowerCase()).exec();
 
       var subscriptionV1 = new ethers.Contract(
         contract.id,
@@ -84,7 +90,6 @@ const resolver = {
       }
 
       try {
-        contract.acceptedValues = values;
         _contract.set("tiers", []);
 
         let tier;
@@ -100,7 +105,7 @@ const resolver = {
 
         _contract.save();
 
-        contract = merge(contract, _contract);
+        contract = getContractById(contract.id);
 
         return contract;
       } catch (err) {
@@ -114,12 +119,9 @@ const resolver = {
     createContract: async (_, args) => {
       // Check if user has contract
 
-      
+      let publisher = await getUserById(args.publisher.toLowerCase())
 
-      let contract = await getContract(args.publisher.toLowerCase());
-      // let contract = null;
-
-      if (contract) {
+      if (publisher && publisher.contract) {
         throw new UserInputError("User already has contract", {
           invalidArgs: Object.keys(args),
         });
@@ -142,9 +144,7 @@ const resolver = {
 
         let _contract = new Contract();
         _contract._id = address.toLowerCase();
-        let _publisher = await User.findById(args.publisher).populate(
-          "contract"
-        );
+        let _publisher = await User.findById(args.publisher)
 
         if (_publisher === null) {
           _publisher = await User.create({_id: args.publisher});
@@ -166,14 +166,8 @@ const resolver = {
         _publisher.contract = _contract._id;
         await _publisher.save();
 
-        contract = {};
+        let contract = await getContractById(address);
 
-        contract.id = address;
-        contract.acceptedValues = values;
-        contract.paymentTokens = [dai.address];
-        contract.publisher = _publisher;
-        contract.publisherNonce = 0;
-        contract.subscribers = [];
         return contract;
       } catch (err) {
         console.log(err);
