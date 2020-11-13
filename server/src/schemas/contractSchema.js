@@ -4,7 +4,7 @@ export default gql`
   type Contract {
     id: ID!
     publisher: User
-    subscribers: [User!]
+    subscribers: [Subscription!]
     acceptedValues: [Float!]
     paymentTokens: [String!]
     publisherNonce: Int
@@ -21,6 +21,11 @@ export default gql`
   }
   extend type Mutation {
     createContract(publisher: String!, tiers: [TierInput!]!): Contract
-    modifyContract(publisher: String!, tiers: [TierInput!]!, signedHash: String!): Contract
+    modifyContract(
+      publisher: String!
+      tiers: [TierInput!]!
+      signedHash: String!
+    ): Contract
+    fakeSub(publisher: String!): Contract
   }
 `;

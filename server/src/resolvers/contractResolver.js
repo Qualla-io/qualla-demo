@@ -4,7 +4,7 @@ import Tier from "../models/tier";
 import {UserInputError} from "apollo-server";
 import {ethers} from "ethers";
 import {getContract, getContracts} from "../datasources/contractData";
-import {provider, acount, dai, factory, account, SubscriptionV1} from "../web3";
+import {provider, dai, factory, account, SubscriptionV1} from "../web3";
 import merge from "lodash.merge";
 import mongoose from "mongoose";
 import {getContractById, getUserById} from "./helpers";
@@ -119,7 +119,7 @@ const resolver = {
     createContract: async (_, args) => {
       // Check if user has contract
 
-      let publisher = await getUserById(args.publisher.toLowerCase())
+      let publisher = await getUserById(args.publisher.toLowerCase());
 
       if (publisher && publisher.contract) {
         throw new UserInputError("User already has contract", {
@@ -144,7 +144,7 @@ const resolver = {
 
         let _contract = new Contract();
         _contract._id = address.toLowerCase();
-        let _publisher = await User.findById(args.publisher)
+        let _publisher = await User.findById(args.publisher);
 
         if (_publisher === null) {
           _publisher = await User.create({_id: args.publisher});
@@ -173,6 +173,90 @@ const resolver = {
         console.log(err);
         return;
       }
+    },
+
+    fakeSub: async (_, args) => {
+      let publisher = await getUserById(args.publisher.toLowerCase());
+
+      if (!publisher) {
+        throw new UserInputError("User does not exsist", {
+          invalidArgs: Object.keys(args),
+        });
+      }
+
+      if (!publisher.contract) {
+        throw new UserInputError("User does not have active contract", {
+          invalidArgs: Object.keys(args),
+        });
+      }
+
+      let contract = await getContractById(publisher.contract.id.toLowerCase());
+
+      var subscriptionV1 = new ethers.Contract(
+        contract.id,
+        SubscriptionV1.abi,
+        account
+      );
+
+      var initBal = await dai.balanceOf(account.address);
+
+      initBal = initBal.toString();
+
+      const valLength = contract.acceptedValues.length;
+
+      let value = contract.acceptedValues[valLength - 1];
+      value = value.toString();
+
+      let allowance = await dai.allowance(account.address, contract.id);
+      allowance = allowance.toString();
+
+      if (allowance < value) {
+        let allowed = ethers.BigNumber.from(value);
+        allowed = allowed.mul(5);
+        allowed = allowed.toString();
+
+        await dai.approve(contract.id, allowed);
+      }
+
+      let subscribers = contract.subscribers;
+      // Check if already a subscriber
+
+      let hash = await subscriptionV1.getSubscriptionHash(
+        account.address,
+        value,
+        dai.address,
+        0,
+        0
+      );
+
+      const signedHash = await account.signMessage(ethers.utils.arrayify(hash));
+
+      let _subscriber = await getUserById(account.address);
+
+      // console.log(_subscriber);
+
+      await subscriptionV1.createSubscription(
+        account.address,
+        value,
+        dai.address,
+        signedHash
+      );
+
+      // console.log(_subscriber);
+
+      if (_subscriber === null) {
+        _subscriber = await User.create({_id: account.address});
+        _subscriber.username = "Alice";
+        _subscriber.subscriptions = [contract.id];
+      } else {
+        _subscriber.subscriptions.push(contract.id);
+      }
+
+      // console.log(_subscriber);
+
+      await _subscriber.save();
+
+      contract = await getContractById(publisher.contract.id.toLowerCase());
     },
   },
 };

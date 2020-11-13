@@ -1,5 +1,4 @@
-import React from "react";
-import {useSelector} from "react-redux";
+import React, {useEffect, useState} from "react";
 import Card from "@material-ui/core/Card";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
@@ -31,6 +30,21 @@ const GET_CONTRACT_OVERVIEW = gql`
 export default function CreatorOverview() {
   let account = useReactiveVar(accountVar);
   const {error, loading, data} = useQueryWithAccount(GET_CONTRACT_OVERVIEW);
+  let [value, setValue] = useState(0);
+
+  useEffect(() => {
+    // test this later
+    if (data && data.user && data.user.contract) {
+      let subscribers = data.user.contract.subscribers;
+
+      let subValue = 0;
+      for (var i = 0; i < subscribers.length; i++) {
+        subValue = subValue + subscribers[i].value;
+      }
+
+      setValue(subValue);
+    }
+  }, [data]);
 
   return (
     <Grid container alignItems="stretch">
@@ -70,12 +84,7 @@ export default function CreatorOverview() {
           </Grid>
           <Divider orientation="vertical" flexItem />
           <Grid item xs={12} md>
-            <Typography variant="h6">
-              $ 0
-              {/* {creatorState.contract.address
-                ? creatorState.contract.subscriberValue
-                : 0} */}
-            </Typography>
+            <Typography variant="h6">$ {value}</Typography>
             <Typography variant="subtitle1">Dai/month (projected)</Typography>
           </Grid>
         </Grid>

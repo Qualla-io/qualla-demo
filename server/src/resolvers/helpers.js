@@ -12,6 +12,8 @@ export async function getUserById(id) {
     return user;
   }
 
+  console.log(user);
+
   // pull from local data
   let _user = await User.findById(id.toLowerCase()).lean();
   // .populate("contract")
@@ -19,6 +21,10 @@ export async function getUserById(id) {
   if (_user) {
     user = merge(_user, user);
   }
+
+  console.log(_user);
+
+  console.log(user);
 
   return user;
 }

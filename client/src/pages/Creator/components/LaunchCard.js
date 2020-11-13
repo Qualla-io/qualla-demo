@@ -40,10 +40,21 @@ const DEPLOY_CONTRACT = gql`
   mutation createContract($publisher: String!, $tiers: [TierInput!]!) {
     createContract(publisher: $publisher, tiers: $tiers) {
       id
+      acceptedValues
+      tiers {
+        title
+        value
+        perks
+      }
       publisher {
         id
         contract {
           id
+          tiers {
+            title
+            value
+            perks
+          }
         }
       }
     }
@@ -211,6 +222,7 @@ export default function CreatorLaunchCard() {
           enqueueSnackbar("Modification Successful", {
             variant: "success",
           });
+          window.location.reload();
         })
         .catch((err) => {
           console.log(err);

@@ -22,7 +22,12 @@ export function handleNewSubscriber(event: newSubscriber): void {
   if (contract == null) {
     contract = new SubscriptionContract(event.address.toHexString());
   }
-  let subscription = new SubscriptionObj(`${user.id}-${contract.id}`);
+
+  let subscription = new SubscriptionObj(
+    event.params.subscriber.toHexString() + "-" + event.address.toHexString()
+  );
+
+  log.info("New Subscription {}", [subscription.id]);
 
   subscription.subscriber = user.id;
   subscription.contract = contract.id;

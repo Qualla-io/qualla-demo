@@ -4,30 +4,30 @@ const GET_CONTRACT = `
   query GetContract($id: String!) {
     subscriptionContract(id: $id){
       id
-      publisher{
+      publisher {
         id
       }
       publisherNonce
-      factory{
+      factory {
         id
         fee
       }
       paymentTokens
-        acceptedValues
-        subscribers {
+      acceptedValues
+      subscribers {
+        id
+        subscriber {
           id
-          subscriber {
-            id
-          }
-          status
-          value
-          paymentToken
-          subNum
-          hash
-          signedHash
-          nextWithdraw
-          nonce
         }
+        status
+        value
+        paymentToken
+        subNum
+        hash
+        signedHash
+        nextWithdraw
+        nonce
+      }
     }
   }
 `;
@@ -46,32 +46,32 @@ export async function getContract(id) {
 
 const GET_CONTRACTS = `
   query GetContracts {
-    subscriptionContracts{
+    subscriptionContracts {
       id
-      publisher{
+      publisher {
         id
       }
       publisherNonce
-      factory{
+      factory {
         id
         fee
       }
       paymentTokens
-        acceptedValues
-        subscribers {
+      acceptedValues
+      subscribers {
+        id
+        subscriber {
           id
-          subscriber {
-            id
-          }
-          status
-          value
-          paymentToken
-          subNum
-          hash
-          signedHash
-          nextWithdraw
-          nonce
         }
+        status
+        value
+        paymentToken
+        subNum
+        hash
+        signedHash
+        nextWithdraw
+        nonce
+      }
     }
   }
 `;
@@ -82,6 +82,3 @@ export async function getContracts() {
   });
   return res.data.subscriptionContracts;
 }
-
-
-
