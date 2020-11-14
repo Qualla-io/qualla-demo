@@ -1,4 +1,7 @@
 import React, {useEffect, useState} from "react";
+import ethers from "ethers";
+import {gql, useReactiveVar} from "@apollo/client";
+
 import Card from "@material-ui/core/Card";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
@@ -6,7 +9,6 @@ import Divider from "@material-ui/core/Divider";
 import CardContent from "@material-ui/core/CardContent";
 import Hidden from "@material-ui/core/Hidden";
 
-import {gql, useReactiveVar, useQuery} from "@apollo/client";
 import {accountVar} from "../../../cache";
 import {useQueryWithAccount} from "../../../hooks";
 
@@ -21,6 +23,8 @@ const GET_CONTRACT_OVERVIEW = gql`
         }
         subscribers {
           id
+          value
+          status
         }
       }
     }
@@ -36,10 +40,13 @@ export default function CreatorOverview() {
     // test this later
     if (data && data.user && data.user.contract) {
       let subscribers = data.user.contract.subscribers;
-
       let subValue = 0;
       for (var i = 0; i < subscribers.length; i++) {
-        subValue = subValue + subscribers[i].value;
+        if (subscribers[i].status === "ACTIVE") {
+          subValue =
+            +subValue +
+            +ethers.utils.formatEther(subscribers[i].value.toString());
+        }
       }
 
       setValue(subValue);

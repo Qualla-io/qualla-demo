@@ -157,7 +157,6 @@ export default function CreatorLaunchCard() {
           delete v.__typename;
         });
 
-        console.log(_tiers);
         setTiers(_tiers);
       }
     }
@@ -204,7 +203,7 @@ export default function CreatorLaunchCard() {
         );
       }
 
-      var nonce = data.user.contract.publisherNonce
+      var nonce = data.user.contract.publisherNonce;
 
       // get hash
       const hash = await subscription.getPublisherModificationHash(
@@ -219,7 +218,6 @@ export default function CreatorLaunchCard() {
 
       modifyContract({variables: {publisher: account, tiers, signedHash}})
         .then((data) => {
-          console.log(data);
           enqueueSnackbar("Modification Successful", {
             variant: "success",
           });
@@ -244,7 +242,6 @@ export default function CreatorLaunchCard() {
         variables: {publisher: account, tiers},
       })
         .then((data) => {
-          console.log(data);
           enqueueSnackbar("Deployment Successful", {
             variant: "success",
           });

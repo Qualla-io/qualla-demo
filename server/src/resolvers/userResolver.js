@@ -36,9 +36,7 @@ const resolver = {
   },
   User: {
     contract: async (parent, _, {dataSources}) => {
-
       if (parent.contract) {
-
         let contract = await dataSources.graphAPI.getContract(
           parent.contract.id
         );
@@ -55,10 +53,18 @@ const resolver = {
         return contract;
       }
     },
-    subscriptions: async (root, _, {dataSources}) => {
-      return await dataSources.graphAPI.getSubscription(root.id);
-    },
   },
+  // Contract: {
+  //   subscribers: async (parent, _, {dataSources}) => {
+
+  //     return parent.subscribers
+  //   },
+  // },
+  // Subscription: {
+  //   subscriber: async(parent, _, {dataSources})=> {
+  //     console.log(parent)
+  //   }
+  // },
   Mutation: {
     user: async (_, {id, username}, {dataSources}) => {
       let _user = await dataSources.localAPI.getUser(id, false);

@@ -1,13 +1,41 @@
 import React, {useState, useEffect} from "react";
-import Button from "@material-ui/core/Button";
-import {useSelector} from "react-redux";
-import {useDispatch} from "react-redux";
-import axios from "axios";
-import {makeStyles} from "@material-ui/core/styles";
-import {useSnackbar} from "notistack";
 import {ethers} from "ethers";
-import * as creatorActions from "../../../store/actions/CreatorActions";
+import {gql, useReactiveVar, useMutation} from "@apollo/client";
+import {useSnackbar} from "notistack";
+
+import Button from "@material-ui/core/Button";
+import {makeStyles} from "@material-ui/core/styles";
 import {Typography} from "@material-ui/core";
+
+import {useQueryWithAccount} from "../../../hooks";
+import {daiVar} from "../../../cache";
+
+const ACTIVATE_SUBS_INFO = gql`
+  query getActiveSubsInfo($id: ID!) {
+    user(id: $id) {
+      id
+      contract {
+        id
+        subscribers {
+          subscriber {
+            id
+          }
+        }
+      }
+    }
+  }
+`;
+
+const ACTIVATE_SUB = gql`
+  mutation fakeSub($contract: ID!) {
+    fakeSub(contract: $contract) {
+      id
+      subscribers {
+        id
+      }
+    }
+  }
+`;
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -27,64 +55,66 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ActivateSubs() {
   const [allowance, setAllowance] = useState(0);
+  const {error, loading, data} = useQueryWithAccount(ACTIVATE_SUBS_INFO);
+  const [activateSub] = useMutation(ACTIVATE_SUB);
+  let dai = useReactiveVar(daiVar);
   const {enqueueSnackbar} = useSnackbar();
   const classes = useStyles();
-  const web3State = useSelector((state) => state.Web3Reducer);
-  const creatorState = useSelector((state) => state.CreatorReducer);
 
-  const dispatch = useDispatch();
-
-  function updateContract() {
-    dispatch(creatorActions.updateContract());
-  }
+  // function updateContract() {
+  //   dispatch(creatorActions.updateContract());
+  // }
 
   useEffect(() => {
-    subscribeAllowance();
-  }, [creatorState.contract]);
+    if (data && data.user && data.user.contract) {
+      subscribeAllowance();
+    }
+  }, [data]);
 
-  function subscribeAllowance() {
-    if (creatorState.contract.subscribers) {
-      if (creatorState.contract.subscribers.length > 0) {
-        let subsciberAddress = creatorState.contract.subscribers[0].subscriber;
-        let filterAllowance = web3State.Dai.filters.Approval(
-          subsciberAddress,
-          null
-        );
+  async function subscribeAllowance() {
+    if (
+      data &&
+      data.user &&
+      data.user.contract &&
+      data.user.contract.subscribers.length > 0
+    ) {
+      // console.log(data.user.contract.subscribers[0].subscriber);
+      let subscriberID = data.user.contract.subscribers[0].subscriber.id;
+      let filterAllowance = dai.filters.Approval(subscriberID, null);
+      let filterTransfer = dai.filters.Transfer(
+        subscriberID,
+        data.user.contract.id
+      );
 
-        let filterTransfer = web3State.Dai.filters.Transfer(
-          subsciberAddress,
-          creatorState.contract.address
-        );
+      let handleApproval = async function (src, guy, wad) {
+        dai.allowance(subscriberID, data.user.contract.id).then((allowance) => {
+          setAllowance(ethers.utils.formatEther(allowance));
+        });
+      };
+      dai.on(filterAllowance, handleApproval);
+      dai.on(filterTransfer, handleApproval);
 
-        let handleApproval = async function (src, guy, wad) {
-          web3State.Dai.allowance(
-            subsciberAddress,
-            creatorState.contract.address
-          ).then((allowance) => {
-            setAllowance(ethers.utils.formatEther(allowance));
-          });
-        };
-
-        web3State.Dai.on(filterAllowance, handleApproval);
-        web3State.Dai.on(filterTransfer, handleApproval);
-      }
+      handleApproval();
     }
   }
 
-  function activateSub() {
-    enqueueSnackbar(`Request Sent`, {
-      variant: "success",
-      autoHideDuration: 2000,
-    });
-    axios
-      .post("http://localhost:8080/fakesub", {publisher: web3State.account})
-      .then((res) => {
-        updateContract();
-        enqueueSnackbar(res.data, {
+  function _activateSub() {
+    activateSub({variables: {contract: data.user.contract.id}})
+      .then((data) => {
+        enqueueSnackbar("Subscription Successful", {
           variant: "success",
-          autoHideDuration: 2000,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        enqueueSnackbar(`${err.message}`, {
+          variant: "error",
         });
       });
+
+    enqueueSnackbar(`Request Sent`, {
+      variant: "success",
+    });
   }
 
   return (
@@ -92,7 +122,7 @@ export default function ActivateSubs() {
       <Button
         variant="contained"
         color="secondary"
-        onClick={activateSub}
+        onClick={_activateSub}
         className={classes.btn}
       >
         Activate Subscriber!

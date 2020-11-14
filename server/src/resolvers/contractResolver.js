@@ -39,12 +39,8 @@ const resolver = {
       let user = await dataSources.graphAPI.getUser(root.publisher.id);
 
       let _user = await dataSources.localAPI.getUser(root.publisher.id, false);
-      console.log(user);
-      console.log(_user);
 
       user = merge(_user, user);
-
-      console.log(user);
 
       return user;
     },
@@ -206,22 +202,20 @@ const resolver = {
       }
     },
 
-    fakeSub: async (_, args) => {
-      let publisher = await getUserById(args.publisher.toLowerCase());
+    fakeSub: async (_, args, {dataSources}) => {
+      let contract = await dataSources.graphAPI.getContract(
+        args.contract.toLowerCase()
+      );
 
-      if (!publisher) {
-        throw new UserInputError("User does not exsist", {
+      if (!contract) {
+        throw new UserInputError("Contract does not exsist", {
           invalidArgs: Object.keys(args),
         });
       }
 
-      if (!publisher.contract) {
-        throw new UserInputError("User does not have active contract", {
-          invalidArgs: Object.keys(args),
-        });
-      }
-
-      let contract = await getContractById(publisher.contract.id.toLowerCase());
+      let publisher = await dataSources.graphAPI.getUser(
+        contract.publisher.id.toLowerCase()
+      );
 
       var subscriptionV1 = new ethers.Contract(
         contract.id,
@@ -252,42 +246,54 @@ const resolver = {
       let subscribers = contract.subscribers;
       // Check if already a subscriber
 
-      let hash = await subscriptionV1.getSubscriptionHash(
-        account.address,
-        value,
-        dai.address,
-        0,
-        0
-      );
+      let found = false;
 
-      const signedHash = await account.signMessage(ethers.utils.arrayify(hash));
-
-      let _subscriber = await getUserById(account.address);
-
-      // console.log(_subscriber);
-
-      await subscriptionV1.createSubscription(
-        account.address,
-        value,
-        dai.address,
-        signedHash
-      );
-
-      // console.log(_subscriber);
-
-      if (_subscriber === null) {
-        _subscriber = await User.create({_id: account.address});
-        _subscriber.username = "Alice";
-        _subscriber.subscriptions = [contract.id];
-      } else {
-        _subscriber.subscriptions.push(contract.id);
+      for (var i = 0; i < subscribers.length; i++) {
+        if (account.address.toLowerCase() === subscribers[i].subscriber.id) {
+          found = true;
+        }
       }
 
-      // console.log(_subscriber);
+      if (!found) {
+        let hash = await subscriptionV1.getSubscriptionHash(
+          account.address,
+          value,
+          dai.address,
+          0,
+          0
+        );
 
-      await _subscriber.save();
+        const signedHash = await account.signMessage(
+          ethers.utils.arrayify(hash)
+        );
 
-      contract = await getContractById(publisher.contract.id.toLowerCase());
+        let subscriber = await dataSources.graphAPI.getUser(
+          account.address.toLowerCase()
+        );
+
+        let _subscriber = await dataSources.localAPI.getUser(
+          account.address.toLowerCase()
+        );
+
+        await subscriptionV1.createSubscription(
+          account.address,
+          value,
+          dai.address,
+          signedHash
+        );
+
+        if (_subscriber === null) {
+          _subscriber = await User.create({_id: account.address.toLowerCase()});
+          _subscriber.username = "Alice";
+          await _subscriber.save();
+        }
+      }
+      let _contract = await dataSources.localAPI.getContract(
+        contract.id.toLowerCase()
+      );
+
+      contract = merge(_contract, contract);
+      return contract;
     },
   },
 };

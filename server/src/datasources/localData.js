@@ -35,4 +35,4 @@ class LocalDataAPI extends DataSource {
   }
 }
 
-export default LocalDataAPI
+export default LocalDataAPI;

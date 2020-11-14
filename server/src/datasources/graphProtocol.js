@@ -30,6 +30,7 @@ class GraphProtocolAPI extends DataSource {
           acceptedValues
           subscribers {
             id
+            value
             subscriber {
               id
             }
@@ -61,6 +62,8 @@ class GraphProtocolAPI extends DataSource {
           acceptedValues
           subscribers {
             id
+            value
+            status
             subscriber {
               id
             }
