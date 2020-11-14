@@ -31,6 +31,7 @@ const GET_CONTRACT_DETAILS = gql`
           value
           perks
         }
+        publisherNonce
       }
     }
   }
@@ -203,7 +204,7 @@ export default function CreatorLaunchCard() {
         );
       }
 
-      var nonce = parseInt(await subscription.publisherNonce());
+      var nonce = data.user.contract.publisherNonce
 
       // get hash
       const hash = await subscription.getPublisherModificationHash(

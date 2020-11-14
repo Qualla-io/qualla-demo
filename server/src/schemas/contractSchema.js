@@ -26,6 +26,5 @@ export default gql`
       tiers: [TierInput!]!
       signedHash: String!
     ): Contract
-    fakeSub(publisher: String!): Contract
   }
 `;

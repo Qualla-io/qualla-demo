@@ -3,7 +3,6 @@ import User from "../models/user";
 import Tier from "../models/tier";
 import {UserInputError} from "apollo-server";
 import {ethers} from "ethers";
-import {getContract, getContracts} from "../datasources/contractData";
 import {provider, dai, factory, account, SubscriptionV1} from "../web3";
 import merge from "lodash.merge";
 import mongoose from "mongoose";
@@ -11,41 +10,54 @@ import {getContractById, getUserById} from "./helpers";
 
 const resolver = {
   Query: {
-    contracts: async () => {
+    contracts: async (_, {}, {dataSources}) => {
       // Pull from graph protocol
-      let contracts = await getContracts();
-      let ids = contracts.map(({id}) => id);
+      let contracts = await dataSources.graphAPI.getContracts();
 
       // Pull from local data
-      let _contracts = await Contract.find().where("_id").in(ids).lean();
-      // .populate("publisher");
+      let _contracts = await dataSources.localAPI.getContracts();
 
       // Stitch
       contracts = merge(_contracts, contracts);
 
       return contracts;
     },
-    contract: async (_, args) => {
-      // finds contract by address of publisher
 
-      let contract = getContractById(args.id);
+    contract: async (_, {id}, {dataSources}) => {
+      let contract = await dataSources.graphAPI.getContract(id.toLowerCase());
+
+      let _contract = await dataSources.localAPI.getContract(id.toLowerCase());
+
+      // Stitch
+      contract = merge(_contract, contract);
 
       return contract;
     },
   },
   Contract: {
-    publisher: async (parent) => {
-      return getUserById(parent.publisher.id);
+    publisher: async (root, _, {dataSources}) => {
+      let user = await dataSources.graphAPI.getUser(root.publisher.id);
+
+      let _user = await dataSources.localAPI.getUser(root.publisher.id, false);
+      console.log(user);
+      console.log(_user);
+
+      user = merge(_user, user);
+
+      console.log(user);
+
+      return user;
     },
   },
   Mutation: {
-    modifyContract: async (_, args) => {
+    modifyContract: async (_, args, {dataSources}) => {
       // this works besides the actual on chain modification.
       // TODO: Test with front end
 
       // Check if user has contract
-
-      let publisher = await getUserById(args.publisher.toLowerCase());
+      let publisher = await dataSources.graphAPI.getUser(
+        args.publisher.toLowerCase()
+      );
 
       if (!publisher) {
         throw new UserInputError("User does not exsist", {
@@ -59,9 +71,14 @@ const resolver = {
         });
       }
 
-      let contract = await getContractById(publisher.contract.id.toLowerCase());
+      let contract = await dataSources.graphAPI.getContract(
+        publisher.contract.id.toLowerCase()
+      );
 
-      let _contract = await Contract.findById(contract.id.toLowerCase()).exec();
+      let _contract = await dataSources.localAPI.getContract(
+        contract.id.toLowerCase(),
+        false
+      );
 
       var subscriptionV1 = new ethers.Contract(
         contract.id,
@@ -105,7 +122,11 @@ const resolver = {
 
         _contract.save();
 
-        contract = getContractById(contract.id);
+        contract = merge(_contract.toObject(), contract);
+
+        contract.paymentTokens = [dai.address];
+        contract.acceptedValues = values;
+        contract.publisherNonce++;
 
         return contract;
       } catch (err) {
@@ -116,10 +137,12 @@ const resolver = {
       }
     },
 
-    createContract: async (_, args) => {
+    createContract: async (_, args, {dataSources}) => {
       // Check if user has contract
 
-      let publisher = await getUserById(args.publisher.toLowerCase());
+      let publisher = await dataSources.graphAPI.getUser(
+        args.publisher.toLowerCase()
+      );
 
       if (publisher && publisher.contract) {
         throw new UserInputError("User already has contract", {
@@ -144,7 +167,7 @@ const resolver = {
 
         let _contract = new Contract();
         _contract._id = address.toLowerCase();
-        let _publisher = await User.findById(args.publisher);
+        let _publisher = await dataSources.localAPI.getUser(args.publisher);
 
         if (_publisher === null) {
           _publisher = await User.create({_id: args.publisher});
@@ -166,7 +189,15 @@ const resolver = {
         _publisher.contract = _contract._id;
         await _publisher.save();
 
-        let contract = await getContractById(address);
+        let contract = await dataSources.graphAPI.getContract(
+          address.toLowerCase()
+        );
+
+        contract = merge(_contract.toObject(), contract);
+
+        contract.paymentTokens = [dai.address];
+        contract.acceptedValues = values;
+        contract.publisherNonce = 0;
 
         return contract;
       } catch (err) {

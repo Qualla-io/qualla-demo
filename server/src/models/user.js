@@ -13,7 +13,7 @@ var UserSchema = new Schema(
   }
 );
 
-UserSchema.virtual("address").get(function () {
+UserSchema.virtual("id").get(function () {
   return this._id;
 });
 

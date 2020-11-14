@@ -1,49 +1,12 @@
 import React, {useEffect} from "react";
-// import { useSelector, useDispatch } from "react-redux";
-import {useDispatch} from "react-redux";
+
 import {BrowserRouter as Router} from "react-router-dom";
 import BaseRouter from "./routes";
-import * as web3Actions from "./store/actions/web3Actions";
-import * as creatorActions from "./store/actions/CreatorActions";
-import store from "./store/myStore";
-
-import DaiContract from "./contracts/TestDai.json";
-import SubscriptionFactory from "./contracts/SubscriptionFactory.json";
-import SubscriptionContract from "./contracts/SubscriptionV1.json";
-
-import {ethers} from "ethers";
 import {SnackbarProvider} from "notistack";
-import {useApolloClient} from "@apollo/client";
-import {useQuery, gql, useReactiveVar, useLazyQuery} from "@apollo/client";
-import {
-  accountVar,
-  providerVar,
-  signerVar,
-  daiVar,
-  factoryVar,
-  subscriptionVar,
-} from "./cache";
-import {useQueryWithAccount} from "./hooks";
-
-import Web3Modal from "web3modal";
-// import Fortmatic from "fortmatic";
-// import WalletConnectProvider from "@walletconnect/web3-provider";
 import "./App.css";
 import {createMuiTheme, ThemeProvider} from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Layout from "./containers/Layout";
-
-const INIT_APP = gql`
-  query InitApp($id: ID!) {
-    user(id: $id) {
-      id
-      username
-      contract {
-        id
-      }
-    }
-  }
-`;
 
 const font = "'Rubik', sans-serif";
 
@@ -57,20 +20,7 @@ const theme = createMuiTheme({
 });
 
 export default function App() {
-  // const web3State = useSelector((state) => state.Web3Reducer);
-  let signer = useReactiveVar(signerVar);
-  const {loading, error, data} = useQueryWithAccount(INIT_APP);
 
-  useEffect(() => {
-    if (data && data.user && data.user.contract.id && signer) {
-      var subscriptionV1 = new ethers.Contract(
-        data.user.contract.id,
-        SubscriptionContract.abi,
-        signer
-      );
-      subscriptionVar(subscriptionV1);
-    }
-  }, [data, signer]);
 
   // useEffect(async () => {
   //   if (account && signer) {
@@ -80,81 +30,6 @@ export default function App() {
   //   }
   // }, [account, signer]);
 
-  useEffect(() => {
-    initWeb3();
-    // eslint-disable-next-line
-  }, []);
-
-  async function initWeb3() {
-    try {
-      const providerOptions = {
-        // fortmatic: {
-        //   package: Fortmatic, // required
-        //   options: {
-        //     key: "FORTMATIC_KEY", // required
-        //   },
-        // },
-        // walletconnect: {
-        //   package: WalletConnectProvider, // required
-        //   options: {
-        //     infuraId: "INFURA_ID", // required
-        //   },
-        // },
-      };
-
-      const web3Modal = new Web3Modal({
-        cacheProvider: false,
-        providerOptions,
-      });
-      const eth = await web3Modal.connect();
-
-      // let web3 = await getWeb3();
-      // updateWeb3("eth", eth);
-
-      const provider = new ethers.providers.Web3Provider(eth);
-      // const provider = new ethers.providers.JsonRpcProvider(
-      //   "http://127.0.0.1:8545",
-      //   {chaindId: 5777, name: "local"}
-      // );
-
-      providerVar(provider);
-
-      const signer = provider.getSigner();
-      signerVar(signer);
-
-      var deployedNetwork = DaiContract.networks[5777];
-      var Dai = new ethers.Contract(
-        deployedNetwork && deployedNetwork.address,
-        DaiContract.abi,
-        provider
-      );
-
-      Dai = Dai.connect(signer);
-      daiVar(Dai);
-
-      deployedNetwork = SubscriptionFactory.networks[5777];
-      var Factory = new ethers.Contract(
-        deployedNetwork && deployedNetwork.address,
-        DaiContract.abi,
-        provider
-      );
-
-      Factory = Factory.connect(signer);
-      factoryVar(Factory);
-
-      // // Use web3 to get the user's accounts.
-      const account = await signer.getAddress();
-      accountVar(account);
-
-      const networkId = await provider.getNetwork();
-      // updateWeb3("chainId", networkId.chainId);
-    } catch (error) {
-      alert(
-        `Failed to load web3, accounts, or contract. Check console for details.`
-      );
-      console.error(error);
-    }
-  }
 
   // TODO: redo monotoring
   // async function moniterWeb3() {
@@ -169,11 +44,6 @@ export default function App() {
   //     setTimeout(moniterWeb3, 500);
   //   }
   // }
-
-  if (loading) return null;
-
-  if (error) return `Error! ${error}`;
-
   return (
     <div className="App">
       <Router>

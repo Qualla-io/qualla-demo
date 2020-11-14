@@ -7,6 +7,17 @@ const GET_USER = `
       contract {
         id
       }
+      subscriptions{
+        id
+        value
+        status
+        paymentToken
+        subNum
+        hash
+        signedHash
+        nextWithdraw
+        nonce
+      }
     }
   }
 `;
@@ -29,6 +40,17 @@ const GET_USERS = `
       id
       contract {
         id
+      }
+      subscriptions{
+        id
+        value
+        status
+        paymentToken
+        subNum
+        hash
+        signedHash
+        nextWithdraw
+        nonce
       }
     }
   }

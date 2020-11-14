@@ -14,7 +14,7 @@ var ContractSchema = new Schema(
   }
 );
 
-ContractSchema.virtual("address").get(function () {
+ContractSchema.virtual("id").get(function () {
   return this._id;
 });
 

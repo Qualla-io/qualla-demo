@@ -5,13 +5,21 @@ var mongoose = require("mongoose");
 
 import schemas from "./schemas";
 import resolvers from "./resolvers";
+import GraphAPI from "./datasources/graphProtocol";
+import LocalAPI from "./datasources/localData";
 
 const app = express();
 app.use(cors());
 
+const dataSources = () => ({
+  graphAPI: new GraphAPI(),
+  localAPI: new LocalAPI(),
+});
+
 const server = new ApolloServer({
   typeDefs: schemas,
   resolvers,
+  dataSources,
 });
 
 server.applyMiddleware({app, path: "/graphql"});

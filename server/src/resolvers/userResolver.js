@@ -7,41 +7,72 @@ import userSchema from "../schemas/userSchema";
 import {dai} from "../web3";
 import {initial} from "lodash";
 import {getContractById, getUserById} from "./helpers";
+import contract from "../models/contract";
 
 const resolver = {
   Query: {
-    users: async () => {
+    users: async (_, {}, {dataSources}) => {
       // Pull from graph protocol
-      let users = await getUsers();
+      let users = await dataSources.graphAPI.getUsers();
 
-      let userIds = users.map(({id}) => id);
-
-      let _users = await User.find().where("_id").in(userIds).lean();
+      let _users = await dataSources.localAPI.getUsers();
       // .populate("contract");
 
       users = merge(_users, users);
 
       return users;
     },
-    user: async (_, args) => {
-      let user = getUserById(args.id);
+    user: async (_, {id}, {dataSources}) => {
+      let user = await dataSources.graphAPI.getUser(id.toLowerCase());
+
+      let _user = await dataSources.localAPI.getUser(id.toLowerCase());
+
+      if (user || _user) {
+        user = merge(_user, user);
+      }
 
       return user;
     },
   },
   User: {
-    contract: async (parent) => {
-      return getContractById(parent.contract.id);
+    contract: async (parent, _, {dataSources}) => {
+
+      if (parent.contract) {
+
+        let contract = await dataSources.graphAPI.getContract(
+          parent.contract.id
+        );
+
+        let _contract = await dataSources.localAPI.getContract(
+          parent.contract.id
+        );
+
+        // Stitch
+        if (contract || _contract) {
+          contract = merge(_contract, contract);
+        }
+
+        return contract;
+      }
+    },
+    subscriptions: async (root, _, {dataSources}) => {
+      return await dataSources.graphAPI.getSubscription(root.id);
     },
   },
   Mutation: {
-    user: async (_, args) => {
-      let user = await User.findById(args.id);
-      if (user === null) {
-        user = await User.create({_id: args.id});
+    user: async (_, {id, username}, {dataSources}) => {
+      let _user = await dataSources.localAPI.getUser(id, false);
+
+      if (_user === null) {
+        _user = await User.create({_id: id});
       }
-      user.username = args.username;
-      user.save();
+      _user.username = username;
+      _user.save();
+
+      let user = await dataSources.graphAPI.getUser(id);
+
+      user = merge(_user.toObject(), user);
+
       return user;
     },
     mintTokens: async (_, args) => {

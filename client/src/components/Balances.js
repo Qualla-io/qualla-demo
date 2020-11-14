@@ -239,7 +239,7 @@ export default function Balances() {
   const balancesCard = (
     <>
       <Grid container className={classes.container} spacing={1}>
-        {data && data.contract ? contractComp : null}
+        {data && data.user && data.user.contract ? contractComp : null}
         <Grid item>
           <Typography variant="subtitle1" className={classes.underline}>
             Personal:
