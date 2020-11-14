@@ -76,12 +76,11 @@ class GraphProtocolAPI extends DataSource {
       query: GET_CONTRACT,
       variables: {id},
     });
-    if(res.data.subscriptionContract){
+    if (res.data.subscriptionContract) {
       return res.data.subscriptionContract;
-    } else{
-      return null
+    } else {
+      return null;
     }
-    
   }
 
   async getUsers() {
@@ -124,12 +123,11 @@ class GraphProtocolAPI extends DataSource {
       query: GET_USER,
       variables: {id},
     });
-    if(res.data.user){
+    if (res.data.user) {
       return res.data.user;
     } else {
-      return null
+      return null;
     }
-    
   }
 
   async getSubscription(id) {

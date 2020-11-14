@@ -41,22 +41,16 @@ const DEPLOY_CONTRACT = gql`
   mutation createContract($publisher: String!, $tiers: [TierInput!]!) {
     createContract(publisher: $publisher, tiers: $tiers) {
       id
+      publisher {
+        id
+      }
       acceptedValues
+      publisherNonce
       tiers {
+        id
         title
         value
         perks
-      }
-      publisher {
-        id
-        contract {
-          id
-          tiers {
-            title
-            value
-            perks
-          }
-        }
       }
     }
   }
@@ -79,12 +73,6 @@ const MODIFY_CONTRACT = gql`
         title
         value
         perks
-      }
-      publisher {
-        id
-        contract {
-          id
-        }
       }
     }
   }
@@ -124,12 +112,6 @@ const useStyles = makeStyles((theme) => ({
 const initialTiers = [
   {title: "Tier 1", value: "5", perks: "ad free"},
   {title: "Tier 5", value: "10", perks: "premium content"},
-];
-
-const testTiers = [
-  {title: "Tier 1", value: "5", perks: "ad free"},
-  {title: "Tier 2", value: "10", perks: "tits"},
-  {title: "Tier 3", value: "10", perks: "tits"},
 ];
 
 export default function CreatorLaunchCard() {
@@ -189,10 +171,6 @@ export default function CreatorLaunchCard() {
     setTiers(temp);
   }
 
-  // function updateContract() {
-  //   dispatch(creatorActions.updateContract());
-  // }
-
   async function _modifyContract() {
     if (account && subscription) {
       let values = [];
@@ -221,7 +199,6 @@ export default function CreatorLaunchCard() {
           enqueueSnackbar("Modification Successful", {
             variant: "success",
           });
-          window.location.reload();
         })
         .catch((err) => {
           console.log(err);
@@ -240,6 +217,21 @@ export default function CreatorLaunchCard() {
     if (account) {
       deployContract({
         variables: {publisher: account, tiers},
+        update(cache, {data}) {
+          const userData = cache.readQuery({
+            query: GET_CONTRACT_DETAILS,
+            variables: {id: account},
+          });
+
+          let _userData = {...userData};
+          _userData.contract = data.createContract;
+
+          cache.writeQuery({
+            query: GET_CONTRACT_DETAILS,
+            variables: {id: account},
+            data: {user: _userData},
+          });
+        },
       })
         .then((data) => {
           enqueueSnackbar("Deployment Successful", {

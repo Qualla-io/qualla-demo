@@ -25,11 +25,13 @@ const resolver = {
     user: async (_, {id}, {dataSources}) => {
       let user = await dataSources.graphAPI.getUser(id.toLowerCase());
 
-      let _user = await dataSources.localAPI.getUser(id.toLowerCase());
+      let _user = await dataSources.localAPI.getUser(id.toLowerCase(), false);
 
       if (user || _user) {
-        user = merge(_user, user);
+        user = merge(_user.toObject(), user);
       }
+
+      console.log(user);
 
       return user;
     },
@@ -37,20 +39,37 @@ const resolver = {
   User: {
     contract: async (parent, _, {dataSources}) => {
       if (parent.contract) {
-        let contract = await dataSources.graphAPI.getContract(
-          parent.contract.id
-        );
+        try {
+          let contract = await dataSources.graphAPI.getContract(
+            parent.contract.id
+          );
 
-        let _contract = await dataSources.localAPI.getContract(
-          parent.contract.id
-        );
+          let _contract = await dataSources.localAPI.getContract(
+            parent.contract.id
+          );
 
-        // Stitch
-        if (contract || _contract) {
-          contract = merge(_contract, contract);
+          // Stitch
+          if (contract || _contract) {
+            contract = merge(_contract, contract);
+          }
+
+          return contract;
+        } catch {
+          let contract = await dataSources.graphAPI.getContract(
+            parent.contract
+          );
+
+          let _contract = await dataSources.localAPI.getContract(
+            parent.contract
+          );
+
+          // Stitch
+          if (contract || _contract) {
+            contract = merge(_contract, contract);
+          }
+
+          return contract;
         }
-
-        return contract;
       }
     },
   },
@@ -67,32 +86,33 @@ const resolver = {
   // },
   Mutation: {
     user: async (_, {id, username}, {dataSources}) => {
-      let _user = await dataSources.localAPI.getUser(id, false);
+      let _user = await dataSources.localAPI.getUser(id.toLowerCase(), false);
 
       if (_user === null) {
-        _user = await User.create({_id: id});
+        _user = await User.create({_id: id.toLowerCase()});
       }
+
       _user.username = username;
       _user.save();
 
-      let user = await dataSources.graphAPI.getUser(id);
+      let user = await dataSources.graphAPI.getUser(id.toLowerCase());
 
       user = merge(_user.toObject(), user);
 
       return user;
     },
     mintTokens: async (_, args) => {
-      const initBal = await dai.balanceOf(args.id);
+      const initBal = await dai.balanceOf(args.id.toLowerCase());
       console.log(`Old balance: ${initBal}`);
 
       if (initBal < 3000000000000000000000) {
-        await dai.mintTokens(args.id);
+        await dai.mintTokens(args.id.toLowerCase());
       } else {
         throw new UserInputError("Excessive funds, don't be greedy!", {
           invalidArgs: Object.keys(args),
         });
       }
-      const finalBal = await dai.balanceOf(args.id);
+      const finalBal = await dai.balanceOf(args.id.toLowerCase());
       console.log(`New balance: ${finalBal}`);
     },
   },

@@ -55,7 +55,14 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ActivateSubs() {
   const [allowance, setAllowance] = useState(0);
-  const {error, loading, data} = useQueryWithAccount(ACTIVATE_SUBS_INFO);
+  const {error, loading, data} = useQueryWithAccount(ACTIVATE_SUBS_INFO, {
+    // update(cache, {data: {fakeSub}}) {
+    //   cache.modify({
+    //     fields: {
+    //     }
+    //   })
+    // },
+  });
   const [activateSub] = useMutation(ACTIVATE_SUB);
   let dai = useReactiveVar(daiVar);
   const {enqueueSnackbar} = useSnackbar();
@@ -124,6 +131,7 @@ export default function ActivateSubs() {
         color="secondary"
         onClick={_activateSub}
         className={classes.btn}
+        // disabled={allowance > 0}
       >
         Activate Subscriber!
       </Button>

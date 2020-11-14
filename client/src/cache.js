@@ -9,17 +9,5 @@ export const subscriptionVar = makeVar(null);
 
 export const client = new ApolloClient({
   uri: process.env.REACT_APP_GRAPHQL_ENDPOINT,
-  cache: new InMemoryCache({
-    typePolicies: {
-      Query: {
-        fields: {
-          account: {
-            read() {
-              return accountVar();
-            },
-          },
-        },
-      },
-    },
-  }),
+  cache: new InMemoryCache({}),
 });

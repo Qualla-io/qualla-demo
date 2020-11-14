@@ -4,7 +4,13 @@ import {ethers} from "ethers";
 import Web3Modal from "web3modal";
 // import Fortmatic from "fortmatic";
 // import WalletConnectProvider from "@walletconnect/web3-provider";
-import {useQuery, gql, useReactiveVar, useLazyQuery} from "@apollo/client";
+import {
+  useQuery,
+  gql,
+  useReactiveVar,
+  useLazyQuery,
+  useMutation,
+} from "@apollo/client";
 import {
   accountVar,
   providerVar,
@@ -31,12 +37,26 @@ const INIT_APP = gql`
   }
 `;
 
+const CREATE_USER = gql`
+  mutation userCreate($id: ID!) {
+    user(id: $id, username: null) {
+      id
+      username
+      contract {
+        id
+      }
+    }
+  }
+`;
+
 export default function MainSection(props) {
+  let account = useReactiveVar(accountVar);
   let signer = useReactiveVar(signerVar);
   const {loading, error, data} = useQueryWithAccount(INIT_APP);
+  const [initUser] = useMutation(CREATE_USER);
 
   useEffect(() => {
-    if (data && data.user && data.user.contract.id && signer) {
+    if (data && data.user && data.user.contract && signer) {
       var subscriptionV1 = new ethers.Contract(
         data.user.contract.id,
         SubscriptionContract.abi,
@@ -45,6 +65,15 @@ export default function MainSection(props) {
       subscriptionVar(subscriptionV1);
     }
   }, [data, signer]);
+
+  useEffect(() => {
+    if (data && !data.user && account) {
+      initUser({
+        variables: {id: account},
+        refetchQueries: [{query: INIT_APP, variables: {id: account}}],
+      });
+    }
+  }, [data]);
 
   useEffect(() => {
     initWeb3();
@@ -126,5 +155,10 @@ export default function MainSection(props) {
 
   if (error) return `Error! ${error}`;
 
-  return <h1>{props.children}</h1>;
+  return (
+    <>
+      <h1>{data && data.user ? data.user.id : null}</h1>
+      {props.children}
+    </>
+  );
 }

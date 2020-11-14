@@ -163,7 +163,10 @@ const resolver = {
 
         let _contract = new Contract();
         _contract._id = address.toLowerCase();
-        let _publisher = await dataSources.localAPI.getUser(args.publisher);
+        let _publisher = await dataSources.localAPI.getUser(
+          args.publisher,
+          false
+        );
 
         if (_publisher === null) {
           _publisher = await User.create({_id: args.publisher});
