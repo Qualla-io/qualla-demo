@@ -12,40 +12,13 @@ const typeDefs = gql`
   type User @key(fields: "id") {
     id: ID!
     username: String
-    contract: String
-    # contract: Contract
+    contract: Contract
     # subscriptions: [Subscription!]
   }
 
-  #   type Contract @key(fields: "id") {
-  #     id: ID!
-  #     publisher: User
-  #     subscribers: [Subscription!]
-  #     acceptedValues: [Float!]
-  #     paymentTokens: [String!]
-  #     publisherNonce: Int
-  #   }
-
-  #   type Subscription @key(fields: "id") {
-  #     id: ID!
-  #     subscriber: User!
-  #     contract: Contract!
-  #     value: Float!
-  #     status: Status!
-  #     paymentToken: String
-  #     subNum: Float!
-  #     hash: String
-  #     signedHash: String
-  #     nextWithdraw: Float
-  #     nonce: Float
-  #   }
-
-  #   enum Status {
-  #     ACTIVE
-  #     PAUSED
-  #     CANCELED
-  #     EXPIRED
-  #   }
+  extend type Contract @key(fields: "id") {
+    id: ID! @external
+  }
 `;
 
 const resolvers = {
@@ -55,11 +28,12 @@ const resolvers = {
     },
     users: async () => await getUsers(),
   },
-
   User: {
-    __resolveReference(user, {getUser}) {
-      console.log(user);
+    __resolveReference(user) {
       return getUser(user.id);
+    },
+    contract: async (user) => {
+      return {__typename: "Contract", id: user.contract.id};
     },
   },
 };

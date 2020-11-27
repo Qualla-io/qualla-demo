@@ -28,7 +28,6 @@ export async function getUser(id) {
     variables: {id},
   });
   if (res.data.user) {
-    console.log(res.data.user)
     return res.data.user;
   } else {
     return null;

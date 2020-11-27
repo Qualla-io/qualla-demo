@@ -37,6 +37,7 @@ export async function getContract(id) {
     query: GET_CONTRACT,
     variables: {id},
   });
+  // console.log(res)
   if (res.data) {
     return res.data.subscriptionContract;
   } else {
