@@ -1,7 +1,6 @@
 import {ApolloServer, gql} from "apollo-server";
 import {buildFederatedSchema} from "@apollo/federation";
 
-import {getUser, getUsers} from "../datasources/userData";
 import {getContract, getContracts} from "../datasources/contractData";
 
 const typeDefs = gql`
@@ -14,10 +13,14 @@ const typeDefs = gql`
     id: ID! @external
   }
 
+  extend type SubscriptionObj @key(fields: "id") {
+    id: ID! @external
+  }
+
   type Contract @key(fields: "id") {
     id: ID!
     publisher: User!
-    #   subscribers: [Subscription!]
+    subscribers: [SubscriptionObj!]
     acceptedValues: [Float!]
     paymentTokens: [String!]
     publisherNonce: Int
@@ -38,6 +41,9 @@ const resolvers = {
     publisher: async (contract) => {
       return {__typename: "User", id: contract.publisher.id};
     },
+    // subscribers: (contract) => {
+    //   console.log(contract);
+    // },
   },
 };
 

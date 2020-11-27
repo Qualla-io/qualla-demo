@@ -20,6 +20,7 @@ export default gql`
     CANCELED
     EXPIRED
   }
+  
   extend type Query {
     subscription(id: ID!): Subscription
   }

@@ -9,14 +9,6 @@ const GET_USER = `
       }
       subscriptions{
         id
-        value
-        status
-        paymentToken
-        subNum
-        hash
-        signedHash
-        nextWithdraw
-        nonce
       }
     }
   }
@@ -43,14 +35,6 @@ const GET_USERS = `
       }
       subscriptions{
         id
-        value
-        status
-        paymentToken
-        subNum
-        hash
-        signedHash
-        nextWithdraw
-        nonce
       }
     }
   }

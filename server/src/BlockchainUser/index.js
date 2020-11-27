@@ -9,15 +9,19 @@ const typeDefs = gql`
     users: [User!]
   }
 
+  extend type Contract @key(fields: "id") {
+    id: ID! @external
+  }
+
+  extend type SubscriptionObj @key(fields: "id") {
+    id: ID! @external
+  }
+
   type User @key(fields: "id") {
     id: ID!
     username: String
     contract: Contract
-    # subscriptions: [Subscription!]
-  }
-
-  extend type Contract @key(fields: "id") {
-    id: ID! @external
+    subscriptions: [SubscriptionObj!]
   }
 `;
 
@@ -34,6 +38,16 @@ const resolvers = {
     },
     contract: async (user) => {
       return {__typename: "Contract", id: user.contract.id};
+    },
+    subscriptions: async (user) => {
+      let subs = [];
+      for (var i = 0; i < user.subscriptions.length; i++) {
+        subs.push({
+          __typename: "SubscriptionObj",
+          id: user.subscriptions[i].id,
+        });
+      }
+      return subs;
     },
   },
 };
