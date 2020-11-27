@@ -7,6 +7,7 @@
     "dev": "nodemon --exec babel-node src/index.js",
     "test": "nodemon --exec babel-node src/fedBase.js",
     "gateway": "nodemon --exec babel-node src/gateway/index.js",
+    "local": "nodemon --exec babel-node src/LocalData/index.js",
     "blockchainUser": "nodemon --exec babel-node src/BlockchainUser/index.js",
     "blockchainContract": "nodemon --exec babel-node src/BlockchainContract/index.js",
     "blockchainSubscription": "nodemon --exec babel-node src/BlockchainSubscription/index.js"

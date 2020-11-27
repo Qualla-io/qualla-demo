@@ -19,7 +19,6 @@ const typeDefs = gql`
 
   type User @key(fields: "id") {
     id: ID!
-    username: String
     contract: Contract
     subscriptions: [SubscriptionObj!]
   }

@@ -1,11 +1,12 @@
 const {ApolloServer} = require("apollo-server");
 const {ApolloGateway} = require("@apollo/gateway");
 
+
 const serviceList = [
   {name: "BlockchainUser", url: "http://localhost:4001"},
   {name: "BlockchainContract", url: "http://localhost:4002"},
   {name: "BlockchainSubscription", url: "http://localhost:4003"},
-  //   {name: "Local", url: "http://localhost:4002"},
+  {name: "Local", url: "http://localhost:4004"},
 ];
 
 const gateway = new ApolloGateway({
