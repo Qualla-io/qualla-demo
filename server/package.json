@@ -6,14 +6,15 @@
   "scripts": {
     "dev": "nodemon --exec babel-node src/index.js",
     "test": "nodemon --exec babel-node src/fedBase.js",
-    "gateway": "nodemon --exec babel-node src/gateway.js"
+    "gateway": "nodemon --exec babel-node src/gateway/index.js",
+    "blockchain": "nodemon --exec babel-node src/blockchain/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@apollo/federation": "^0.20.4",
-    "@apollo/gateway": "^0.21.1",
+    "@apollo/federation": "^0.20.6",
+    "@apollo/gateway": "^0.21.3",
     "apollo-datasource": "^0.7.2",
     "apollo-datasource-graphql": "^1.3.2",
     "apollo-server": "^2.19.0",

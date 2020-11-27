@@ -28,6 +28,7 @@ export async function getUser(id) {
     variables: {id},
   });
   if (res.data.user) {
+    console.log(res.data.user)
     return res.data.user;
   } else {
     return null;
@@ -60,5 +61,6 @@ export async function getUsers() {
   const res = await fetch({
     query: GET_USERS,
   });
+  console.log(res)
   return res.data.users;
 }
