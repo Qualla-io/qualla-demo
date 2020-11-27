@@ -36,11 +36,13 @@ const resolver = {
   },
   Contract: {
     publisher: async (root, _, {dataSources}) => {
+      // console.log(root);
+
       let user = await dataSources.graphAPI.getUser(root.publisher.id);
 
       let _user = await dataSources.localAPI.getUser(root.publisher.id, false);
 
-      user = merge(_user, user);
+      user = merge(_user.toObject(), user);
 
       return user;
     },
@@ -198,6 +200,8 @@ const resolver = {
         contract.acceptedValues = values;
         contract.publisherNonce = 0;
 
+         
+
         return contract;
       } catch (err) {
         console.log(err);
@@ -250,10 +254,11 @@ const resolver = {
       // Check if already a subscriber
 
       let found = false;
-
+      let subscriptionId;
       for (var i = 0; i < subscribers.length; i++) {
         if (account.address.toLowerCase() === subscribers[i].subscriber.id) {
           found = true;
+          subscriptionId = subscribers[i].id;
         }
       }
 
@@ -275,7 +280,8 @@ const resolver = {
         );
 
         let _subscriber = await dataSources.localAPI.getUser(
-          account.address.toLowerCase()
+          account.address.toLowerCase(),
+          false
         );
 
         await subscriptionV1.createSubscription(
@@ -290,13 +296,22 @@ const resolver = {
           _subscriber.username = "Alice";
           await _subscriber.save();
         }
-      }
-      let _contract = await dataSources.localAPI.getContract(
-        contract.id.toLowerCase()
-      );
 
-      contract = merge(_contract, contract);
-      return contract;
+        _subscriber.__typename = "User";
+
+        let _subscription = {};
+        _subscription.id = `${_subscriber.id}-${contract.id}`;
+        _subscription.value = value;
+        _subscription.subscriber = _subscriber.toObject();
+        _subscription.status = "ACTIVE";
+        _subscription.__typename = "Subscription";
+
+        contract.subscribers.push(_subscription);
+
+        return contract;
+      } else {
+        return contract;
+      }
     },
   },
 };

@@ -8,13 +8,14 @@ const resolver = {
   },
   Subscription: {
     subscriber: async (root, _, {dataSources}) => {
-    //   console.log(root);
+      //   console.log(root);
 
       let user = await dataSources.graphAPI.getUser(root.subscriber.id);
 
-      let _user = await dataSources.localAPI.getUser(root.subscriber.id);
+      let _user = await dataSources.localAPI.getUser(root.subscriber.id, false);
 
-      user = merge(_user, user);
+      user = merge(_user.toObject(), user);
+
       return user;
     },
   },

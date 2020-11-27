@@ -97,9 +97,9 @@ export default function Balances() {
     subscribePersonalDai();
   }, [dai, account]);
 
-  // useEffect(() => {
-  //   subscribeContractDai();
-  // }, [dai, creatorState.contract.address]);
+  useEffect(() => {
+    subscribeContractDai();
+  }, [dai, data]);
 
   async function subscribePersonalDai() {
     if (dai && account) {
@@ -123,37 +123,30 @@ export default function Balances() {
     }
   }
 
-  // async function subscribeContractDai() {
-  //   if (web3State.Dai && creatorState.contract.address) {
-  //     // web3State.Dai.removeAllListeners("Transfer");
+  async function subscribeContractDai() {
+    if (dai && data && data.user && data.user.contract) {
+      // web3State.Dai.removeAllListeners("Transfer");
 
-  //     let filterFromMe = web3State.Dai.filters.Transfer(
-  //       creatorState.contract.address,
-  //       null
-  //     );
+      let filterFromMe = dai.filters.Transfer(data.user.contract.id, null);
 
-  //     let filterToMe = web3State.Dai.filters.Transfer(
-  //       null,
-  //       creatorState.contract.address
-  //     );
+      let filterToMe = dai.filters.Transfer(null, data.user.contract.id);
 
-  //     let handleTransfer = async function (from, to, amount) {
-  //       web3State.Dai.balanceOf(creatorState.contract.address).then(
-  //         (contractbal) => {
-  //           setContractbal(ethers.utils.formatEther(contractbal));
+      let handleTransfer = async function (from, to, amount) {
+        dai.balanceOf(data.user.contract.id).then((contractbal) => {
+          if (ethers.utils.formatEther(contractbal) !== contractbal) {
+            enqueueSnackbar("Contract Balance Updated", {
+              variant: "success",
+              autoHideDuration: 2000,
+            });
+          }
+          setContractbal(ethers.utils.formatEther(contractbal));
+        });
+      };
 
-  //           enqueueSnackbar("Contract Balance Updated", {
-  //             variant: "success",
-  //             autoHideDuration: 2000,
-  //           });
-  //         }
-  //       );
-  //     };
-
-  //     web3State.Dai.on(filterFromMe, handleTransfer);
-  //     web3State.Dai.on(filterToMe, handleTransfer);
-  //   }
-  // }
+      dai.on(filterFromMe, handleTransfer);
+      dai.on(filterToMe, handleTransfer);
+    }
+  }
 
   async function getBlances() {
     if (provider && account) {

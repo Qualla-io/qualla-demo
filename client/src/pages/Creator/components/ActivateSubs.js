@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from "react";
 import {ethers} from "ethers";
+import produce from "immer";
 import {gql, useReactiveVar, useMutation} from "@apollo/client";
 import {useSnackbar} from "notistack";
 
@@ -8,7 +9,10 @@ import {makeStyles} from "@material-ui/core/styles";
 import {Typography} from "@material-ui/core";
 
 import {useQueryWithAccount} from "../../../hooks";
-import {daiVar} from "../../../cache";
+import {daiVar, accountVar} from "../../../cache";
+import {cloneDeep} from "@apollo/client/utilities";
+
+import {GET_CONTRACT_OVERVIEW} from "./Overview";
 
 const ACTIVATE_SUBS_INFO = gql`
   query getActiveSubsInfo($id: ID!) {
@@ -17,6 +21,8 @@ const ACTIVATE_SUBS_INFO = gql`
       contract {
         id
         subscribers {
+          id
+          value
           subscriber {
             id
           }
@@ -32,6 +38,10 @@ const ACTIVATE_SUB = gql`
       id
       subscribers {
         id
+        value
+        subscriber {
+          id
+        }
       }
     }
   }
@@ -55,22 +65,12 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ActivateSubs() {
   const [allowance, setAllowance] = useState(0);
-  const {error, loading, data} = useQueryWithAccount(ACTIVATE_SUBS_INFO, {
-    // update(cache, {data: {fakeSub}}) {
-    //   cache.modify({
-    //     fields: {
-    //     }
-    //   })
-    // },
-  });
+  let account = useReactiveVar(accountVar);
+  const {error, loading, data} = useQueryWithAccount(ACTIVATE_SUBS_INFO);
   const [activateSub] = useMutation(ACTIVATE_SUB);
   let dai = useReactiveVar(daiVar);
   const {enqueueSnackbar} = useSnackbar();
   const classes = useStyles();
-
-  // function updateContract() {
-  //   dispatch(creatorActions.updateContract());
-  // }
 
   useEffect(() => {
     if (data && data.user && data.user.contract) {
@@ -97,7 +97,11 @@ export default function ActivateSubs() {
         dai.allowance(subscriberID, data.user.contract.id).then((allowance) => {
           setAllowance(ethers.utils.formatEther(allowance));
         });
+        enqueueSnackbar("Subscriber Balance Updated", {
+          variant: "success",
+        });
       };
+
       dai.on(filterAllowance, handleApproval);
       dai.on(filterTransfer, handleApproval);
 
@@ -106,7 +110,33 @@ export default function ActivateSubs() {
   }
 
   function _activateSub() {
-    activateSub({variables: {contract: data.user.contract.id}})
+    activateSub({
+      variables: {contract: data.user.contract.id},
+      update(cache, {data}) {
+        const userData = cache.readQuery({
+          query: ACTIVATE_SUBS_INFO,
+          variables: {id: account},
+        });
+
+        console.log("updating");
+
+        let _userData = {...userData};
+        _userData.contract = data.fakeSub;
+
+        console.log(_userData.contract);
+
+        cache.writeQuery({
+          query: GET_CONTRACT_OVERVIEW,
+          variables: {id: account},
+          data: {user: _userData},
+        });
+        cache.writeQuery({
+          query: GET_CONTRACT_OVERVIEW,
+          variables: {id: account},
+          data: {user: _userData},
+        });
+      },
+    })
       .then((data) => {
         enqueueSnackbar("Subscription Successful", {
           variant: "success",

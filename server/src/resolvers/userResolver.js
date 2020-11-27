@@ -31,8 +31,6 @@ const resolver = {
         user = merge(_user.toObject(), user);
       }
 
-      console.log(user);
-
       return user;
     },
   },
@@ -52,7 +50,6 @@ const resolver = {
           if (contract || _contract) {
             contract = merge(_contract, contract);
           }
-
           return contract;
         } catch {
           let contract = await dataSources.graphAPI.getContract(
@@ -60,12 +57,13 @@ const resolver = {
           );
 
           let _contract = await dataSources.localAPI.getContract(
-            parent.contract
+            parent.contract,
+            false
           );
 
           // Stitch
           if (contract || _contract) {
-            contract = merge(_contract, contract);
+            contract = merge(_contract.toObject(), contract);
           }
 
           return contract;

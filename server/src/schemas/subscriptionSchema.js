@@ -15,11 +15,11 @@ export default gql`
     nonce: Float
   }
   enum Status {
-  ACTIVE
-  PAUSED
-  CANCELED
-  EXPIRED
-}
+    ACTIVE
+    PAUSED
+    CANCELED
+    EXPIRED
+  }
   extend type Query {
     subscription(id: ID!): Subscription
   }

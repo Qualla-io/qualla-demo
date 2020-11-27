@@ -4,7 +4,7 @@ Subscription and digital good marketplace for creators
 
 To reset chain and database:
 
-1. Top truffle, graph node, apollo server
+1. Stop truffle, graph node, apollo server
 2. In ./backend run "node resetDB.js"
 3. In graph-node/docker run "docker-compose down -v" && "rm -Recurse -Force data/"
 4. In ./ run "truffle develop" && "migrate"

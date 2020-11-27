@@ -68,6 +68,7 @@ export default function MainSection(props) {
 
   useEffect(() => {
     if (data && !data.user && account) {
+      console.log("running init");
       initUser({
         variables: {id: account},
         refetchQueries: [{query: INIT_APP, variables: {id: account}}],

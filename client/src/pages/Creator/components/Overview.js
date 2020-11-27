@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import ethers from "ethers";
 import {gql, useReactiveVar} from "@apollo/client";
+import {BigNumber} from "bignumber.js";
 
 import Card from "@material-ui/core/Card";
 import Typography from "@material-ui/core/Typography";
@@ -12,7 +13,7 @@ import Hidden from "@material-ui/core/Hidden";
 import {accountVar} from "../../../cache";
 import {useQueryWithAccount} from "../../../hooks";
 
-const GET_CONTRACT_OVERVIEW = gql`
+export const GET_CONTRACT_OVERVIEW = gql`
   query getContractDetails($id: ID!) {
     user(id: $id) {
       id
@@ -22,6 +23,9 @@ const GET_CONTRACT_OVERVIEW = gql`
           title
         }
         subscribers {
+          subscriber {
+            id
+          }
           id
           value
           status
@@ -43,13 +47,21 @@ export default function CreatorOverview() {
       let subValue = 0;
       for (var i = 0; i < subscribers.length; i++) {
         if (subscribers[i].status === "ACTIVE") {
-          subValue =
-            +subValue +
-            +ethers.utils.formatEther(subscribers[i].value.toString());
+          let val = new BigNumber(subscribers[i].value);
+
+          subValue = +subValue + +ethers.utils.formatEther(val.toFixed());
         }
       }
 
       setValue(subValue);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    console.log("data changing");
+
+    if (data && data.user && data.user.contract) {
+      console.log(data.user.contract.subscribers.length);
     }
   }, [data]);
 

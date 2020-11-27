@@ -69,6 +69,7 @@ const MODIFY_CONTRACT = gql`
     ) {
       id
       acceptedValues
+      publisherNonce
       tiers {
         title
         value
@@ -226,11 +227,14 @@ export default function CreatorLaunchCard() {
           let _userData = {...userData};
           _userData.contract = data.createContract;
 
+          console.log(_userData);
+
           cache.writeQuery({
             query: GET_CONTRACT_DETAILS,
             variables: {id: account},
             data: {user: _userData},
           });
+          
         },
       })
         .then((data) => {

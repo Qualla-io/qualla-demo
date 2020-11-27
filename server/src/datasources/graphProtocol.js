@@ -156,7 +156,7 @@ class GraphProtocolAPI extends DataSource {
       query: GET_SUBSCRIPTION,
       variables: {id},
     });
-    return res.data.subscriptionOjb;
+    return res.data.subscriptionObj;
   }
 }
 
