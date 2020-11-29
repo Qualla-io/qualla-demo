@@ -51,6 +51,15 @@ services:
       - "docker_default"
     depends_on:
       - mongo
+  gateway:
+    build: ./server/src/gateway
+    container_name: "gateway"
+    env_file:
+      - server/.env
+    ports:
+      - "4000:4000"
+    networks:
+      - "docker_default"
 
 networks:
   docker_default:
