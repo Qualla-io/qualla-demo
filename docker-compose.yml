@@ -1,4 +1,4 @@
-version: '3.1'
+version: "3.1"
 services:
   mongo:
     image: mongo
@@ -8,6 +8,50 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
     volumes:
-      - './mongodata:/data/db'
+      - "./mongodata:/data/db"
     ports:
       - 27017:27017
+    networks:
+      - "docker_default"
+  blockchain_user:
+    build: ./server/src/BlockchainUser
+    container_name: "blockchain_user"
+    env_file:
+      - server/.env
+    ports:
+      - "4001:4001"
+    networks:
+      - "docker_default"
+  blockchain_contract:
+    build: ./server/src/BlockchainContract
+    container_name: "blockchain_contract"
+    env_file:
+      - server/.env
+    ports:
+      - "4002:4002"
+    networks:
+      - "docker_default"
+  blockchain_subscription:
+    build: ./server/src/BlockchainSubscription
+    container_name: "blockchain_subscription"
+    env_file:
+      - server/.env
+    ports:
+      - "4003:4003"
+    networks:
+      - "docker_default"
+  local_data:
+    build: ./server/src/LocalData
+    container_name: "local_data"
+    env_file:
+      - server/.env
+    ports:
+      - "4004:4004"
+    networks:
+      - "docker_default"
+    depends_on:
+      - mongo
+
+networks:
+  docker_default:
+    external: true

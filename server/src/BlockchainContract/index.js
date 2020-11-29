@@ -1,7 +1,7 @@
 import {ApolloServer, gql} from "apollo-server";
 import {buildFederatedSchema} from "@apollo/federation";
 
-import {getContract, getContracts} from "../datasources/contractData";
+import {getContract, getContracts} from "./contractData";
 
 const typeDefs = gql`
   type Query {

@@ -1,8 +1,8 @@
 import {ApolloServer, gql} from "apollo-server";
 import {buildFederatedSchema} from "@apollo/federation";
 
-import UserModel from "../models/user";
-import ContractModel from "../models/contract";
+import UserModel from "./models/user";
+import ContractModel from "./models/contract";
 
 var mongoose = require("mongoose");
 
@@ -70,6 +70,7 @@ const server = new ApolloServer({
 server.listen(4004).then(({url}) => {
   mongoose.set("useUnifiedTopology", true);
   mongoose.set("useNewUrlParser", true);
-  mongoose.connect("mongodb://root:example@localhost:27017");
+//   mongoose.connect("mongodb://root:example@0.0.0.0:27017/local");
+    mongoose.connect("mongodb://root:example@mongo:27017");
   console.log(`🚀 Server ready at ${url}`);
 });
