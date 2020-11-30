@@ -127,6 +127,7 @@ const resolver = {
         contract.publisherNonce++;
 
         return contract;
+        
       } catch (err) {
         console.log(err);
         throw new UserInputError("Local Server Error", {
@@ -199,8 +200,6 @@ const resolver = {
         contract.paymentTokens = [dai.address];
         contract.acceptedValues = values;
         contract.publisherNonce = 0;
-
-         
 
         return contract;
       } catch (err) {
