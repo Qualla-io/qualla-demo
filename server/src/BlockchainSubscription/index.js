@@ -8,6 +8,10 @@ const typeDefs = gql`
     subscriber(id: ID!): SubscriptionObj
   }
 
+  type Mutation {
+    modifySubscription(id: ID!): SubscriptionObj!
+  }
+
   extend type User @key(fields: "id") {
     id: ID! @external
   }
@@ -43,6 +47,9 @@ const resolvers = {
     subscriber: async (_, {id}) => {
       return getSubscription(id);
     },
+  },
+  Mutation: {
+
   },
   SubscriptionObj: {
     __resolveReference(subscription) {

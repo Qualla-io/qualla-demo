@@ -18,6 +18,9 @@ const typeDefs = gql`
       tiers: [TierInput!]!
       signedHash: String!
     ): Contract!
+    fakeSub(id: ID!): Contract!
+    subscribe(id: ID!, value: String!, signedhash: String!): Contract!
+    withdraw(id: ID!): Boolean!
   }
 
   input TierInput {
@@ -77,7 +80,7 @@ const resolvers = {
     },
     modifyContract: async (_, {id, tiers, signedHash}) => {
       // TODO: Test this!
-      let _contract = getContract(id);
+      let _contract = getContract(id.toLowerCase());
 
       if (_contract === null) {
         throw new UserInputError("Contract does not exsist", {
@@ -95,11 +98,7 @@ const resolvers = {
       }
 
       try {
-        await subscriptionV1.modifyContract(
-          [dai.address],
-          values,
-          signedHash
-        );
+        await subscriptionV1.modifyContract([dai.address], values, signedHash);
       } catch (err) {
         console.log(err);
         throw new UserInputError("Invalid signature or input", {
@@ -112,6 +111,95 @@ const resolvers = {
       _contract.publisherNonce++;
 
       return _contract;
+    },
+    fakeSub: async (_, {id}) => {
+      let _contract = await getContract(id.toLowerCase());
+
+      if (_contract === null) {
+        throw new UserInputError("Contract does not exsist", {
+          invalidArgs: Object.keys(id),
+        });
+      }
+
+      var subscriptionV1 = new ethers.Contract(
+        id.toLowerCase(),
+        SubscriptionV1.abi,
+        account
+      );
+
+      var initBal = await dai.balanceOf(account.address);
+
+      initBal = initBal.toString();
+
+      console.log(_contract);
+
+      const valLength = _contract.acceptedValues.length;
+
+      let value = _contract.acceptedValues[valLength - 1];
+      value = value.toString();
+
+      let allowance = await dai.allowance(account.address, id);
+      allowance = allowance.toString();
+
+      if (allowance < value) {
+        let allowed = ethers.BigNumber.from(value);
+        allowed = allowed.mul(5);
+        allowed = allowed.toString();
+
+        await dai.approve(id, allowed);
+      }
+
+      let subscribers = _contract.subscribers;
+      // Check if already a subscriber
+
+      let found = false;
+      let subscriptionId;
+      for (var i = 0; i < subscribers.length; i++) {
+        if (account.address.toLowerCase() === subscribers[i].subscriber.id) {
+          found = true;
+          subscriptionId = subscribers[i].id;
+        }
+      }
+
+      if (!found) {
+        let hash = await subscriptionV1.getSubscriptionHash(
+          account.address,
+          value,
+          dai.address,
+          0,
+          0
+        );
+
+        const signedHash = await account.signMessage(
+          ethers.utils.arrayify(hash)
+        );
+
+        await subscriptionV1.createSubscription(
+          account.address,
+          value,
+          dai.address,
+          signedHash
+        );
+
+        return _contract;
+      } else {
+        return _contract;
+      }
+    },
+    withdraw: async (_, {id}) => {
+      let _contract = getContract(id.toLowerCase());
+
+      if (_contract === null) {
+        throw new UserInputError("Contract does not exsist", {
+          invalidArgs: Object.keys(id),
+        });
+      }
+
+      var subscriptionV1 = new ethers.Contract(id, SubscriptionV1.abi, account);
+
+      await subscriptionV1.withdraw();
+
+      return true;
     },
   },
   Contract: {

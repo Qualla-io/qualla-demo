@@ -2,7 +2,7 @@ import {ApolloServer, gql, UserInputError} from "apollo-server";
 import {buildFederatedSchema} from "@apollo/federation";
 
 import {getUser, getUsers} from "./userData";
-import {dai} from "./utils"
+import {dai, account} from "./utils";
 
 const typeDefs = gql`
   type Query {
@@ -12,6 +12,16 @@ const typeDefs = gql`
 
   type Mutation {
     mintTokens(id: ID!): Boolean!
+    permit(
+      userID: ID!
+      contractID: ID!
+      nonce: Float!
+      expiry: Float!
+      allowed: Boolean!
+      v: String!
+      r: String!
+      s: String!
+    ): Boolean!
   }
 
   extend type Contract @key(fields: "id") {
@@ -37,8 +47,8 @@ const resolvers = {
     users: async () => await getUsers(),
   },
   Mutation: {
-    mintTokens: async(_, {id}) => {
-      const initBal = await dai.balanceOf(id.toLowerCase())
+    mintTokens: async (_, {id}) => {
+      const initBal = await dai.balanceOf(id.toLowerCase());
       console.log(`Old balance: ${initBal}`);
 
       if (initBal < 3000000000000000000000) {
@@ -48,9 +58,20 @@ const resolvers = {
           invalidArgs: Object.keys(id),
         });
       }
+
+      return true;
+    },
+    permit: async (
+      _,
+      {userID, contractID, nonce, expiry, allowed, v, r, s}
+    ) => {
+      // TODO: Test this with front end
       
+      // TODO: Check if already approved
+      await dai.permit(userID, contractID, nonce, expiry, allowed, v, r, s);
+
       return true
-    }
+    },
   },
   User: {
     __resolveReference(user) {
