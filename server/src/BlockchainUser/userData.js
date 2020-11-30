@@ -48,6 +48,5 @@ export async function getUsers() {
   const res = await fetch({
     query: GET_USERS,
   });
-  console.log(res)
   return res.data.users;
 }

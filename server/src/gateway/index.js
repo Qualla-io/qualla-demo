@@ -25,11 +25,3 @@ const gateway = new ApolloGateway({
     console.log(`🚀 Server ready at ${url}`);
   });
 })();
-
-// const server = new ApolloServer({gateway, subscriptions: false});
-
-// server.listen(5000, () => {
-//   //   mongoose.set("useUnifiedTopology", true);
-//   //   mongoose.set("useNewUrlParser", true);
-//   //   mongoose.connect("mongodb://root:example@localhost:27017");
-// });

@@ -1,12 +1,17 @@
-import {ApolloServer, gql} from "apollo-server";
+import {ApolloServer, gql, UserInputError} from "apollo-server";
 import {buildFederatedSchema} from "@apollo/federation";
 
 import {getUser, getUsers} from "./userData";
+import {dai} from "./utils"
 
 const typeDefs = gql`
   type Query {
     user(id: ID!): User
     users: [User!]
+  }
+
+  type Mutation {
+    mintTokens(id: ID!): Boolean!
   }
 
   extend type Contract @key(fields: "id") {
@@ -31,12 +36,32 @@ const resolvers = {
     },
     users: async () => await getUsers(),
   },
+  Mutation: {
+    mintTokens: async(_, {id}) => {
+      const initBal = await dai.balanceOf(id.toLowerCase())
+      console.log(`Old balance: ${initBal}`);
+
+      if (initBal < 3000000000000000000000) {
+        await dai.mintTokens(id.toLowerCase());
+      } else {
+        throw new UserInputError("Excessive funds, don't be greedy!", {
+          invalidArgs: Object.keys(id),
+        });
+      }
+      
+      return true
+    }
+  },
   User: {
     __resolveReference(user) {
       return getUser(user.id);
     },
     contract: async (user) => {
-      return {__typename: "Contract", id: user.contract.id};
+      if (user.contract) {
+        return {__typename: "Contract", id: user.contract.id};
+      } else {
+        return null;
+      }
     },
     subscriptions: async (user) => {
       let subs = [];

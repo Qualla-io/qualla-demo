@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 4004
 
-CMD sleep 10 && npm run dev
+CMD npm run dev

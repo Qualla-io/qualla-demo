@@ -60,6 +60,11 @@ services:
       - "4000:4000"
     networks:
       - "docker_default"
+    depends_on: 
+      - "blockchain_user"
+      - "blockchain_contract"
+      - "blockchain_subscription"
+      - "local_data"
 
 networks:
   docker_default:
