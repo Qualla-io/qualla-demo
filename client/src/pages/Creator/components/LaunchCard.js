@@ -45,9 +45,13 @@ const GET_CONTRACT_DETAILS = gql`
     contract(id: $id) {
       id
       tiers {
+        id
         title
         value
         perks
+      }
+      publisher {
+        id
       }
       publisherNonce
       acceptedValues
@@ -75,17 +79,9 @@ const MODIFY_TIERS = gql`
   mutation modifyContractTiers($id: ID!, $tiers: [TierInput!]!) {
     modifyContractTiers(id: $id, tiers: $tiers) {
       id
-      acceptedValues
-      publisherNonce
-      tiers {
-        id
-        title
-        value
-        perks
-      }
-      publisher {
-        id
-      }
+      title
+      value
+      perks
     }
   }
 `;
@@ -112,6 +108,14 @@ const MODIFY_CONTRACT = gql`
     }
   }
 `;
+
+function sleep(milliseconds) {
+  const date = Date.now();
+  let currentDate = null;
+  do {
+    currentDate = Date.now();
+  } while (currentDate - date < milliseconds);
+}
 
 const useStyles = makeStyles((theme) => ({
   cont: {
@@ -253,13 +257,71 @@ export default function CreatorLaunchCard() {
     if (account) {
       deployContract({
         variables: {publisher: account, tiers},
-        // update(cache, {data: {createContract}}) {},
+        update(cache, {data: {createContract}}) {
+          cache.modify({
+            id: cache.identify({id: account.toLowerCase(), __typename: "User"}),
+            fields: {
+              contract() {
+                const newContractRef = cache.writeFragment({
+                  data: createContract,
+                  fragment: gql`
+                    fragment NewContract on Contract {
+                      id
+                    }
+                  `,
+                });
+                return newContractRef;
+              },
+            },
+          });
+        },
       })
         .then((data) => {
           modifyTiers({
             variables: {id: data.data.createContract.id, tiers},
             update(cache, {data: modifyContractTiers}) {
               console.log(modifyContractTiers);
+
+              // sleep(10000);
+
+              let _tiers = modifyContractTiers.modifyContractTiers;
+
+              let _tierList = [];
+              let newTiersRef;
+              for (var i = 0; i < _tiers.length; i++) {
+                newTiersRef = cache.writeFragment({
+                  data: _tiers[i],
+                  fragment: gql`
+                    fragment NewTier on Tier {
+                      id
+                      title
+                      value
+                      perks
+                    }
+                  `,
+                });
+
+                _tierList.push(newTiersRef);
+              }
+
+              cache.modify({
+                id: cache.identify({
+                  id: data.data.createContract.id,
+                  __typename: "Contract",
+                }),
+                fields: {
+                  tiers() {
+                    return _tierList;
+                  },
+                },
+              });
+
+              // for some reason updating the contract cashe breaks the user reference to it
+
+              // let _contractID = modifyContractTiers.modifyContractTiers.id;
+
+              // console.log(_contractID);
+
               cache.modify({
                 id: cache.identify({
                   id: account.toLowerCase(),
@@ -268,7 +330,7 @@ export default function CreatorLaunchCard() {
                 fields: {
                   contract() {
                     const newContractRef = cache.writeFragment({
-                      data: modifyContractTiers,
+                      data: data.data.createContract,
                       fragment: gql`
                         fragment NewContract on Contract {
                           id

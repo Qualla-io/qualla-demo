@@ -12,40 +12,40 @@ import {useQueryWithAccount} from "../../../hooks";
 import {daiVar, accountVar} from "../../../cache";
 import {cloneDeep} from "@apollo/client/utilities";
 
-import {GET_CONTRACT_OVERVIEW} from "./Overview";
+// import {GET_CONTRACT_OVERVIEW} from "./Overview";
 
-const ACTIVATE_SUBS_INFO = gql`
-  query getActiveSubsInfo($id: ID!) {
-    user(id: $id) {
-      id
-      contract {
-        id
-        subscribers {
-          id
-          value
-          subscriber {
-            id
-          }
-        }
-      }
-    }
-  }
-`;
+// const ACTIVATE_SUBS_INFO = gql`
+//   query getActiveSubsInfo($id: ID!) {
+//     user(id: $id) {
+//       id
+//       contract {
+//         id
+//         subscribers {
+//           id
+//           value
+//           subscriber {
+//             id
+//           }
+//         }
+//       }
+//     }
+//   }
+// `;
 
-const ACTIVATE_SUB = gql`
-  mutation fakeSub($contract: ID!) {
-    fakeSub(contract: $contract) {
-      id
-      subscribers {
-        id
-        value
-        subscriber {
-          id
-        }
-      }
-    }
-  }
-`;
+// const ACTIVATE_SUB = gql`
+//   mutation fakeSub($contract: ID!) {
+//     fakeSub(contract: $contract) {
+//       id
+//       subscribers {
+//         id
+//         value
+//         subscriber {
+//           id
+//         }
+//       }
+//     }
+//   }
+// `;
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -66,8 +66,8 @@ const useStyles = makeStyles((theme) => ({
 export default function ActivateSubs() {
   const [allowance, setAllowance] = useState(0);
   let account = useReactiveVar(accountVar);
-  const {error, loading, data} = useQueryWithAccount(ACTIVATE_SUBS_INFO);
-  const [activateSub] = useMutation(ACTIVATE_SUB);
+  // const {error, loading, data} = useQueryWithAccount(ACTIVATE_SUBS_INFO);
+  // const [activateSub] = useMutation(ACTIVATE_SUB);
   let dai = useReactiveVar(daiVar);
   const {enqueueSnackbar} = useSnackbar();
   const classes = useStyles();

@@ -1,7 +1,7 @@
 import React from "react";
 import {makeStyles} from "@material-ui/core/styles";
 import Topbar from "../components/Topbar.js";
-import Balances from "../components/Balances.js";
+// import Balances from "../components/Balances.js";
 import MainSection from "./MainSection.js";
 
 const useStyles = makeStyles((theme) => ({
@@ -16,7 +16,7 @@ export default function Layout(props) {
   return (
     <div className={classes.root}>
       <Topbar />
-      <Balances />
+      {/* <Balances /> */}
       <MainSection>{props.children}</MainSection>
     </div>
   );

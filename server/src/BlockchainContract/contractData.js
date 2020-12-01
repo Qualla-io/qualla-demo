@@ -45,7 +45,7 @@ export async function getContract(id) {
   if (res.data) {
     return res.data.subscriptionContract;
   } else {
-    return null;
+    return {id: id};
   }
 }
 

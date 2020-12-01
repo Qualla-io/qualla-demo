@@ -10,7 +10,7 @@ var mongoose = require("mongoose");
 const typeDefs = gql`
   type Mutation {
     user(id: ID!, username: String): User
-    modifyContractTiers(id: ID!, tiers: [TierInput!]!): Contract!
+    modifyContractTiers(id: ID!, tiers: [TierInput!]!): [Tier]!
   }
 
   input TierInput {
@@ -94,7 +94,7 @@ const resolvers = {
 
       await _contract.save();
 
-      return {__typename: "Contract", id: id.toLowerCase()};
+      return _contract.tiers;
     },
   },
 };
