@@ -13,14 +13,20 @@ import RemoveIcon from "@material-ui/icons/Remove";
 import * as creatorActions from "../../../store/actions/CreatorActions";
 
 import {gql, useReactiveVar, useMutation} from "@apollo/client";
-import {accountVar, subscriptionVar, daiVar, signerVar} from "../../../cache";
+import {
+  accountVar,
+  subscriptionVar,
+  daiVar,
+  signerVar,
+  contractIDVar,
+} from "../../../cache";
 
 import TierCard from "./TierCard";
 
 import {useSnackbar} from "notistack";
 import {useQueryWithAccount} from "../../../hooks";
 
-const GET_USER_DETAILS = gql`
+export const GET_USER_DETAILS = gql`
   query getUserDetails($id: ID!) {
     user(id: $id) {
       id
@@ -35,6 +41,21 @@ const GET_USER_DETAILS = gql`
         }
         publisherNonce
         acceptedValues
+        subscribers {
+          subscriber {
+            id
+          }
+          id
+          value
+          status
+        }
+        publisher {
+          id
+        }
+        factory {
+          id
+          fee
+        }
       }
     }
   }
@@ -53,8 +74,20 @@ const GET_CONTRACT_DETAILS = gql`
       publisher {
         id
       }
+      factory {
+        fee
+        id
+      }
       publisherNonce
       acceptedValues
+      subscribers {
+        subscriber {
+          id
+        }
+        id
+        value
+        status
+      }
     }
   }
 `;
@@ -70,6 +103,18 @@ const DEPLOY_CONTRACT = gql`
       }
       publisher {
         id
+      }
+      factory {
+        id
+        fee
+      }
+      subscribers {
+        subscriber {
+          id
+        }
+        id
+        value
+        status
       }
     }
   }
@@ -156,6 +201,7 @@ const initialTiers = [
 export default function CreatorLaunchCard() {
   const classes = useStyles();
   let account = useReactiveVar(accountVar);
+  let contractID = useReactiveVar(contractIDVar);
   let subscription = useReactiveVar(subscriptionVar);
   let dai = useReactiveVar(daiVar);
   let signer = useReactiveVar(signerVar);
@@ -183,6 +229,12 @@ export default function CreatorLaunchCard() {
       }
     }
   }, [loading, data]);
+
+  useEffect(() => {
+    if (data?.user?.contract && data.user.contract.id !== contractID) {
+      contractIDVar(data.user.contract.id);
+    }
+  }, [contractID, data]);
 
   // useEffect(() => {
   //   if (!data || !data.user || !data.user.contract) {
@@ -257,24 +309,6 @@ export default function CreatorLaunchCard() {
     if (account) {
       deployContract({
         variables: {publisher: account, tiers},
-        update(cache, {data: {createContract}}) {
-          cache.modify({
-            id: cache.identify({id: account.toLowerCase(), __typename: "User"}),
-            fields: {
-              contract() {
-                const newContractRef = cache.writeFragment({
-                  data: createContract,
-                  fragment: gql`
-                    fragment NewContract on Contract {
-                      id
-                    }
-                  `,
-                });
-                return newContractRef;
-              },
-            },
-          });
-        },
       })
         .then((data) => {
           modifyTiers({
@@ -316,12 +350,6 @@ export default function CreatorLaunchCard() {
                 },
               });
 
-              // for some reason updating the contract cashe breaks the user reference to it
-
-              // let _contractID = modifyContractTiers.modifyContractTiers.id;
-
-              // console.log(_contractID);
-
               cache.modify({
                 id: cache.identify({
                   id: account.toLowerCase(),
@@ -341,6 +369,8 @@ export default function CreatorLaunchCard() {
                   },
                 },
               });
+
+              contractIDVar(data.data.createContract.id);
             },
           });
 

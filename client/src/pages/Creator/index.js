@@ -6,7 +6,7 @@ import Container from "@material-ui/core/Container";
 import Typography from "@material-ui/core/Typography";
 
 import Alert from "@material-ui/lab/Alert";
-// import CreatorOverview from "./components/Overview";
+import CreatorOverview from "./components/Overview";
 import CreatorLaunchCard from "./components/LaunchCard";
 // import ActivateSubBtn from "./components/ActivateSubs";
 
@@ -50,7 +50,7 @@ export default function Creator() {
       <Typography gutterBottom variant="h4" className={classes.headings}>
         Overview
       </Typography>
-      {/* <CreatorOverview /> */}
+      <CreatorOverview />
       {/* <div className={classes.headings}>
         {data?.user?.contract ? <ActivateSubBtn /> : null}
       </div> */}

@@ -44,6 +44,12 @@ const typeDefs = gql`
     acceptedValues: [Float!]
     paymentTokens: [String!]
     publisherNonce: Int
+    factory: ContractFactory!
+  }
+
+  type ContractFactory @key(fields: "id") {
+    id: ID!
+    fee: Float!
   }
 `;
 
@@ -76,6 +82,10 @@ const resolvers = {
       contract.tiers = tiers;
       contract.publisher = {};
       contract.publisher.id = publisher.toLowerCase();
+      contract.factory = {};
+      contract.factory.id = factory.address.toLowerCase();
+      contract.factory.fee = await factory.fee();
+      contract.subscribers = [];
 
       return contract;
     },

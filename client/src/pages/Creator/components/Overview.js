@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import ethers from "ethers";
-import {gql, useReactiveVar} from "@apollo/client";
+import {gql, useLazyQuery, useReactiveVar} from "@apollo/client";
 import {BigNumber} from "bignumber.js";
 
 import Card from "@material-ui/core/Card";
@@ -10,26 +10,29 @@ import Divider from "@material-ui/core/Divider";
 import CardContent from "@material-ui/core/CardContent";
 import Hidden from "@material-ui/core/Hidden";
 
-import {accountVar} from "../../../cache";
+import {GET_USER_DETAILS} from "./LaunchCard";
+
+import {accountVar, contractIDVar} from "../../../cache";
 import {useQueryWithAccount} from "../../../hooks";
 
 // export const GET_CONTRACT_OVERVIEW = gql`
-//   query getContractDetails($id: ID!) {
-//     user(id: $id) {
+//   query getUserContractDetails($id: ID!) {
+//     contract(id: $id) {
 //       id
-//       contract {
+//       tiers {
 //         id
-//         tiers {
-//           title
-//         }
-//         subscribers {
-//           subscriber {
-//             id
-//           }
+//       }
+//       factory {
+//         id
+//         fee
+//       }
+//       subscribers {
+//         subscriber {
 //           id
-//           value
-//           status
 //         }
+//         id
+//         value
+//         status
 //       }
 //     }
 //   }
@@ -37,13 +40,54 @@ import {useQueryWithAccount} from "../../../hooks";
 
 export default function CreatorOverview() {
   let account = useReactiveVar(accountVar);
-  // const {error, loading, data} = useQueryWithAccount(GET_CONTRACT_OVERVIEW);
+  let contractID = useReactiveVar(contractIDVar);
+  const {error, loading, data} = useQueryWithAccount(GET_USER_DETAILS);
+
+  // let [sendQuery, {error, loading, data}] = useLazyQuery(
+  //   GET_CONTRACT_OVERVIEW,
+  //   {
+  //     // fetchPolicy: "cache-only",
+  //   }
+  // );
+
   let [value, setValue] = useState(0);
 
   // useEffect(() => {
+  //   if (contractID) {
+  //     console.log(contractID);
+  //     sendQuery({variables: {id: contractID}});
+  //   }
+  // }, [contractID]);
+
+  useEffect(() => {
+    console.log("checking contract");
+    if (data?.user?.contract) {
+      console.log("contract found");
+
+      let subscribers = data.user.contract.subscribers;
+      let subValue = 0;
+      for (var i = 0; i < subscribers.length; i++) {
+        if (subscribers[i].status === "ACTIVE") {
+          let val = new BigNumber(subscribers[i].value);
+
+          subValue = +subValue + +ethers.utils.formatEther(val.toFixed());
+        }
+      }
+
+      setValue((subValue * (100 - data.user.contract.factory.fee)) / 100);
+    }
+  }, [data]);
+
+  if (data) {
+    console.log(data);
+  }
+
+  // useEffect(() => {
   //   // test this later
-  //   if (data && data.user && data.user.contract) {
-  //     let subscribers = data.user.contract.subscribers;
+  //   console.log("changing");
+  //   console.log(data);
+  //   if (data?.contract) {
+  //     let subscribers = data.contract.subscribers;
   //     let subValue = 0;
   //     for (var i = 0; i < subscribers.length; i++) {
   //       if (subscribers[i].status === "ACTIVE") {
@@ -53,17 +97,9 @@ export default function CreatorOverview() {
   //       }
   //     }
 
-  //     setValue(subValue);
+  //     setValue((subValue * (100 - data.contract.factory.fee)) / 100);
   //   }
-  // }, [data]);
-
-  // useEffect(() => {
-  //   console.log("data changing");
-
-  //   if (data && data.user && data.user.contract) {
-  //     console.log(data.user.contract.subscribers.length);
-  //   }
-  // }, [data]);
+  // }, [data, contractID]);
 
   return (
     <Grid container alignItems="stretch">
@@ -78,9 +114,7 @@ export default function CreatorOverview() {
           <Grid item xs={12} md>
             <Typography variant="h6">
               {" "}
-              {data && data.user && data.user.contract
-                ? data.user.contract.subscribers.length
-                : 0}
+              {data?.user?.contract ? data.user.contract.subscribers.length : 0}
             </Typography>
             <Typography variant="subtitle1">Subscribers</Typography>
           </Grid>
@@ -92,12 +126,7 @@ export default function CreatorOverview() {
           </Hidden>
           <Grid item xs={12} md>
             <Typography variant="h6">
-              {data &&
-              data.user &&
-              data.user.contract &&
-              data.user.contract.tiers
-                ? data.user.contract.tiers.length
-                : 0}
+              {data?.user?.contract?.tiers ? data.user.contract.tiers.length : 0}
             </Typography>
             <Typography variant="subtitle1">Active Teirs</Typography>
           </Grid>

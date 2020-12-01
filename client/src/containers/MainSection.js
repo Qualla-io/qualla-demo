@@ -37,17 +37,6 @@ const INIT_APP = gql`
   }
 `;
 
-// const CREATE_USER = gql`
-//   mutation userCreate($id: ID!) {
-//     user(id: $id, username: null) {
-//       id
-//       username
-//       contract {
-//         id
-//       }
-//     }
-//   }
-// `;
 
 export default function MainSection(props) {
   let account = useReactiveVar(accountVar);
