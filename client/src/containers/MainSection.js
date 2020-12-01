@@ -37,26 +37,26 @@ const INIT_APP = gql`
   }
 `;
 
-const CREATE_USER = gql`
-  mutation userCreate($id: ID!) {
-    user(id: $id, username: null) {
-      id
-      username
-      contract {
-        id
-      }
-    }
-  }
-`;
+// const CREATE_USER = gql`
+//   mutation userCreate($id: ID!) {
+//     user(id: $id, username: null) {
+//       id
+//       username
+//       contract {
+//         id
+//       }
+//     }
+//   }
+// `;
 
 export default function MainSection(props) {
   let account = useReactiveVar(accountVar);
   let signer = useReactiveVar(signerVar);
   const {loading, error, data} = useQueryWithAccount(INIT_APP);
-  const [initUser] = useMutation(CREATE_USER);
+  // const [initUser] = useMutation(CREATE_USER);
 
   useEffect(() => {
-    if (data && data.user && data.user.contract && signer) {
+    if (data?.user?.contract && signer) {
       var subscriptionV1 = new ethers.Contract(
         data.user.contract.id,
         SubscriptionContract.abi,
@@ -66,15 +66,6 @@ export default function MainSection(props) {
     }
   }, [data, signer]);
 
-  useEffect(() => {
-    if (data && !data.user && account) {
-      console.log("running init");
-      initUser({
-        variables: {id: account},
-        refetchQueries: [{query: INIT_APP, variables: {id: account}}],
-      });
-    }
-  }, [data]);
 
   useEffect(() => {
     initWeb3();
@@ -158,7 +149,7 @@ export default function MainSection(props) {
 
   return (
     <>
-      <h1>{data && data.user ? data.user.id : null}</h1>
+      <h1>{data?.user ? data.user.id : null}</h1>
       {props.children}
     </>
   );

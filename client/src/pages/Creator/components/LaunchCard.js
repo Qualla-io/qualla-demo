@@ -20,30 +20,61 @@ import TierCard from "./TierCard";
 import {useSnackbar} from "notistack";
 import {useQueryWithAccount} from "../../../hooks";
 
-const GET_CONTRACT_DETAILS = gql`
-  query getContractDetails($id: ID!) {
+const GET_USER_DETAILS = gql`
+  query getUserDetails($id: ID!) {
     user(id: $id) {
       id
+      username
       contract {
         id
         tiers {
+          id
           title
           value
           perks
         }
         publisherNonce
+        acceptedValues
       }
     }
   }
 `;
 
+const GET_CONTRACT_DETAILS = gql`
+  query getContractDetails($id: ID!) {
+    contract(id: $id) {
+      id
+      tiers {
+        title
+        value
+        perks
+      }
+      publisherNonce
+      acceptedValues
+    }
+  }
+`;
+
 const DEPLOY_CONTRACT = gql`
-  mutation createContract($publisher: String!, $tiers: [TierInput!]!) {
+  mutation createContract($publisher: ID!, $tiers: [TierInput!]!) {
     createContract(publisher: $publisher, tiers: $tiers) {
       id
+      acceptedValues
+      publisherNonce
+      tiers {
+        id
+      }
       publisher {
         id
       }
+    }
+  }
+`;
+
+const MODIFY_TIERS = gql`
+  mutation modifyContractTiers($id: ID!, $tiers: [TierInput!]!) {
+    modifyContractTiers(id: $id, tiers: $tiers) {
+      id
       acceptedValues
       publisherNonce
       tiers {
@@ -51,6 +82,9 @@ const DEPLOY_CONTRACT = gql`
         title
         value
         perks
+      }
+      publisher {
+        id
       }
     }
   }
@@ -121,8 +155,9 @@ export default function CreatorLaunchCard() {
   let subscription = useReactiveVar(subscriptionVar);
   let dai = useReactiveVar(daiVar);
   let signer = useReactiveVar(signerVar);
-  const {error, loading, data} = useQueryWithAccount(GET_CONTRACT_DETAILS);
+  const {error, loading, data} = useQueryWithAccount(GET_USER_DETAILS);
   let [deployContract] = useMutation(DEPLOY_CONTRACT);
+  let [modifyTiers] = useMutation(MODIFY_TIERS);
   let [modifyContract] = useMutation(MODIFY_CONTRACT);
   const [tiers, setTiers] = useState([]);
   const {enqueueSnackbar} = useSnackbar();
@@ -133,12 +168,12 @@ export default function CreatorLaunchCard() {
 
   useEffect(() => {
     if (!loading && data) {
-      if (data.user && data.user.contract && data.user.contract.tiers) {
+      if (data?.user?.contract?.tiers) {
         let _tiers = JSON.parse(JSON.stringify(data.user.contract.tiers));
 
-        _tiers.forEach(function (v) {
-          delete v.__typename;
-        });
+        // _tiers.forEach(function (v) {
+        //   delete v.__typename;
+        // });
 
         setTiers(_tiers);
       }
@@ -218,26 +253,35 @@ export default function CreatorLaunchCard() {
     if (account) {
       deployContract({
         variables: {publisher: account, tiers},
-        update(cache, {data}) {
-          const userData = cache.readQuery({
-            query: GET_CONTRACT_DETAILS,
-            variables: {id: account},
-          });
-
-          let _userData = {...userData};
-          _userData.contract = data.createContract;
-
-          console.log(_userData);
-
-          cache.writeQuery({
-            query: GET_CONTRACT_DETAILS,
-            variables: {id: account},
-            data: {user: _userData},
-          });
-          
-        },
+        // update(cache, {data: {createContract}}) {},
       })
         .then((data) => {
+          modifyTiers({
+            variables: {id: data.data.createContract.id, tiers},
+            update(cache, {data: modifyContractTiers}) {
+              console.log(modifyContractTiers);
+              cache.modify({
+                id: cache.identify({
+                  id: account.toLowerCase(),
+                  __typename: "User",
+                }),
+                fields: {
+                  contract() {
+                    const newContractRef = cache.writeFragment({
+                      data: modifyContractTiers,
+                      fragment: gql`
+                        fragment NewContract on Contract {
+                          id
+                        }
+                      `,
+                    });
+                    return newContractRef;
+                  },
+                },
+              });
+            },
+          });
+
           enqueueSnackbar("Deployment Successful", {
             variant: "success",
           });
@@ -258,90 +302,6 @@ export default function CreatorLaunchCard() {
       });
     }
   }
-
-  // async function deployContract() {
-  //   if (creatorState.contract.address) {
-  //     let values = [];
-
-  //     for (var i = 0; i < tiers.length; i++) {
-  //       values.push(
-  //         ethers.utils.parseUnits(tiers[i].value.toString(), "ether").toString()
-  //       );
-  //     }
-
-  //     var nonce = parseInt(
-  //       await creatorState.contractInstance.publisherNonce()
-  //     );
-
-  //     // get hash
-  //     const hash = await creatorState.contractInstance.getPublisherModificationHash(
-  //       [web3State.Dai.address],
-  //       values,
-  //       nonce++
-  //     );
-
-  //     // sign hash
-
-  //     const signature = await web3State.signer.signMessage(
-  //       ethers.utils.arrayify(hash)
-  //     );
-
-  //     console.log(signature);
-
-  //     // modify contract
-  //     enqueueSnackbar(`Request Sent`, {
-  //       variant: "success",
-  //       autoHideDuration: 2000,
-  //     });
-
-  //     axios
-  //       .post(
-  //         `http://localhost:8080/publishers/${web3State.account}/contract/`,
-  //         {
-  //           tiers: tiers,
-  //           values,
-  //           signature,
-  //           publisher: web3State.account,
-  //         }
-  //       )
-  //       .then((ans) => {
-  //         enqueueSnackbar(`Modified Successfully`, {
-  //           variant: "success",
-  //           autoHideDuration: 2000,
-  //         });
-  //         updateContract();
-  //       })
-  //       .catch((err) => {
-  //         enqueueSnackbar(err.response.data.error, {
-  //           variant: "error",
-  //           autoHideDuration: 2000,
-  //         });
-  //       });
-  //   } else {
-  //     enqueueSnackbar(`Request Sent`, {
-  //       variant: "success",
-  //       autoHideDuration: 2000,
-  //     });
-  //     axios
-  //       .post("http://localhost:8080/deploy", {
-  //         tiers: tiers,
-  //         publisher: web3State.account,
-  //       })
-  //       .then((res) => {
-  //         updateContract();
-  //         enqueueSnackbar(`Your Contract Address: ${res.data}`, {
-  //           variant: "success",
-  //           autoHideDuration: 2000,
-  //         });
-  //       })
-  //       .catch((err) => {
-  //         enqueueSnackbar(err.response.data.error, {
-  //           variant: "error",
-  //           autoHideDuration: 2000,
-  //         });
-  //       });
-  //   }
-  // }
 
   return (
     <Grid container spacing={2}>

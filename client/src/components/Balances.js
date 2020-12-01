@@ -33,9 +33,7 @@ const GET_BALACES = gql`
 
 const MINT_TOKENS = gql`
   mutation mintTokens($id: ID!) {
-    mintTokens(id: $id) {
-      id
-    }
+    mintTokens(id: $id) 
   }
 `;
 
@@ -98,7 +96,7 @@ export default function Balances() {
   }, [dai, account]);
 
   useEffect(() => {
-    subscribeContractDai();
+    if (data?.user?.contract) subscribeContractDai();
   }, [dai, data]);
 
   async function subscribePersonalDai() {
@@ -124,28 +122,26 @@ export default function Balances() {
   }
 
   async function subscribeContractDai() {
-    if (dai && data && data.user && data.user.contract) {
-      // web3State.Dai.removeAllListeners("Transfer");
+    // web3State.Dai.removeAllListeners("Transfer");
 
-      let filterFromMe = dai.filters.Transfer(data.user.contract.id, null);
+    let filterFromMe = dai.filters.Transfer(data.user.contract.id, null);
 
-      let filterToMe = dai.filters.Transfer(null, data.user.contract.id);
+    let filterToMe = dai.filters.Transfer(null, data.user.contract.id);
 
-      let handleTransfer = async function (from, to, amount) {
-        dai.balanceOf(data.user.contract.id).then((contractbal) => {
-          if (ethers.utils.formatEther(contractbal) !== contractbal) {
-            enqueueSnackbar("Contract Balance Updated", {
-              variant: "success",
-              autoHideDuration: 2000,
-            });
-          }
-          setContractbal(ethers.utils.formatEther(contractbal));
-        });
-      };
+    let handleTransfer = async function (from, to, amount) {
+      dai.balanceOf(data.user.contract.id).then((contractbal) => {
+        if (ethers.utils.formatEther(contractbal) !== contractbal) {
+          enqueueSnackbar("Contract Balance Updated", {
+            variant: "success",
+            autoHideDuration: 2000,
+          });
+        }
+        setContractbal(ethers.utils.formatEther(contractbal));
+      });
+    };
 
-      dai.on(filterFromMe, handleTransfer);
-      dai.on(filterToMe, handleTransfer);
-    }
+    dai.on(filterFromMe, handleTransfer);
+    dai.on(filterToMe, handleTransfer);
   }
 
   async function getBlances() {
@@ -159,8 +155,9 @@ export default function Balances() {
           setDaiBal(ethers.utils.formatEther(daibal));
         });
       }
-      if (data && data.contract) {
-        dai.balanceOf(data.contract.id).then((contractbal) => {
+
+      if (data?.user?.contract) {
+        dai.balanceOf(data.user.contract.id).then((contractbal) => {
           setContractbal(ethers.utils.formatEther(contractbal));
         });
       }

@@ -5481,57 +5481,7 @@
   "networks": {
     "1337": {
       "events": {
-        "0x72a065a849998b02cabacd96c5c2fa26daa682a707d454005367f445b4658893": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "publisher",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "subscription",
-              "type": "address"
-            }
-          ],
-          "name": "SubscriptionCreated",
-          "type": "event"
-        },
-        "0x40584a53aa333a31e9c7fa92b712858a2bb50c819180a061d7da127b8b2af99d": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "publisher",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "subscription",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "address[]",
-              "name": "paymentTokens",
-              "type": "address[]"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint256[]",
-              "name": "acceptedValues",
-              "type": "uint256[]"
-            }
-          ],
-          "name": "SubscriptionCreated",
-          "type": "event"
-        },
-        "0xb55922f550f3203c7cdbcf95217d1d1bcc91b2118f653aa9a1bf6b2887690d95": {
+        "0xf4bad58701ef044474159b96a4b3167cdbfcebd8efbc326b4070f2721dae2d90": {
           "anonymous": false,
           "inputs": [
             {
@@ -5542,9 +5492,9 @@
             },
             {
               "indexed": false,
-              "internalType": "uint256",
+              "internalType": "uint8",
               "name": "fee",
-              "type": "uint256"
+              "type": "uint8"
             }
           ],
           "name": "factoryModified",
@@ -5580,60 +5530,15 @@
           ],
           "name": "subscriptionCreated",
           "type": "event"
-        },
-        "0xf4bad58701ef044474159b96a4b3167cdbfcebd8efbc326b4070f2721dae2d90": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "master",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint8",
-              "name": "fee",
-              "type": "uint8"
-            }
-          ],
-          "name": "factoryModified",
-          "type": "event"
         }
       },
       "links": {},
       "address": "0x4F6A9D8C88BB328d1e43e63e492AA9577eA2E499",
       "transactionHash": "0xfd4cd6eee4fa5f9fdf2f79b3f19a76a4301d9620039bbe99dec7854aa61954b8"
-    },
-    "5777": {
-      "events": {
-        "0x72a065a849998b02cabacd96c5c2fa26daa682a707d454005367f445b4658893": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "publisher",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "subscription",
-              "type": "address"
-            }
-          ],
-          "name": "SubscriptionCreated",
-          "type": "event"
-        }
-      },
-      "links": {},
-      "address": "0x4F6A9D8C88BB328d1e43e63e492AA9577eA2E499",
-      "transactionHash": "0x82688931a1469b06bdb09aee32b6f62729cb798bbf75fe3882af6b7336f7562d"
     }
   },
   "schemaVersion": "3.3.1",
-  "updatedAt": "2020-11-27T18:00:56.898Z",
+  "updatedAt": "2020-12-01T00:59:37.714Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

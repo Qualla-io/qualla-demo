@@ -51,7 +51,7 @@ const resolvers = {
   Contract: {
     tiers: async (contract) => {
       let _contract = await ContractModel.findById(contract.id.toLowerCase());
-      if (_contract) {
+      if (_contract && _contract.tiers) {
         return _contract.tiers;
       } else {
         return null;
@@ -94,7 +94,7 @@ const resolvers = {
 
       await _contract.save();
 
-      return {__typename: "Contract", id: id};
+      return {__typename: "Contract", id: id.toLowerCase()};
     },
   },
 };

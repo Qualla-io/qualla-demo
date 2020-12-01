@@ -50,7 +50,7 @@ const typeDefs = gql`
 const resolvers = {
   Query: {
     contract: async (_, {id}) => {
-      return getContract(id);
+      return getContract(id.toLowerCase());
     },
     contracts: async () => getContracts(),
   },
@@ -69,12 +69,13 @@ const resolvers = {
       var address = await factory.getSubscription(publisher.toLowerCase());
 
       let contract = {};
-      contract.id = address;
+      contract.id = address.toLowerCase();
       contract.paymentTokens = [dai.address];
       contract.acceptedValues = values;
       contract.publisherNonce = 0;
       contract.tiers = tiers;
-      console.log(contract);
+      contract.publisher = {};
+      contract.publisher.id = publisher.toLowerCase();
 
       return contract;
     },

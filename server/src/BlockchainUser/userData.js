@@ -26,7 +26,7 @@ export async function getUser(id) {
   if (res.data.user) {
     return res.data.user;
   } else {
-    return null;
+    return {id: id, contract: null};
   }
 }
 

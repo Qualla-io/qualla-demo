@@ -42,7 +42,7 @@ const typeDefs = gql`
 const resolvers = {
   Query: {
     user: async (_, {id}) => {
-      return getUser(id);
+      return getUser(id.toLowerCase());
     },
     users: async () => await getUsers(),
   },
@@ -66,11 +66,11 @@ const resolvers = {
       {userID, contractID, nonce, expiry, allowed, v, r, s}
     ) => {
       // TODO: Test this with front end
-      
+
       // TODO: Check if already approved
       await dai.permit(userID, contractID, nonce, expiry, allowed, v, r, s);
 
-      return true
+      return true;
     },
   },
   User: {

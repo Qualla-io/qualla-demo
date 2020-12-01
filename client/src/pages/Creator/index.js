@@ -40,7 +40,7 @@ export default function Creator() {
 
   return (
     <Container>
-      {data && data.user && data.user.contract ? null : (
+      {data?.user?.contract ? null : (
         <Alert severity="info" className={classes.headings}>
           You do not currently have an active subscription contract. Fill out
           your contract tiers and launch your contract below!
@@ -52,7 +52,7 @@ export default function Creator() {
       </Typography>
       <CreatorOverview />
       <div className={classes.headings}>
-        {data && data.user && data.user.contract ? <ActivateSubBtn /> : null}
+        {data?.user?.contract ? <ActivateSubBtn /> : null}
       </div>
       <Typography gutterBottom variant="h4" className={classes.headings}>
         Subscription Contract
