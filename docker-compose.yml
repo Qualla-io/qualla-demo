@@ -65,6 +65,13 @@ services:
       - "blockchain_contract"
       - "blockchain_subscription"
       - "local_data"
+  relayer:
+    build: ./server/src/relayer
+    container_name: "relayer"
+    env_file:
+      - server/.env
+    networks:
+      - "docker_default"
 
 networks:
   docker_default:

@@ -189,10 +189,12 @@ const resolvers = {
         }
 
         let _subscription = {};
-        _subscription.id = `${account.address}-${_contract.id}`;
+        _subscription.id = `${account.address.toLowerCase()}-${_contract.id.toLowerCase()}`;
         _subscription.value = value;
         _subscription.subscriber = {};
         _subscription.subscriber.id = account.address;
+        _subscription.subscriber.__typename = "User";
+        _subscription.__typename = "SubscriptionObj";
 
         _contract.subscribers.push(_subscription);
 

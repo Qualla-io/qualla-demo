@@ -36,6 +36,9 @@ const ACTIVATE_SUB = gql`
   mutation fakeSub($id: ID!) {
     fakeSub(id: $id) {
       id
+      publisher {
+        id
+      }
       subscribers {
         id
         value

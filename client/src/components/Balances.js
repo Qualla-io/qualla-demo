@@ -36,6 +36,12 @@ const MINT_TOKENS = gql`
   }
 `;
 
+const WITHDRAW_BALANCE = gql`
+  mutation withdraw($id: ID!) {
+    withdraw(id: $id)
+  }
+`;
+
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
@@ -63,6 +69,7 @@ export default function Balances() {
   let provider = useReactiveVar(providerVar);
   let account = useReactiveVar(accountVar);
   let {loading, data} = useQueryWithAccount(GET_BALACES);
+  let [withdraw] = useMutation(WITHDRAW_BALANCE);
 
   let [mintTokens, {error}] = useMutation(MINT_TOKENS);
 
@@ -144,7 +151,6 @@ export default function Balances() {
   }
 
   async function getBlances() {
-
     if (provider && account) {
       provider.getBalance(account).then((ethbal) => {
         setEthBal(parseFloat(ethers.utils.formatEther(ethbal)).toFixed(3));
@@ -182,18 +188,20 @@ export default function Balances() {
     }
   }
 
-  function withdrawTokens() {
-    // if (contractbal === "0.0") {
-    //   enqueueSnackbar("No funds to withdraw", {
-    //     variant: "warning",
-    //     autoHideDuration: 2000,
-    //   });
-    //   return;
-    // }
-    // enqueueSnackbar("Request Processing", {
-    //   variant: "success",
-    //   autoHideDuration: 2000,
-    // });
+  function _withdraw() {
+    if (contractbal === "0.0") {
+      enqueueSnackbar("No funds to withdraw", {
+        variant: "warning",
+      });
+      return;
+    }
+    enqueueSnackbar("Request Processing", {
+      variant: "success",
+    });
+
+    withdraw({variables: {id: data.user.contract.id}}).then((data) => {
+      console.log(data);
+    });
     // axios
     //   .post("http://localhost:8080/withdraw", {
     //     publisher: web3State.account,
@@ -218,7 +226,7 @@ export default function Balances() {
         <Typography>${contractbal} Dai</Typography>
       </Grid>
       <Grid item>
-        <Button onClick={withdrawTokens} color="primary" variant="contained">
+        <Button onClick={_withdraw} color="primary" variant="contained">
           <SwapVertIcon />
           Withdraw {"  "}
         </Button>
