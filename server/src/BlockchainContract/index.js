@@ -151,13 +151,11 @@ const resolvers = {
       let allowance = await dai.allowance(account.address, id);
       allowance = allowance.toString();
 
-      if (allowance < value) {
-        let allowed = ethers.BigNumber.from(value);
-        allowed = allowed.mul(5);
-        allowed = allowed.toString();
+      let allowed = ethers.BigNumber.from(value);
+      allowed = allowed.mul(5);
+      allowed = allowed.toString();
 
-        await dai.approve(id, allowed);
-      }
+      await dai.approve(id, allowed);
 
       let subscribers = _contract.subscribers;
       // Check if already a subscriber

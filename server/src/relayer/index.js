@@ -10,7 +10,7 @@ const fetch = createApolloFetch({
 
 const GET_SUBS = `
   query GetSubscriptions($date: BigInt!) {
-    subscriptionObjs(where: {nextWithdraw_lt: $date}) {
+    subscriptionObjs(first: 1000, where: {nextWithdraw_lt: $date}) {
       nextWithdraw
       value
       status
@@ -29,44 +29,49 @@ const GET_SUBS = `
 async function execSubs() {
   let date = Math.floor(Date.now() / 1000);
 
-  console.log(date);
+  console.log(`running at: ${date}`);
 
-  const res = await fetch({
-    query: GET_SUBS,
-    variables: {date},
-  });
+  try {
+    const res = await fetch({
+      query: GET_SUBS,
+      variables: {date},
+    });
 
-  let subscriptions = res.data.subscriptionObjs;
-  let subscription;
-  for (var i = 0; i < subscriptions.length; i++) {
-    subscription = subscriptions[i];
+    let subscriptions = res.data.subscriptionObjs;
+    let subscription;
+    for (var i = 0; i < subscriptions.length; i++) {
+      subscription = subscriptions[i];
 
-    console.log(subscription);
+      if (!subscription.contract) {
+        continue;
+      }
 
-    if (!subscription.contract) {
-      continue;
-    }
-
-    let allowance = await dai.allowance(
-      subscription.subscriber.id,
-      subscription.contract.id
-    );
-
-    let balance = await dai.balanceOf(subscription.subscriber.id);
-
-    if (
-      allowance >= subscription.value &&
-      balance >= subscription.value &&
-      subscription.status === "ACTIVE"
-    ) {
-      let _contract = new ethers.Contract(
-        subscription.contract.id,
-        SubscriptionV1.abi,
-        account
+      let allowance = await dai.allowance(
+        subscription.subscriber.id,
+        subscription.contract.id
       );
 
-      await _contract.executeSubscription(subscription.hash);
+      let balance = await dai.balanceOf(subscription.subscriber.id);
+
+      if (
+        allowance.gte(subscription.value) &&
+        balance.gte(subscription.value) &&
+        subscription.status === "ACTIVE"
+      ) {
+        let _contract = new ethers.Contract(
+          subscription.contract.id,
+          SubscriptionV1.abi,
+          account
+        );
+        try {
+          await _contract.executeSubscription(subscription.hash);
+        } catch (err) {
+          console.log(err);
+        }
+      }
     }
+  } catch {
+    console.log("Fetch error");
   }
 
   setTimeout(execSubs, 5000);

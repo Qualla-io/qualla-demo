@@ -3,7 +3,7 @@ import Dai from "./abi/TestDai.json";
 import Factory from "./abi/SubscriptionFactory.json";
 import SubscriptionV1 from "./abi/SubscriptionV1.json";
 
-const privateKey = process.env.PRIVATE_KEY;
+const privateKey = process.env.PRIVATE_KEY2;
 const provider = new ethers.providers.JsonRpcProvider(process.env.NETWORK_URI);
 const account = new ethers.Wallet(new Buffer.from(privateKey, "hex"), provider);
 var dai = new ethers.Contract(
