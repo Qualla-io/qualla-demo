@@ -94,8 +94,6 @@ const resolvers = {
       // TODO: Test this!
       let _contract = await getContract(id.toLowerCase());
 
-      console.log(_contract);
-
       if (_contract === null) {
         throw new UserInputError("Contract does not exsist", {
           invalidArgs: Object.keys(id),
@@ -124,8 +122,6 @@ const resolvers = {
       _contract.acceptedValues = values;
       _contract.publisherNonce++;
 
-      console.log(_contract);
-
       return _contract;
     },
     fakeSub: async (_, {id}) => {
@@ -146,8 +142,6 @@ const resolvers = {
       var initBal = await dai.balanceOf(account.address);
 
       initBal = initBal.toString();
-
-      console.log(_contract);
 
       const valLength = _contract.acceptedValues.length;
 
@@ -190,12 +184,26 @@ const resolvers = {
           ethers.utils.arrayify(hash)
         );
 
+        if (!_contract.subscribers) {
+          _contract.subscribers = [];
+        }
+
+        let _subscription = {};
+        _subscription.id = `${account.address}-${_contract.id}`;
+        _subscription.value = value;
+        _subscription.subscriber = {};
+        _subscription.subscriber.id = account.address;
+
+        _contract.subscribers.push(_subscription);
+
         await subscriptionV1.createSubscription(
           account.address,
           value,
           dai.address,
           signedHash
         );
+
+        console.log(_contract);
 
         return _contract;
       } else {

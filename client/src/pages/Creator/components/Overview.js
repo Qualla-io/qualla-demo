@@ -60,8 +60,7 @@ export default function CreatorOverview() {
   // }, [contractID]);
 
   useEffect(() => {
-    if (data?.user?.contract) {
-
+    if (data?.user?.contract?.subscribers) {
       let subscribers = data.user.contract.subscribers;
       let subValue = 0;
       for (var i = 0; i < subscribers.length; i++) {
@@ -89,7 +88,9 @@ export default function CreatorOverview() {
           <Grid item xs={12} md>
             <Typography variant="h6">
               {" "}
-              {data?.user?.contract ? data.user.contract.subscribers.length : 0}
+              {data?.user?.contract?.subscribers
+                ? data.user.contract.subscribers.length
+                : 0}
             </Typography>
             <Typography variant="subtitle1">Subscribers</Typography>
           </Grid>
@@ -101,7 +102,9 @@ export default function CreatorOverview() {
           </Hidden>
           <Grid item xs={12} md>
             <Typography variant="h6">
-              {data?.user?.contract?.tiers ? data.user.contract.tiers.length : 0}
+              {data?.user?.contract?.tiers
+                ? data.user.contract.tiers.length
+                : 0}
             </Typography>
             <Typography variant="subtitle1">Active Teirs</Typography>
           </Grid>
