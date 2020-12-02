@@ -14,6 +14,7 @@ const typeDefs = gql`
   }
 
   input TierInput {
+    id: ID
     value: Float!
     perks: String!
     title: String!

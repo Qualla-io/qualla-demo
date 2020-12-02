@@ -23,7 +23,6 @@ const GET_BALACES = gql`
   query getBalances($id: ID!) {
     user(id: $id) {
       id
-      username
       contract {
         id
       }
@@ -33,7 +32,7 @@ const GET_BALACES = gql`
 
 const MINT_TOKENS = gql`
   mutation mintTokens($id: ID!) {
-    mintTokens(id: $id) 
+    mintTokens(id: $id)
   }
 `;
 
@@ -145,6 +144,7 @@ export default function Balances() {
   }
 
   async function getBlances() {
+
     if (provider && account) {
       provider.getBalance(account).then((ethbal) => {
         setEthBal(parseFloat(ethers.utils.formatEther(ethbal)).toFixed(3));

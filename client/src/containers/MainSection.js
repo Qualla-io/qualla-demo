@@ -90,7 +90,7 @@ export default function MainSection(props) {
       const provider = new ethers.providers.Web3Provider(eth);
       // const provider = new ethers.providers.JsonRpcProvider(
       //   "http://127.0.0.1:8545",
-      //   {chaindId: 5777, name: "local"}
+      //   // {chaindId: 5777, name: "local"}
       // );
 
       providerVar(provider);
@@ -98,7 +98,7 @@ export default function MainSection(props) {
       const signer = provider.getSigner();
       signerVar(signer);
 
-      var deployedNetwork = DaiContract.networks[5777];
+      var deployedNetwork = DaiContract.networks[1337];
       var Dai = new ethers.Contract(
         deployedNetwork && deployedNetwork.address,
         DaiContract.abi,
@@ -108,7 +108,7 @@ export default function MainSection(props) {
       Dai = Dai.connect(signer);
       daiVar(Dai);
 
-      deployedNetwork = SubscriptionFactory.networks[5777];
+      deployedNetwork = SubscriptionFactory.networks[1337];
       var Factory = new ethers.Contract(
         deployedNetwork && deployedNetwork.address,
         DaiContract.abi,

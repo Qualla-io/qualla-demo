@@ -12,40 +12,40 @@ import {useQueryWithAccount} from "../../../hooks";
 import {daiVar, accountVar} from "../../../cache";
 import {cloneDeep} from "@apollo/client/utilities";
 
-// import {GET_CONTRACT_OVERVIEW} from "./Overview";
+import {GET_CONTRACT_OVERVIEW} from "./Overview";
 
-// const ACTIVATE_SUBS_INFO = gql`
-//   query getActiveSubsInfo($id: ID!) {
-//     user(id: $id) {
-//       id
-//       contract {
-//         id
-//         subscribers {
-//           id
-//           value
-//           subscriber {
-//             id
-//           }
-//         }
-//       }
-//     }
-//   }
-// `;
+const ACTIVATE_SUBS_INFO = gql`
+  query getActiveSubsInfo($id: ID!) {
+    user(id: $id) {
+      id
+      contract {
+        id
+        subscribers {
+          id
+          value
+          subscriber {
+            id
+          }
+        }
+      }
+    }
+  }
+`;
 
-// const ACTIVATE_SUB = gql`
-//   mutation fakeSub($contract: ID!) {
-//     fakeSub(contract: $contract) {
-//       id
-//       subscribers {
-//         id
-//         value
-//         subscriber {
-//           id
-//         }
-//       }
-//     }
-//   }
-// `;
+const ACTIVATE_SUB = gql`
+  mutation fakeSub($contract: ID!) {
+    fakeSub(contract: $contract) {
+      id
+      subscribers {
+        id
+        value
+        subscriber {
+          id
+        }
+      }
+    }
+  }
+`;
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -66,7 +66,7 @@ const useStyles = makeStyles((theme) => ({
 export default function ActivateSubs() {
   const [allowance, setAllowance] = useState(0);
   let account = useReactiveVar(accountVar);
-  // const {error, loading, data} = useQueryWithAccount(ACTIVATE_SUBS_INFO);
+  const {error, loading, data} = useQueryWithAccount(ACTIVATE_SUBS_INFO);
   // const [activateSub] = useMutation(ACTIVATE_SUB);
   let dai = useReactiveVar(daiVar);
   const {enqueueSnackbar} = useSnackbar();
@@ -109,57 +109,57 @@ export default function ActivateSubs() {
     }
   }
 
-  function _activateSub() {
-    activateSub({
-      variables: {contract: data.user.contract.id},
-      update(cache, {data}) {
-        const userData = cache.readQuery({
-          query: ACTIVATE_SUBS_INFO,
-          variables: {id: account},
-        });
+  // function _activateSub() {
+  //   activateSub({
+  //     variables: {contract: data.user.contract.id},
+  //     update(cache, {data}) {
+  //       const userData = cache.readQuery({
+  //         query: ACTIVATE_SUBS_INFO,
+  //         variables: {id: account},
+  //       });
 
-        console.log("updating");
+  //       console.log("updating");
 
-        let _userData = {...userData};
-        _userData.contract = data.fakeSub;
+  //       let _userData = {...userData};
+  //       _userData.contract = data.fakeSub;
 
-        console.log(_userData.contract);
+  //       console.log(_userData.contract);
 
-        cache.writeQuery({
-          query: GET_CONTRACT_OVERVIEW,
-          variables: {id: account},
-          data: {user: _userData},
-        });
-        cache.writeQuery({
-          query: GET_CONTRACT_OVERVIEW,
-          variables: {id: account},
-          data: {user: _userData},
-        });
-      },
-    })
-      .then((data) => {
-        enqueueSnackbar("Subscription Successful", {
-          variant: "success",
-        });
-      })
-      .catch((err) => {
-        console.log(err);
-        enqueueSnackbar(`${err.message}`, {
-          variant: "error",
-        });
-      });
+  //       cache.writeQuery({
+  //         query: GET_CONTRACT_OVERVIEW,
+  //         variables: {id: account},
+  //         data: {user: _userData},
+  //       });
+  //       cache.writeQuery({
+  //         query: GET_CONTRACT_OVERVIEW,
+  //         variables: {id: account},
+  //         data: {user: _userData},
+  //       });
+  //     },
+  //   })
+  //     .then((data) => {
+  //       enqueueSnackbar("Subscription Successful", {
+  //         variant: "success",
+  //       });
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //       enqueueSnackbar(`${err.message}`, {
+  //         variant: "error",
+  //       });
+  //     });
 
-    enqueueSnackbar(`Request Sent`, {
-      variant: "success",
-    });
-  }
+  //   enqueueSnackbar(`Request Sent`, {
+  //     variant: "success",
+  //   });
+  // }
 
   return (
     <div className={classes.root}>
       <Button
         variant="contained"
         color="secondary"
-        onClick={_activateSub}
+        // onClick={_activateSub}
         className={classes.btn}
         // disabled={allowance > 0}
       >

@@ -61,36 +61,36 @@ export const GET_USER_DETAILS = gql`
   }
 `;
 
-const GET_CONTRACT_DETAILS = gql`
-  query getContractDetails($id: ID!) {
-    contract(id: $id) {
-      id
-      tiers {
-        id
-        title
-        value
-        perks
-      }
-      publisher {
-        id
-      }
-      factory {
-        fee
-        id
-      }
-      publisherNonce
-      acceptedValues
-      subscribers {
-        subscriber {
-          id
-        }
-        id
-        value
-        status
-      }
-    }
-  }
-`;
+// const GET_CONTRACT_DETAILS = gql`
+//   query getContractDetails($id: ID!) {
+//     contract(id: $id) {
+//       id
+//       tiers {
+//         id
+//         title
+//         value
+//         perks
+//       }
+//       publisher {
+//         id
+//       }
+//       factory {
+//         fee
+//         id
+//       }
+//       publisherNonce
+//       acceptedValues
+//       subscribers {
+//         subscriber {
+//           id
+//         }
+//         id
+//         value
+//         status
+//       }
+//     }
+//   }
+// `;
 
 const DEPLOY_CONTRACT = gql`
   mutation createContract($publisher: ID!, $tiers: [TierInput!]!) {
@@ -133,34 +133,20 @@ const MODIFY_TIERS = gql`
 
 const MODIFY_CONTRACT = gql`
   mutation modifyContract(
-    $publisher: String!
+    $id: String!
     $tiers: [TierInput!]!
     $signedHash: String!
   ) {
-    modifyContract(
-      publisher: $publisher
-      tiers: $tiers
-      signedHash: $signedHash
-    ) {
+    modifyContract(id: $id, tiers: $tiers, signedHash: $signedHash) {
       id
       acceptedValues
       publisherNonce
       tiers {
-        title
-        value
-        perks
+        id
       }
     }
   }
 `;
-
-function sleep(milliseconds) {
-  const date = Date.now();
-  let currentDate = null;
-  do {
-    currentDate = Date.now();
-  } while (currentDate - date < milliseconds);
-}
 
 const useStyles = makeStyles((theme) => ({
   cont: {
@@ -221,9 +207,9 @@ export default function CreatorLaunchCard() {
       if (data?.user?.contract?.tiers) {
         let _tiers = JSON.parse(JSON.stringify(data.user.contract.tiers));
 
-        // _tiers.forEach(function (v) {
-        //   delete v.__typename;
-        // });
+        _tiers.forEach(function (v) {
+          delete v.__typename;
+        });
 
         setTiers(_tiers);
       }
@@ -286,12 +272,65 @@ export default function CreatorLaunchCard() {
 
       const signedHash = await signer.signMessage(ethers.utils.arrayify(hash));
 
-      modifyContract({variables: {publisher: account, tiers, signedHash}})
+      modifyContract({variables: {id: subscription.address, tiers, signedHash}})
         .then((data) => {
-          enqueueSnackbar("Modification Successful", {
-            variant: "success",
+          console.log(data)
+          modifyTiers({
+            variables: {id: data.data.modifyContract.id, tiers},
+            update(cache, {data: modifyContractTiers}) {
+              let _tiers = modifyContractTiers.modifyContractTiers;
+
+              let _tierList = [];
+              let newTiersRef;
+              for (var i = 0; i < _tiers.length; i++) {
+                newTiersRef = cache.writeFragment({
+                  data: _tiers[i],
+                  fragment: gql`
+                    fragment NewTier on Tier {
+                      id
+                      title
+                      value
+                      perks
+                    }
+                  `,
+                });
+
+                _tierList.push(newTiersRef);
+              }
+
+
+
+              cache.modify({
+                id: cache.identify({
+                  id: data.data.modifyContract.id,
+                  __typename: "Contract",
+                }),
+                fields: {
+                  tiers() {
+                    return _tierList;
+                  },
+                },
+              });
+
+              cache.modify({
+                id: cache.identify({
+                  id: data.data.modifyContract.id,
+                  __typename: "Contract",
+                }),
+                fields: {
+                  publisherNonce() {
+                    return data.data.modifyContract.publisherNonce;
+                  },
+                },
+              });
+
+              enqueueSnackbar("Modification Successful", {
+                variant: "success",
+              });
+            },
           });
         })
+        .then()
         .catch((err) => {
           console.log(err);
           enqueueSnackbar(`${err.message}`, {
@@ -314,10 +353,6 @@ export default function CreatorLaunchCard() {
           modifyTiers({
             variables: {id: data.data.createContract.id, tiers},
             update(cache, {data: modifyContractTiers}) {
-              console.log(modifyContractTiers);
-
-              // sleep(10000);
-
               let _tiers = modifyContractTiers.modifyContractTiers;
 
               let _tierList = [];

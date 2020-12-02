@@ -60,9 +60,7 @@ export default function CreatorOverview() {
   // }, [contractID]);
 
   useEffect(() => {
-    console.log("checking contract");
     if (data?.user?.contract) {
-      console.log("contract found");
 
       let subscribers = data.user.contract.subscribers;
       let subValue = 0;
@@ -77,29 +75,6 @@ export default function CreatorOverview() {
       setValue((subValue * (100 - data.user.contract.factory.fee)) / 100);
     }
   }, [data]);
-
-  if (data) {
-    console.log(data);
-  }
-
-  // useEffect(() => {
-  //   // test this later
-  //   console.log("changing");
-  //   console.log(data);
-  //   if (data?.contract) {
-  //     let subscribers = data.contract.subscribers;
-  //     let subValue = 0;
-  //     for (var i = 0; i < subscribers.length; i++) {
-  //       if (subscribers[i].status === "ACTIVE") {
-  //         let val = new BigNumber(subscribers[i].value);
-
-  //         subValue = +subValue + +ethers.utils.formatEther(val.toFixed());
-  //       }
-  //     }
-
-  //     setValue((subValue * (100 - data.contract.factory.fee)) / 100);
-  //   }
-  // }, [data, contractID]);
 
   return (
     <Grid container alignItems="stretch">

@@ -1,4 +1,4 @@
-import {ApolloServer, gql} from "apollo-server";
+import {ApolloServer, gql, UserInputError} from "apollo-server";
 import {buildFederatedSchema} from "@apollo/federation";
 import {ethers} from "ethers";
 
@@ -24,6 +24,7 @@ const typeDefs = gql`
   }
 
   input TierInput {
+    id: ID
     value: Float!
     perks: String!
     title: String!
@@ -56,9 +57,9 @@ const typeDefs = gql`
 const resolvers = {
   Query: {
     contract: async (_, {id}) => {
-      return getContract(id.toLowerCase());
+      return await getContract(id.toLowerCase());
     },
-    contracts: async () => getContracts(),
+    contracts: async () => await getContracts(),
   },
   Mutation: {
     createContract: async (_, {publisher, tiers}) => {
@@ -91,7 +92,9 @@ const resolvers = {
     },
     modifyContract: async (_, {id, tiers, signedHash}) => {
       // TODO: Test this!
-      let _contract = getContract(id.toLowerCase());
+      let _contract = await getContract(id.toLowerCase());
+
+      console.log(_contract);
 
       if (_contract === null) {
         throw new UserInputError("Contract does not exsist", {
@@ -120,6 +123,8 @@ const resolvers = {
       _contract.paymentTokens = [dai.address];
       _contract.acceptedValues = values;
       _contract.publisherNonce++;
+
+      console.log(_contract);
 
       return _contract;
     },
