@@ -21,6 +21,7 @@ import {
 import TierCard from "./TierCard";
 
 import {useSnackbar} from "notistack";
+
 import {useQueryWithAccount} from "../../../hooks";
 
 export const GET_USER_DETAILS = gql`
@@ -145,6 +146,7 @@ const MODIFY_CONTRACT = gql`
   }
 `;
 
+
 const useStyles = makeStyles((theme) => ({
   cont: {
     padding: theme.spacing(2),
@@ -176,10 +178,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+
 const initialTiers = [
   {title: "Tier 1", value: "5", perks: "ad free"},
   {title: "Tier 5", value: "10", perks: "premium content"},
 ];
+
 
 export default function CreatorLaunchCard() {
   const classes = useStyles();
