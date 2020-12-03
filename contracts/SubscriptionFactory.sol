@@ -7,7 +7,7 @@ import "./SubscriptionV1.sol";
 
 contract SubscriptionFactory {
     address public master;
-    uint256 public fee; //Percentage
+    uint8 public fee; //Percentage
 
     event subscriptionCreated(
         address indexed publisher,
@@ -16,12 +16,12 @@ contract SubscriptionFactory {
         uint256[] acceptedValues
     );
 
-    event factoryModified(address master, uint256 fee);
+    event factoryModified(address master, uint8 fee);
 
     address[] public allSubscriptions;
     mapping(address => address) public getSubscription;
 
-    constructor(uint256 _fee) public {
+    constructor(uint8 _fee) public {
         master = msg.sender;
         fee = _fee;
         emit factoryModified(master, fee);
@@ -58,7 +58,7 @@ contract SubscriptionFactory {
         allSubscriptions.push(subscription);
     }
 
-    function setFee(uint256 _fee) external {
+    function setFee(uint8 _fee) external {
         require(msg.sender == master, "FORBIDDEN");
         require(_fee < fee, "INVALID FEE INCREASE");
         fee = _fee;

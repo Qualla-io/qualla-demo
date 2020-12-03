@@ -1,8 +1,9 @@
 import React, {useState, useEffect} from "react";
-import {useSelector} from "react-redux";
-import {useDispatch} from "react-redux";
+
+import {gql, useReactiveVar, useMutation, useQuery} from "@apollo/client";
+
 import {useSnackbar} from "notistack";
-import axios from "axios";
+
 import {ethers} from "ethers";
 import {Grid} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
@@ -10,6 +11,101 @@ import {makeStyles} from "@material-ui/core/styles";
 import TierCard from "./TierCard";
 
 import {signPermit} from "../utils";
+import {useQueryWithAccount} from "../../../hooks";
+import {
+  accountVar,
+  subscriptionVar,
+  daiVar,
+  signerVar,
+  contractIDVar,
+  providerVar,
+  ethVar,
+} from "../../../cache";
+
+import SubscriptionContract from "../../../contracts/SubscriptionV1.json";
+
+const CreatorAddress = "0xe16449fAA5EFb9e334EeE36D68f7522F9Ded1D3f";
+
+const GET_SUBSCRIBER_DETAILS = gql`
+  query getSubscriberDetails($id: ID!) {
+    user(id: $id) {
+      id
+      username
+      subscriptions {
+        id
+        contract {
+          id
+        }
+      }
+    }
+  }
+`;
+
+const GET_CREATOR_DETAILS = gql`
+  query getCreatorDetails($id: ID!) {
+    user(id: $id) {
+      id
+      username
+      contract {
+        id
+        tiers {
+          id
+          value
+          title
+          perks
+        }
+      }
+    }
+  }
+`;
+
+const PERMIT = gql`
+  mutation sendPermit(
+    $userID: ID!
+    $contractID: ID!
+    $nonce: String!
+    $expiry: Float!
+    $allowed: Boolean!
+    $v: String!
+    $r: String!
+    $s: String!
+  ) {
+    permit(
+      userID: $userID
+      contractID: $contractID
+      nonce: $nonce
+      expiry: $expiry
+      allowed: $allowed
+      v: $v
+      r: $r
+      s: $s
+    )
+  }
+`;
+
+const SUBSCRIBE = gql`
+  mutation subscribe(
+    $contractID: ID!
+    $userID: ID!
+    $value: String!
+    $signedHash: String!
+  ) {
+    subscribe(
+      contractID: $contractID
+      userID: $userID
+      value: $value
+      signedHash: $signedHash
+    ) {
+      id
+      subscribers {
+        id
+        subscriber {
+          id
+        }
+      }
+    }
+  }
+`;
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -21,85 +117,114 @@ const useStyles = makeStyles((theme) => ({
 
 export default function TierContainer() {
   const classes = useStyles();
-  const web3State = useSelector((state) => state.Web3Reducer);
-  const subsciberState = useSelector((state) => state.SubscriberReducer);
+  let dai = useReactiveVar(daiVar);
+  let signer = useReactiveVar(signerVar);
+  let account = useReactiveVar(accountVar);
+  let eth = useReactiveVar(ethVar);
   const {enqueueSnackbar} = useSnackbar();
+  // const {_, __, userData} = useQueryWithAccount(GET_SUBSCRIBER_DETAILS);
+  const {error, loading, data} = useQuery(GET_CREATOR_DETAILS, {
+    variables: {id: CreatorAddress},
+  });
+  let [permit] = useMutation(PERMIT);
+  let [subscribe] = useMutation(SUBSCRIBE);
 
-  const dispatch = useDispatch();
-
+  
   async function onSubscribe(value) {
-    const Dai = web3State.Dai;
-    const account = web3State.account;
-    const signer = web3State.signer;
-    let nonce = await Dai.nonces(account);
+    let nonce = await dai.nonces(account);
 
     nonce = nonce.toString();
 
     var message = {
       holder: account,
-      spender: subsciberState.contract.address,
+      spender: data?.user?.contract?.id,
       allowed: true,
       nonce,
       expiry: 0,
     };
 
-    const res = await signPermit(web3State.eth, message, Dai.address);
+    const res = await signPermit(eth, message, dai.address);
+
+    console.log(res);
 
     enqueueSnackbar("Permit Request Sent", {
       variant: "success",
     });
 
-    axios
-      .post(`http://localhost:8080/permit/`, {
-        res,
-        message,
-        account,
-        contract: subsciberState.contract.address,
-      })
-      .then((ans) => {
-        enqueueSnackbar(ans.data, {
-          variant: "success",
-        });
-      })
-      .catch((err) => {
-        enqueueSnackbar("Permit processing error", {
-          variant: "error",
-        });
-      });
+    await permit({
+      variables: {
+        userID: account,
+        contractID: data?.user?.contract?.id,
+        nonce,
+        expiry: 0,
+        allowed: true,
+        v: res.v.toString(),
+        r: res.r.toString(),
+        s: res.s.toString(),
+      },
+    });
 
-    let contractInstance = subsciberState.contractInstance;
+    // let contractInstance = subsciberState.contractInstance;
 
     value = ethers.utils.parseUnits(value.toString(), "ether").toString();
 
-    let hash = await contractInstance.getSubscriptionHash(
+    var subscriptionV1 = new ethers.Contract(
+      data?.user?.contract?.id,
+      SubscriptionContract.abi,
+      signer
+    );
+
+    let hash = await subscriptionV1.getSubscriptionHash(
       account,
       value,
-      Dai.address,
+      dai.address,
       0, //nonce
       0 //status: ACTIVE
     );
 
     const signedHash = await signer.signMessage(ethers.utils.arrayify(hash));
 
-    axios
-      .post(`http://localhost:8080/subscribe/`, {
-        hash,
-        signedHash,
-        account,
+    console.log(signedHash);
+
+    subscribe({
+      variables: {
+        contractID: data?.user?.contract?.id,
+        userID: account,
         value,
-        contract: contractInstance.address,
+        signedHash,
+      },
+    })
+      .then((data) => {
+        enqueueSnackbar("Susbcription Successful", {
+          variant: "success",
+        });
       })
-      .then((res) => {})
       .catch((err) => {
+        console.log(err);
         enqueueSnackbar("Subscription processing error", {
           variant: "error",
         });
       });
+
+    // axios
+    //   .post(`http://localhost:8080/subscribe/`, {
+    //     hash,
+    //     signedHash,
+    //     account,
+    //     value,
+    //     contract: contractInstance.address,
+    //   })
+    //   .then((res) => {})
+    //   .catch((err) => {
+    //     enqueueSnackbar("Subscription processing error", {
+    //       variant: "error",
+    //     });
+    //   });
   }
 
   return (
     <Grid item container spacing={2} className={classes.card} justify="center">
-      {subsciberState.contract.tiers.map((tier, i) => (
+      {data?.user?.contract?.tiers?.map((tier, i) => (
         <Grid item xs={12} md={3} lg={3} key={i}>
           <TierCard tier={tier} onSubscribe={onSubscribe} />
         </Grid>

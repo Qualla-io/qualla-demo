@@ -1,4 +1,4 @@
-import Web3 from 'web3'
+import Web3 from "web3";
 
 const createPermitMessageData = function (message, coinAddr) {
   const typedData = JSON.stringify({
@@ -62,7 +62,8 @@ const createPermitMessageData = function (message, coinAddr) {
 
 const signData = async function (eth, fromAddress, typeData) {
   return new Promise(function (resolve, reject) {
-      let web3 = new Web3(eth)
+    let web3 = new Web3(window.ethereum);
+    console.log(web3)
     web3.currentProvider.send(
       {
         id: 1,

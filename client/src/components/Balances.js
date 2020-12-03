@@ -1,21 +1,46 @@
 import React, {useState, useEffect} from "react";
-import {useSelector} from "react-redux";
 import {ethers} from "ethers";
-import axios from "axios";
 
 import Typography from "@material-ui/core/Typography";
 import {makeStyles} from "@material-ui/core/styles";
 
-import store from "../store/myStore";
 import AttachMoneyIcon from "@material-ui/icons/AttachMoney";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import Grid from "@material-ui/core/Grid";
 import CardContent from "@material-ui/core/CardContent";
 import SwapVertIcon from "@material-ui/icons/SwapVert";
-
+import DialogTitle from "@material-ui/core/DialogTitle";
+import Dialog from "@material-ui/core/Dialog";
 import {useSnackbar} from "notistack";
-import {Hidden} from "@material-ui/core";
+import {DialogContent, Hidden} from "@material-ui/core";
+import Fab from "@material-ui/core/Fab";
+import {accountVar, providerVar, daiVar} from "../cache";
+import {useQueryWithAccount} from "../hooks";
+import {useReactiveVar, gql, useQuery, useMutation} from "@apollo/client";
+
+const GET_BALACES = gql`
+  query getBalances($id: ID!) {
+    user(id: $id) {
+      id
+      contract {
+        id
+      }
+    }
+  }
+`;
+
+const MINT_TOKENS = gql`
+  mutation mintTokens($id: ID!) {
+    mintTokens(id: $id)
+  }
+`;
+
+const WITHDRAW_BALANCE = gql`
+  mutation withdraw($id: ID!) {
+    withdraw(id: $id)
+  }
+`;
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -40,38 +65,54 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Balances() {
+  let dai = useReactiveVar(daiVar);
+  let provider = useReactiveVar(providerVar);
+  let account = useReactiveVar(accountVar);
+  let {loading, data} = useQueryWithAccount(GET_BALACES);
+  let [withdraw] = useMutation(WITHDRAW_BALANCE);
+
+  let [mintTokens, {error}] = useMutation(MINT_TOKENS);
+
+  if (error) {
+    console.log(error.message);
+  }
+
   const classes = useStyles();
-  const web3State = useSelector((state) => state.Web3Reducer);
-  const creatorState = useSelector((state) => state.CreatorReducer);
+  const [open, setOpen] = useState(false);
   const [ethbal, setEthBal] = useState(0);
   const [daibal, setDaiBal] = useState(0);
   const [contractbal, setContractbal] = useState(0);
 
   const {enqueueSnackbar} = useSnackbar();
 
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   useEffect(() => {
     getBlances();
-  }, [web3State.account, creatorState.contract.address]);
+  }, [account]);
 
   useEffect(() => {
     subscribePersonalDai();
-  }, [web3State.Dai, web3State.account]);
+  }, [dai, account]);
 
   useEffect(() => {
-    subscribeContractDai();
-  }, [web3State.Dai, creatorState.contract.address]);
+    if (data?.user?.contract) subscribeContractDai();
+  }, [dai, data]);
 
   async function subscribePersonalDai() {
-    if (web3State.Dai && web3State.account) {
-      let filterFromMe = web3State.Dai.filters.Transfer(
-        web3State.account,
-        null
-      );
+    if (dai && account) {
+      let filterFromMe = dai.filters.Transfer(account, null);
 
-      let filterToMe = web3State.Dai.filters.Transfer(null, web3State.account);
+      let filterToMe = dai.filters.Transfer(null, account);
 
       let handleTransfer = async function (from, to, amount) {
-        web3State.Dai.balanceOf(web3State.account).then((daibal) => {
+        dai.balanceOf(account).then((daibal) => {
           setDaiBal(ethers.utils.formatEther(daibal));
 
           enqueueSnackbar("Personal Balance Updated", {
@@ -81,113 +122,97 @@ export default function Balances() {
         });
       };
 
-      web3State.Dai.on(filterFromMe, handleTransfer);
-      web3State.Dai.on(filterToMe, handleTransfer);
+      dai.on(filterFromMe, handleTransfer);
+      dai.on(filterToMe, handleTransfer);
     }
   }
 
   async function subscribeContractDai() {
-    if (web3State.Dai && creatorState.contract.address) {
-      // web3State.Dai.removeAllListeners("Transfer");
+    // web3State.Dai.removeAllListeners("Transfer");
 
-      let filterFromMe = web3State.Dai.filters.Transfer(
-        creatorState.contract.address,
-        null
-      );
+    let filterFromMe = dai.filters.Transfer(data.user.contract.id, null);
 
-      let filterToMe = web3State.Dai.filters.Transfer(
-        null,
-        creatorState.contract.address
-      );
+    let filterToMe = dai.filters.Transfer(null, data.user.contract.id);
 
-      let handleTransfer = async function (from, to, amount) {
-        web3State.Dai.balanceOf(creatorState.contract.address).then(
-          (contractbal) => {
-            setContractbal(ethers.utils.formatEther(contractbal));
+    let handleTransfer = async function (from, to, amount) {
+      dai.balanceOf(data.user.contract.id).then((contractbal) => {
+        if (ethers.utils.formatEther(contractbal) !== contractbal) {
+          enqueueSnackbar("Contract Balance Updated", {
+            variant: "success",
+            autoHideDuration: 2000,
+          });
+        }
+        setContractbal(ethers.utils.formatEther(contractbal));
+      });
+    };
 
-            enqueueSnackbar("Contract Balance Updated", {
-              variant: "success",
-              autoHideDuration: 2000,
-            });
-          }
-        );
-      };
-
-      web3State.Dai.on(filterFromMe, handleTransfer);
-      web3State.Dai.on(filterToMe, handleTransfer);
-    }
+    dai.on(filterFromMe, handleTransfer);
+    dai.on(filterToMe, handleTransfer);
   }
 
   async function getBlances() {
-    // Change this to subscribe to events instead of pinging chain
-    const _web3State = store.getState().Web3Reducer;
-    const _creatorState = store.getState().CreatorReducer;
-
-    if (_web3State.provider && _web3State.account) {
-      _web3State.provider.getBalance(_web3State.account).then((ethbal) => {
+    if (provider && account) {
+      provider.getBalance(account).then((ethbal) => {
         setEthBal(parseFloat(ethers.utils.formatEther(ethbal)).toFixed(3));
       });
 
-      if (_web3State.Dai) {
-        _web3State.Dai.balanceOf(_web3State.account).then((daibal) => {
+      if (dai) {
+        dai.balanceOf(account).then((daibal) => {
           setDaiBal(ethers.utils.formatEther(daibal));
         });
       }
-      if (_creatorState.contract.address) {
-        _web3State.Dai.balanceOf(_creatorState.contract.address).then(
-          (contractbal) => {
-            setContractbal(ethers.utils.formatEther(contractbal));
-          }
-        );
+
+      if (data?.user?.contract) {
+        dai.balanceOf(data.user.contract.id).then((contractbal) => {
+          setContractbal(ethers.utils.formatEther(contractbal));
+        });
       }
     }
   }
 
-  function mintTokens() {
-    axios
-      .post("http://localhost:8080/mint", {
-        account: web3State.account,
-        coin: web3State.Dai.address,
-      })
-      .then((res) => {
-        enqueueSnackbar("Request Processing", {
-          variant: "success",
-          autoHideDuration: 2000,
-        });
-      })
-      .catch((err) => {
-        enqueueSnackbar(err.response.data.error, {
+  function _mintTokens() {
+    if (account) {
+      enqueueSnackbar("Request Processing", {
+        variant: "success",
+      });
+
+      mintTokens({variables: {id: account}}).catch((err) => {
+        enqueueSnackbar(`${err.message}`, {
           variant: "warning",
-          autoHideDuration: 2000,
         });
       });
+    } else {
+      enqueueSnackbar("No account", {
+        variant: "error",
+      });
+    }
   }
 
-  function withdrawTokens() {
+  function _withdraw() {
     if (contractbal === "0.0") {
       enqueueSnackbar("No funds to withdraw", {
         variant: "warning",
-        autoHideDuration: 2000,
       });
       return;
     }
-
     enqueueSnackbar("Request Processing", {
       variant: "success",
-      autoHideDuration: 2000,
     });
 
-    axios
-      .post("http://localhost:8080/withdraw", {
-        publisher: web3State.account,
-      })
-      .then((res) => {})
-      .catch((err) => {
-        enqueueSnackbar(err.response.data.error, {
-          variant: "error",
-          autoHideDuration: 2000,
-        });
-      });
+    withdraw({variables: {id: data.user.contract.id}}).then((data) => {
+      console.log(data);
+    });
+    // axios
+    //   .post("http://localhost:8080/withdraw", {
+    //     publisher: web3State.account,
+    //   })
+    //   .then((res) => {})
+    //   .catch((err) => {
+    //     enqueueSnackbar(err.response.data.error, {
+    //       variant: "error",
+    //       autoHideDuration: 2000,
+    //     });
+    //   });
   }
 
   const contractComp = (
@@ -201,7 +226,7 @@ export default function Balances() {
         <Typography>${contractbal} Dai</Typography>
       </Grid>
       <Grid item>
-        <Button onClick={withdrawTokens} color="primary" variant="contained">
+        <Button onClick={_withdraw} color="primary" variant="contained">
           <SwapVertIcon />
           Withdraw {"  "}
         </Button>
@@ -209,36 +234,59 @@ export default function Balances() {
     </>
   );
 
-  return (
-    <Hidden smDown>
-      <Card className={classes.root} raised>
-        <CardContent>
-          <Typography gutterBottom variant="h5" component="h2">
-            Balances:
+  const balancesCard = (
+    <>
+      <Grid container className={classes.container} spacing={1}>
+        {data && data.user && data.user.contract ? contractComp : null}
+        <Grid item>
+          <Typography variant="subtitle1" className={classes.underline}>
+            Personal:
           </Typography>
-          <Grid container className={classes.container} spacing={1}>
-            {creatorState.contract.address ? contractComp : null}
-            <Grid item>
-              <Typography variant="subtitle1" className={classes.underline}>
-                Personal:
-              </Typography>
-            </Grid>
-            <Grid item>
-              <Typography>{ethbal} Eth</Typography>
-            </Grid>
+        </Grid>
+        <Grid item>
+          <Typography>{ethbal} Eth</Typography>
+        </Grid>
 
-            <Grid item>
-              <Typography>${daibal} Dai</Typography>
-            </Grid>
-            <Grid item>
-              <Button onClick={mintTokens} color="primary" variant="contained">
-                <AttachMoneyIcon />
-                Get Dai {"  "}
-              </Button>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
-    </Hidden>
+        <Grid item>
+          <Typography>${daibal} Dai</Typography>
+        </Grid>
+        <Grid item>
+          <Button onClick={_mintTokens} color="primary" variant="contained">
+            <AttachMoneyIcon />
+            Get Dai {"  "}
+          </Button>
+        </Grid>
+      </Grid>
+    </>
+  );
+
+  return (
+    <>
+      <Hidden mdUp>
+        <Fab
+          className={classes.root}
+          color="secondary"
+          variant="extended"
+          onClick={handleOpen}
+        >
+          <AttachMoneyIcon />
+          Balances
+        </Fab>
+      </Hidden>
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>Balances:</DialogTitle>
+        <DialogContent dividers>{balancesCard}</DialogContent>
+      </Dialog>
+      <Hidden smDown>
+        <Card className={classes.root} raised>
+          <CardContent>
+            <Typography gutterBottom variant="h5" component="h2">
+              Balances:
+            </Typography>
+            {balancesCard}
+          </CardContent>
+        </Card>
+      </Hidden>
+    </>
   );
 }
