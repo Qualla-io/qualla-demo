@@ -57,6 +57,30 @@ const GET_CREATOR_DETAILS = gql`
   }
 `;
 
+const PERMIT = gql`
+  mutation sendPermit(
+    $userID: ID!
+    $contractID: ID!
+    $nonce: String!
+    $expiry: Float!
+    $allowed: Boolean!
+    $v: String!
+    $r: String!
+    $s: String!
+  ) {
+    permit(
+      userID: $userID
+      contractID: $contractID
+      nonce: $nonce
+      expiry: $expiry
+      allowed: $allowed
+      v: $v
+      r: $r
+      s: $s
+    )
+  }
+`;
+
 const useStyles = makeStyles((theme) => ({
   card: {
     padding: theme.spacing(2),
@@ -70,14 +94,15 @@ export default function TierContainer() {
   let dai = useReactiveVar(daiVar);
   let signer = useReactiveVar(signerVar);
   let account = useReactiveVar(accountVar);
-  let eth = useReactiveVar(ethVar)
+  let eth = useReactiveVar(ethVar);
   const {enqueueSnackbar} = useSnackbar();
   const {_, __, userData} = useQueryWithAccount(GET_SUBSCRIBER_DETAILS);
-  const {error, loading, data} = useQuery(GET_CREATOR_DETAILS, {variables: {id: CreatorAddress}});
+  const {error, loading, data} = useQuery(GET_CREATOR_DETAILS, {
+    variables: {id: CreatorAddress},
+  });
+  let [permit] = useMutation(PERMIT);
 
   async function onSubscribe(value) {
-
-
     let nonce = await dai.nonces(account);
 
     nonce = nonce.toString();
@@ -90,12 +115,25 @@ export default function TierContainer() {
       expiry: 0,
     };
 
-    console.log(signer)
-
     const res = await signPermit(eth, message, dai.address);
+
+    console.log(res);
 
     enqueueSnackbar("Permit Request Sent", {
       variant: "success",
+    });
+
+    await permit({
+      variables: {
+        userID: account,
+        contractID: data?.user?.contract?.id,
+        nonce,
+        expiry: 0,
+        allowed: true,
+        v: res.v.toString(),
+        r: res.r.toString(),
+        s: res.s.toString(),
+      },
     });
 
     // axios

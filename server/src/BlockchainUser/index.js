@@ -15,7 +15,7 @@ const typeDefs = gql`
     permit(
       userID: ID!
       contractID: ID!
-      nonce: Float!
+      nonce: String!
       expiry: Float!
       allowed: Boolean!
       v: String!
@@ -65,7 +65,7 @@ const resolvers = {
       _,
       {userID, contractID, nonce, expiry, allowed, v, r, s}
     ) => {
-      // TODO: Test this with front end
+
 
       // TODO: Check if already approved
       await dai.permit(userID, contractID, nonce, expiry, allowed, v, r, s);
