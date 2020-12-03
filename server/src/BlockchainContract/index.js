@@ -19,7 +19,12 @@ const typeDefs = gql`
       signedHash: String!
     ): Contract!
     fakeSub(id: ID!): Contract!
-    subscribe(id: ID!, value: String!, signedhash: String!): Contract!
+    subscribe(
+      contractID: ID!
+      userID: ID!
+      value: String!
+      signedHash: String!
+    ): Contract!
     withdraw(id: ID!): Boolean!
   }
 
@@ -224,6 +229,44 @@ const resolvers = {
       await subscriptionV1.withdraw();
 
       return true;
+    },
+    subscribe: async (_, {contractID, userID, value, signedHash}) => {
+      let _contract = await getContract(contractID.toLowerCase());
+
+      if (_contract === null) {
+        throw new UserInputError("Contract does not exsist", {
+          invalidArgs: Object.keys(contractID),
+        });
+      }
+
+      console.log(_contract);
+
+      var subscriptionV1 = new ethers.Contract(
+        contractID.toLowerCase(),
+        SubscriptionV1.abi,
+        account
+      );
+
+      console.log(parseInt(await subscriptionV1.allSubscribersLength()));
+
+      // let _subscription = {};
+      // _subscription.id = `${userID.toLowerCase()}-${_contract.id.toLowerCase()}`;
+      // // _subscription.value = value;
+      // _subscription.subscriber = {};
+      // _subscription.subscriber.id = userID.toLowerCase();
+      // // _subscription.subscriber.__typename = "User";
+      // // _subscription.__typename = "SubscriptionObj";
+
+      // _contract.subscribers.push(_subscription);
+
+      await subscriptionV1.createSubscription(
+        userID,
+        value,
+        dai.address,
+        signedHash
+      );
+
+      return _contract;
     },
   },
   Contract: {

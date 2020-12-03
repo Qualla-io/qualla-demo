@@ -22,6 +22,8 @@ import {
   ethVar,
 } from "../../../cache";
 
+import SubscriptionContract from "../../../contracts/SubscriptionV1.json";
+
 const CreatorAddress = "0xe16449fAA5EFb9e334EeE36D68f7522F9Ded1D3f";
 
 const GET_SUBSCRIBER_DETAILS = gql`
@@ -81,6 +83,30 @@ const PERMIT = gql`
   }
 `;
 
+const SUBSCRIBE = gql`
+  mutation subscribe(
+    $contractID: ID!
+    $userID: ID!
+    $value: String!
+    $signedHash: String!
+  ) {
+    subscribe(
+      contractID: $contractID
+      userID: $userID
+      value: $value
+      signedHash: $signedHash
+    ) {
+      id
+      subscribers {
+        id
+        subscriber {
+          id
+        }
+      }
+    }
+  }
+`;
+
 const useStyles = makeStyles((theme) => ({
   card: {
     padding: theme.spacing(2),
@@ -96,11 +122,12 @@ export default function TierContainer() {
   let account = useReactiveVar(accountVar);
   let eth = useReactiveVar(ethVar);
   const {enqueueSnackbar} = useSnackbar();
-  const {_, __, userData} = useQueryWithAccount(GET_SUBSCRIBER_DETAILS);
+  // const {_, __, userData} = useQueryWithAccount(GET_SUBSCRIBER_DETAILS);
   const {error, loading, data} = useQuery(GET_CREATOR_DETAILS, {
     variables: {id: CreatorAddress},
   });
   let [permit] = useMutation(PERMIT);
+  let [subscribe] = useMutation(SUBSCRIBE);
 
   async function onSubscribe(value) {
     let nonce = await dai.nonces(account);
@@ -136,37 +163,47 @@ export default function TierContainer() {
       },
     });
 
-    // axios
-    //   .post(`http://localhost:8080/permit/`, {
-    //     res,
-    //     message,
-    //     account,
-    //     contract: subsciberState.contract.address,
-    //   })
-    //   .then((ans) => {
-    //     enqueueSnackbar(ans.data, {
-    //       variant: "success",
-    //     });
-    //   })
-    //   .catch((err) => {
-    //     enqueueSnackbar("Permit processing error", {
-    //       variant: "error",
-    //     });
-    //   });
-
     // let contractInstance = subsciberState.contractInstance;
 
-    // value = ethers.utils.parseUnits(value.toString(), "ether").toString();
+    value = ethers.utils.parseUnits(value.toString(), "ether").toString();
 
-    // let hash = await contractInstance.getSubscriptionHash(
-    //   account,
-    //   value,
-    //   Dai.address,
-    //   0, //nonce
-    //   0 //status: ACTIVE
-    // );
+    var subscriptionV1 = new ethers.Contract(
+      data?.user?.contract?.id,
+      SubscriptionContract.abi,
+      signer
+    );
 
-    // const signedHash = await signer.signMessage(ethers.utils.arrayify(hash));
+    let hash = await subscriptionV1.getSubscriptionHash(
+      account,
+      value,
+      dai.address,
+      0, //nonce
+      0 //status: ACTIVE
+    );
+
+    const signedHash = await signer.signMessage(ethers.utils.arrayify(hash));
+
+    console.log(signedHash);
+
+    subscribe({
+      variables: {
+        contractID: data?.user?.contract?.id,
+        userID: account,
+        value,
+        signedHash,
+      },
+    })
+      .then((data) => {
+        enqueueSnackbar("Susbcription Successful", {
+          variant: "success",
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        enqueueSnackbar("Subscription processing error", {
+          variant: "error",
+        });
+      });
 
     // axios
     //   .post(`http://localhost:8080/subscribe/`, {
