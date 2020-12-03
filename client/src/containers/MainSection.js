@@ -18,6 +18,7 @@ import {
   daiVar,
   factoryVar,
   subscriptionVar,
+  ethVar,
 } from "../cache";
 import {useQueryWithAccount} from "../hooks";
 
@@ -37,7 +38,6 @@ const INIT_APP = gql`
   }
 `;
 
-
 export default function MainSection(props) {
   let account = useReactiveVar(accountVar);
   let signer = useReactiveVar(signerVar);
@@ -54,7 +54,6 @@ export default function MainSection(props) {
       subscriptionVar(subscriptionV1);
     }
   }, [data, signer]);
-
 
   useEffect(() => {
     initWeb3();
@@ -83,6 +82,8 @@ export default function MainSection(props) {
         providerOptions,
       });
       const eth = await web3Modal.connect();
+
+      ethVar(eth);
 
       // let web3 = await getWeb3();
       // updateWeb3("eth", eth);
