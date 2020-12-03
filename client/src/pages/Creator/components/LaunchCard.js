@@ -1,8 +1,6 @@
 import React, {useState, useEffect} from "react";
 import axios from "axios";
 import {ethers} from "ethers";
-import {useSelector} from "react-redux";
-import {useDispatch} from "react-redux";
 import {makeStyles} from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Card from "@material-ui/core/Card";
@@ -10,7 +8,6 @@ import CardContent from "@material-ui/core/CardContent";
 import {Button, Typography} from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import RemoveIcon from "@material-ui/icons/Remove";
-import * as creatorActions from "../../../store/actions/CreatorActions";
 
 import {gql, useReactiveVar, useMutation} from "@apollo/client";
 import {

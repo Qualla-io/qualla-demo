@@ -3,7 +3,6 @@ import ReactDOM from "react-dom";
 import App, {accountVar} from "./App";
 import {Provider} from "react-redux";
 
-import store from "./store/myStore";
 import {ApolloClient, InMemoryCache, ApolloProvider} from "@apollo/client";
 import {client} from "./cache";
 
@@ -17,9 +16,7 @@ if (!process.env.REACT_APP_GRAPHQL_ENDPOINT) {
 
 ReactDOM.render(
   <ApolloProvider client={client}>
-    <Provider store={store}>
       <App />
-    </Provider>
   </ApolloProvider>,
   document.getElementById("root")
 );

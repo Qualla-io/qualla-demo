@@ -9,7 +9,6 @@ import {Typography} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
 import TierContainer from "./components/TierContainer";
 
-import * as subsciberActions from "../../store/actions/SubscriberActions";
 
 const useStyles = makeStyles((theme) => ({
   heading: {
@@ -33,18 +32,8 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Subscriber() {
   const classes = useStyles();
-  const web3State = useSelector((state) => state.Web3Reducer);
-  const subsciberState = useSelector((state) => state.SubscriberReducer);
 
-  const dispatch = useDispatch();
 
-  useEffect(() => {
-    updateContract();
-  }, [web3State.signer]);
-
-  function updateContract() {
-    dispatch(subsciberActions.updateContract());
-  }
 
   return (
     <>

@@ -1,5 +1,4 @@
 import React, {useEffect} from "react";
-import {useSelector} from "react-redux";
 
 import {makeStyles} from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
