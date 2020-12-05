@@ -42,6 +42,8 @@ async function execSubs() {
     for (var i = 0; i < subscriptions.length; i++) {
       subscription = subscriptions[i];
 
+      console.log(subscription);
+
       if (!subscription.contract) {
         continue;
       }
@@ -74,7 +76,7 @@ async function execSubs() {
     console.log("Fetch error");
   }
 
-  setTimeout(execSubs, 5000);
+  setTimeout(execSubs, 15000);
 }
 
 setTimeout(execSubs, 5000);

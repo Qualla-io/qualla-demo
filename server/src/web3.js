@@ -1,3 +1,7 @@
+
+// Pretty sure this doesnt get run. keeping it for reference for now
+
+
 import {ethers} from "ethers";
 import dotenv from "dotenv";
 dotenv.config();

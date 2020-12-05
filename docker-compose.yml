@@ -60,7 +60,7 @@ services:
       - "4000:4000"
     networks:
       - "docker_default"
-    depends_on: 
+    depends_on:
       - "blockchain_user"
       - "blockchain_contract"
       - "blockchain_subscription"
@@ -70,6 +70,15 @@ services:
     container_name: "relayer"
     env_file:
       - server/.env
+    networks:
+      - "docker_default"
+  balance_subscriptions:
+    build: ./server/src/BalanceSubscriptions
+    container_name: "balance_subscriptions"
+    env_file:
+      - server/.env
+    ports:
+      - "5000:5000"
     networks:
       - "docker_default"
 
