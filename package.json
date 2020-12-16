@@ -1,0 +1,23 @@
+{
+  "name": "qualla-demo",
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.0",
+    "@nomiclabs/hardhat-waffle": "^2.0.0",
+    "@types/chai": "^4.2.14",
+    "@types/mocha": "^8.0.4",
+    "@types/node": "^14.14.10",
+    "chai": "^4.2.0",
+    "ethereum-waffle": "^3.0.0",
+    "hardhat": "^2.0.4",
+    "mocha": "^8.2.1",
+    "prettier": "^2.2.1",
+    "prettier-plugin-solidity": "^1.0.0-beta.1",
+    "ts-node": "^9.1.0",
+    "typescript": "^4.1.2"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "^0.19.0",
+    "@openzeppelin/contracts": "^3.3.0",
+    "ethers": "5.0.18"
+  }
+}

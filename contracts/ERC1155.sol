@@ -357,7 +357,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         bytes memory data
     )
         internal virtual
-    { }
+    { 
+
+    }
 
     function _doSafeTransferAcceptanceCheck(
         address operator,

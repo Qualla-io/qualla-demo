@@ -3,6 +3,7 @@ pragma solidity ^0.7.0;
 import "./lib.sol";
 
 contract TestDai is LibNote {
+    
     // --- Auth ---
     mapping (address => uint) public wards;
     function rely(address guy) external note auth { wards[guy] = 1; }
@@ -93,6 +94,7 @@ contract TestDai is LibNote {
         totalSupply    = sub(totalSupply, wad);
         emit Transfer(usr, address(0), wad);
     }
+    
     function approve(address usr, uint wad) external returns (bool) {
         allowance[msg.sender][usr] = wad;
         emit Approval(msg.sender, usr, wad);

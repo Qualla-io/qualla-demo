@@ -5,50 +5,29 @@ schema:
   file: schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: SubscriptionFactory
+    name: SubscriptionV1
     network: develop
     source:
-      address: "0x4F6A9D8C88BB328d1e43e63e492AA9577eA2E499"
-      abi: SubscriptionFactory
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      entities:
-        - SubscriptionFactory
-        - SubscriptionContract
-      abis:
-        - name: SubscriptionFactory
-          file: client\src\contracts\SubscriptionFactory.json
-      eventHandlers:
-        - event: subscriptionCreated(indexed address,address,address[],uint256[])
-          handler: handleSubscriptionCreated
-        - event: factoryModified(address,uint8)
-          handler: handleFactoryModified
-      file: SubscriptionFactory\SubscriptionFactory.wasm
-templates:
-  - name: SubscriptionV1
-    kind: ethereum/contract
-    network: develop
-    source:
+      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3"
       abi: SubscriptionV1
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: templates\SubscriptionV1\SubscriptionV1.wasm
       entities:
-        - SubscriptionFactory
-        - SubscriptionContract
+        - SubscriptionTokens
       abis:
         - name: SubscriptionV1
-          file: client\src\contracts\SubscriptionV1.json
+          file: client\src\artifacts\contracts\SubscriptionV1.sol\SubscriptionV1.json
+        - name: ERC1155
+          file: client\src\artifacts\contracts\ERC1155.sol\ERC1155.json
+        - name: IERC1155
+          file: client\src\artifacts\@openzeppelin\contracts\token\ERC1155\IERC1155.sol\IERC1155.json
       eventHandlers:
-        - event: newSubscriber(indexed address,indexed address,uint256,uint256,bytes32,bytes)
-          handler: handleNewSubscriber
-        - event: subscriptionExecuted(indexed address,uint256,uint256)
-          handler: handleSubscriptionExecuted
-        - event: subscriptionModified(indexed address,uint8,uint256,uint256,bytes32,bytes)
-          handler: handleSubscriptionModified
-        - event: contractModified(address[],uint256[],uint256)
-          handler: handleContractModified
+        - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleTransferSingle
+        - event: TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
+          handler: handleTransferBatch
+        - event: NFTevent(uint256)
+          handler: handleNFTevent
+      file: SubscriptionV1\SubscriptionV1.wasm

@@ -1,11 +1,11 @@
-const {ApolloServer} = require("apollo-server");
-const {ApolloGateway} = require("@apollo/gateway");
+const { ApolloServer } = require("apollo-server");
+const { ApolloGateway } = require("@apollo/gateway");
 
 const serviceList = [
-  {name: "BlockchainUser", url: "http://blockchain_user:4001"},
-  {name: "BlockchainContract", url: "http://blockchain_contract:4002"},
-  {name: "BlockchainSubscription", url: "http://blockchain_subscription:4003"},
-  {name: "Local", url: "http://local_data:4004"},
+  { name: "BlockchainUser", url: "http://blockchain_user:4001" },
+  { name: "BlockchainBaseToken", url: "http://blockchain_basetoken:4002" },
+  { name: "BlockchainSubToken", url: "http://blockchain_subtoken:4003" },
+  // {name: "Local", url: "http://local_data:4004"},
 ];
 
 const gateway = new ApolloGateway({
@@ -13,7 +13,7 @@ const gateway = new ApolloGateway({
 });
 
 (async () => {
-  const {schema, executor} = await gateway.load();
+  const { schema, executor } = await gateway.load();
 
   const server = new ApolloServer({
     schema,
@@ -21,7 +21,7 @@ const gateway = new ApolloGateway({
     subscriptions: false,
   });
 
-  server.listen(4000).then(({url}) => {
+  server.listen(4000).then(({ url }) => {
     console.log(`🚀 Server ready at ${url}`);
   });
 })();

@@ -1,14 +1,14 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity ^0.7.0;
+pragma solidity >=0.6.0 <0.8.0;
 
 import "@openzeppelin/contracts/GSN/Context.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./ERC1155.sol";
 
-// import "hardhat/console.sol";
+import "hardhat/console.sol";
 
-contract SubscriptionV2 is Context, ERC1155 {
+contract SubscriptionV1 is Context, ERC1155 {
     using SafeMath for uint256;
 
     // Convention:
@@ -48,6 +48,8 @@ contract SubscriptionV2 is Context, ERC1155 {
     mapping(uint256 => address) public tokenIdToCreator;
     mapping(address => uint256) public userNonce;
 
+    event NFTevent(uint256 id);
+
     constructor() ERC1155("URI") {
         // register the supported interfaces to conform to ERC1155 via ERC165
         _registerInterface(_INTERFACE_ID_ERC1155);
@@ -68,6 +70,18 @@ contract SubscriptionV2 is Context, ERC1155 {
         );
     }
 
+    function mintNFT() public {
+        // verify signature
+
+        uint256 id = (tokenNonce << 128);
+        id = (id | NF_INDEX_MASK);
+        ERC1155._mint(msg.sender, id, 1, bytes(""));
+
+        // Do something with data
+
+        tokenNonce++;
+    }
+
     function mintSubscription(
         address creator,
         uint256 amount,
@@ -85,7 +99,12 @@ contract SubscriptionV2 is Context, ERC1155 {
 
         uint256 id = (tokenNonce << 128);
 
-        _pushTokenData(ERC1155._asSingletonArray(id), creator, data);
+        _pushTokenData(
+            ERC1155._asSingletonArray(id),
+            creator,
+            ERC1155._asSingletonArray(amount),
+            data
+        );
 
         ERC1155._mint(creator, id, amount, data);
 
@@ -118,7 +137,7 @@ contract SubscriptionV2 is Context, ERC1155 {
             tokenIdToNextIndex[ids[i]] = 1;
         }
 
-        _pushTokenData(ids, creator, data);
+        _pushTokenData(ids, creator, amounts, data);
 
         ERC1155._mintBatch(creator, ids, amounts, data);
     }
@@ -162,6 +181,17 @@ contract SubscriptionV2 is Context, ERC1155 {
         ERC1155._mint(tokenIdToCreator[id], id, 1, bytes(""));
     }
 
+    function getBaseIdFromToken(uint256 id_)
+        external
+        view
+        returns (uint256 id)
+    {
+        require(id_ & TYPE_NF_BIT == 0, "Qualla/Wrong-Token-Type");
+        require(id_ & NF_INDEX_MASK > 0, "Qualla/Invalid-Subscription-Index");
+
+        return id_ & NONCE_MASK;
+    }
+
     function executeSubscription(uint256 id_, address subscriber) public {
         require(id_ & TYPE_NF_BIT == 0, "Qualla/Wrong-Token-Type");
         require(id_ & NF_INDEX_MASK > 0, "Qualla/Invalid-Subscription-Index");
@@ -169,28 +199,54 @@ contract SubscriptionV2 is Context, ERC1155 {
             ERC1155._balances[id_][subscriber] == 1,
             "Qualla/Invalid-Subscriber"
         );
+        require(
+            tokenId_ToNextWithdraw[id_] < block.timestamp,
+            "Qualla/Subscription-Not-Ready"
+        );
 
         uint256 id = id_ & NONCE_MASK;
         address creator = tokenIdToCreator[id];
+        address paymentToken = tokenIdToPaymentToken[id];
+        uint256 paymentValue = tokenIdToPaymentValue[id];
+
+        // require(ERC20(paymentToken).allowance(subscriber, address(this))>paymentValue, "Qualla/");
 
         uint256 creatorCut = 100 - fee;
 
         // _transfer tokens
-        ERC20(tokenIdToPaymentToken[id]).transferFrom(
-            subscriber,
-            creator,
-            tokenIdToPaymentValue[id].mul(creatorCut).div(100)
-        );
-        ERC20(tokenIdToPaymentToken[id]).transferFrom(
-            subscriber,
-            address(this), // Change this to owner
-            tokenIdToPaymentValue[id].mul(fee).div(100)
-        );
+        try
+            ERC20(paymentToken).transferFrom(
+                subscriber,
+                creator,
+                paymentValue.mul(creatorCut).div(100)
+            )
+        returns (bool) {} catch {
+            // if funds transfer fails, burn token
+            ERC1155._burn(subscriber, id_, 1);
+            ERC1155._mint(creator, id, 1, bytes(""));
+
+            return;
+        }
+
+        try
+            ERC20(paymentToken).transferFrom(
+                subscriber,
+                address(this), // Change this to contract owner
+                paymentValue.mul(fee).div(100)
+            )
+        returns (bool) {} catch {
+            // if funds transfer fails, burn token
+            ERC1155._burn(subscriber, id_, 1);
+            ERC1155._mint(creator, id, 1, bytes(""));
+
+            return;
+        }
 
         // add month in seconds
         tokenId_ToNextWithdraw[id_] += 2592000;
     }
 
+    // untested
     function updateSubscriptionCreator(
         address newCreator,
         uint256 id,
@@ -216,28 +272,10 @@ contract SubscriptionV2 is Context, ERC1155 {
         tokenIdToCreator[id] = newCreator;
     }
 
-    // function _mintToContract(
-    //     address operator,
-    //     uint256 id,
-    //     uint256 amount,
-    //     bytes memory data
-    // ) internal virtual {
-    //     _beforeTokenTransfer(
-    //         operator,
-    //         address(0),
-    //         address(this),
-    //         _asSingletonArray(id),
-    //         _asSingletonArray(amount),
-    //         data
-    //     );
-
-    //     _balances[id][address(this)] = _balances[id][address(this)].add(amount);
-    //     emit TransferSingle(operator, address(0), address(this), id, amount);
-    // }
-
     function _pushTokenData(
         uint256[] memory id,
         address creator,
+        uint256[] memory amounts,
         bytes memory data
     ) internal {
         // Need to find the packing limit for data. Then revert if id.length is longer than that
