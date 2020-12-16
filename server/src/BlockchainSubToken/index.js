@@ -35,7 +35,7 @@ const resolvers = {
   },
   SubscriptionToken: {
     __resolveReference(subscriptionToken) {
-      return getBaseToken(subscriptionToken.id.toLowerCase());
+      return getSubToken(subscriptionToken.id.toLowerCase());
     },
   },
 };

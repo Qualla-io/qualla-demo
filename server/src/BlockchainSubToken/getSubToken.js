@@ -25,7 +25,7 @@ const GET_SUBTOKEN = `
 
 export async function getSubToken(id) {
   const res = await fetch({
-    query: GET_BASETOKEN,
+    query: GET_SUBTOKEN,
     variables: { id },
   });
   if (res.data.subscriptionToken) {

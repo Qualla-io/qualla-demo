@@ -16,6 +16,8 @@ async function main() {
 
   await testDai.deployed();
 
+  console.log("Dai deployed to:", testDai.address);
+
   domain = {
     name: "Qualla Subscription",
     version: "1",
@@ -74,10 +76,7 @@ async function main() {
     data
   );
 
-  data = abiCoder.encode(
-    ["address[]", "uint256[]"],
-    [[testDai.address], [10]]
-  );
+  data = abiCoder.encode(["address[]", "uint256[]"], [[testDai.address], [10]]);
 
   // mint a bunch of subscriptions
   for (var i = 1; i < 5; i++) {
