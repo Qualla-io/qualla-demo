@@ -29,13 +29,15 @@ const GET_USER_OVERVIEW = gql`
 const useStyles = makeStyles((theme) => ({
   content: {},
   card: {
-    padding: theme.spacing(4),
-    borderColor: "#000000",
-    borderWidth: "3px",
-    borderRadius: 56,
-    width: "30em",
+    display: "flex",
+    flexDirection: "Row",
     height: "10em",
-    boxShadow: "100px 100px 4px 0px #000000 25%",
+    width: "30em",
+    background: "#FFFFFF",
+    border: "3px solid #000000",
+    boxSizing: "border-box",
+    boxShadow: "10px 10px 4px rgba(0, 0, 0, 0.25)",
+    borderRadius: "30px",
   },
   subs: {
     display: "flex",
@@ -67,7 +69,7 @@ export default function HeaderCard() {
   }, [data]);
 
   return (
-    <Paper className={classes.card} variant="outlined" elevation={4} >
+    <div className={classes.card}>
       <Grid container justify="center" alignItems="spaceBetween">
         <Grid item className={classes.subs} xs>
           <div>
@@ -84,6 +86,6 @@ export default function HeaderCard() {
           </div>
         </Grid>
       </Grid>
-    </Paper>
+    </div>
   );
 }
