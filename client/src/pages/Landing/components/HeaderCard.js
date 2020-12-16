@@ -6,25 +6,10 @@ import Divider from "@material-ui/core/Divider";
 import { makeStyles } from "@material-ui/core/styles";
 
 import { useReactiveVar, gql } from "@apollo/client";
+import { GET_USER_OVERVIEW } from "../queries";
 import { accountVar } from "../../../cache";
 import { useQueryWithAccount } from "../../../hooks";
 import { CardContent, Paper, Typography } from "@material-ui/core";
-
-const GET_USER_OVERVIEW = gql`
-  query gerUserOverview($id: ID!) {
-    user(id: $id) {
-      id
-      nonce
-      subscribers {
-        id
-        baseToken {
-          id
-          paymentValue
-        }
-      }
-    }
-  }
-`;
 
 const useStyles = makeStyles((theme) => ({
   content: {},
