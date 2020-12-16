@@ -1,392 +1,277 @@
-pragma solidity 0.6.12;
+//SPDX-License-Identifier: Unlicense
+pragma solidity ^0.7.0;
 
+import "@openzeppelin/contracts/GSN/Context.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "./ERC1155.sol";
 
-import "./interfaces/ISubscriptionFactory.sol";
-import "./Enum.sol";
+// import "hardhat/console.sol";
 
-contract SubscriptionV1 is Enum {
+contract SubscriptionV2 is Context, ERC1155 {
     using SafeMath for uint256;
-    using ECDSA for bytes32;
 
-    receive() external payable {
-        emit Received(msg.sender, msg.value);
-    }
+    // Convention:
+    // id = base id of token, has index of 0
+    // id_ = instance id of token, has index of 1+
 
-    struct Subscriber {
-        address subscriber;
-        address paymentToken;
-        Enum.Status status;
-        uint256 value;
-        uint256 nextWithdraw;
-        uint256 nonce;
-        bytes signedHash;
-    }
+    uint256 fee = 5; // Percent
 
-    address public factory;
-    address public publisher;
+    uint256 public tokenNonce = 1;
 
-    address[] public paymentTokens;
-    uint256[] public acceptedValues;
-    Subscriber[] public allSubscribers;
-    uint256 public publisherNonce = 0;
+    uint256 constant NONCE_MASK = uint256(uint128(~0)) << 128;
+    uint256 constant NF_INDEX_MASK = uint128(~0);
+    uint256 constant TYPE_NF_BIT = 1 << 255;
 
-    event Received(address indexed sender, uint256 value);
-    event newSubscriber(
-        address indexed subscriber,
-        address indexed paymentToken,
-        uint256 value,
-        uint256 subNumber,
-        bytes32 subscriptionHash,
-        bytes signedHash
-    );
-    event subscriptionExecuted(
-        address indexed subscriber,
-        uint256 nextWithdraw,
-        uint256 subnumber
-    );
-    event subscriptionModified(
-        address indexed subscriber,
-        Enum.Status status,
-        uint256 value,
-        uint256 nonce,
-        bytes32 subscriptionHash,
-        bytes signedHash
-    );
-    event contractModified(
-        address[] paymentTokens,
-        uint256[] values,
-        uint256 publisherNonce
-    );
+    // // how to add mask
+    // id = (id | NF_INDEX_MASK);
 
-    mapping(bytes32 => uint256) public hashToSubscription;
-    mapping(address => bool) public validToken;
-    mapping(uint256 => bool) public validValue;
+    // // how to undo mask
+    // id = ~(~id | NF_INDEX_MASK);
 
-    constructor() public {
-        factory = msg.sender;
-    }
+    // --- EIP712 niceties ---
+    bytes32 public DOMAIN_SEPARATOR;
+    bytes32 public constant USER_TYPEHASH =
+        keccak256("User(address user,uint256 nonce)");
+    string public constant name = "Qualla Subscription";
+    string public constant version = "1";
+    uint256 public chainId = 31337;
 
-    // called once by the factory at time of deployment
-    function initialize(
-        address _publisher,
-        address[] memory _paymentTokens,
-        uint256[] memory _acceptedValues
-    ) external {
-        require(msg.sender == factory, "FORBIDDEN");
-        publisher = _publisher;
-        paymentTokens = _paymentTokens;
-        acceptedValues = _acceptedValues;
+    // --- ERC1155 niceties ---
+    bytes4 private constant _INTERFACE_ID_ERC1155 = 0xd9b67a26;
+    bytes4 private constant _INTERFACE_ID_ERC1155_METADATA_URI = 0x0e89341c;
 
-        for (uint256 i = 0; i < paymentTokens.length; i++) {
-            validToken[paymentTokens[i]] = true;
-        }
+    mapping(uint256 => uint256) public tokenIdToPaymentValue;
+    mapping(uint256 => address) public tokenIdToPaymentToken;
+    mapping(uint256 => uint256) public tokenId_ToNextWithdraw;
+    mapping(uint256 => uint256) public tokenIdToNextIndex;
+    mapping(uint256 => address) public tokenIdToCreator;
+    mapping(address => uint256) public userNonce;
 
-        for (uint256 i = 0; i < acceptedValues.length; i++) {
-            validValue[acceptedValues[i]] = true;
-        }
+    constructor() ERC1155("URI") {
+        // register the supported interfaces to conform to ERC1155 via ERC165
+        _registerInterface(_INTERFACE_ID_ERC1155);
 
-        allSubscribers.push(
-            Subscriber(
-                address(0),
-                address(0),
-                Enum.Status.EXPIRED,
-                0,
-                0,
-                0,
-                abi.encode(0)
+        // register the supported interfaces to conform to ERC1155MetadataURI via ERC165
+        _registerInterface(_INTERFACE_ID_ERC1155_METADATA_URI);
+
+        DOMAIN_SEPARATOR = keccak256(
+            abi.encode(
+                keccak256(
+                    "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                ),
+                keccak256(bytes(name)),
+                keccak256(bytes(version)),
+                chainId,
+                address(this)
             )
         );
     }
 
-    function withdraw() external {
-        uint256 fee = ISubscriptionFactory(factory).fee(); // %
-        address master = ISubscriptionFactory(factory).master();
+    function mintSubscription(
+        address creator,
+        uint256 amount,
+        uint8 v,
+        bytes32 r,
+        bytes32 s,
+        bytes memory data
+    ) public {
+        // verify signature
+        _verifySignature(creator, v, r, s);
 
-        for (uint256 i = 0; i < paymentTokens.length; i++) {
-            uint256 publisherBal = ERC20(paymentTokens[i]).balanceOf(publisher);
-            uint256 contractBal = ERC20(paymentTokens[i]).balanceOf(
-                address(this)
-            );
-            uint256 feeTotal = contractBal.mul(fee).div(100);
-            ERC20(paymentTokens[i]).transfer(master, feeTotal);
-            ERC20(paymentTokens[i]).transfer(
-                publisher,
-                contractBal.sub(feeTotal)
-            );
-            require(
-                publisherBal.add(contractBal).sub(feeTotal) ==
-                    ERC20(paymentTokens[i]).balanceOf(publisher),
-                "FAILED TRANSFER"
-            );
+        if (amount == 0) {
+            amount = uint256(-1);
+        }
+
+        uint256 id = (tokenNonce << 128);
+
+        _pushTokenData(ERC1155._asSingletonArray(id), creator, data);
+
+        ERC1155._mint(creator, id, amount, data);
+
+        tokenNonce++;
+
+        tokenIdToNextIndex[id] = 1;
+    }
+
+    function mintBatchSubscription(
+        address creator,
+        uint256[] memory amounts,
+        uint8 v,
+        bytes32 r,
+        bytes32 s,
+        bytes memory data
+    ) public {
+        _verifySignature(creator, v, r, s);
+
+        uint256[] memory ids = new uint256[](amounts.length);
+
+        for (uint256 i = 0; i < amounts.length; i++) {
+            if (amounts[i] == 0) {
+                amounts[i] = uint256(-1);
+            }
+
+            ids[i] = (tokenNonce << 128);
+
+            tokenNonce++;
+
+            tokenIdToNextIndex[ids[i]] = 1;
+        }
+
+        _pushTokenData(ids, creator, data);
+
+        ERC1155._mintBatch(creator, ids, amounts, data);
+    }
+
+    function buySubscription(
+        address subscriber,
+        uint256 id,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public {
+        require(id & TYPE_NF_BIT == 0, "Qualla/Wrong-Token-Type");
+
+        _verifySignature(subscriber, v, r, s);
+
+        uint256 index = tokenIdToNextIndex[id];
+
+        uint256 id_ = id | index;
+
+        ERC1155._burn(tokenIdToCreator[id], id, 1);
+        ERC1155._mint(subscriber, id_, 1, bytes(""));
+
+        tokenId_ToNextWithdraw[id_] = block.timestamp - 1;
+
+        tokenIdToNextIndex[id]++;
+    }
+
+    function unSubscribe(
+        address subscriber,
+        uint256 id_,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public {
+        require(id_ & TYPE_NF_BIT == 0, "Qualla/Wrong-Token-Type");
+
+        _verifySignature(subscriber, v, r, s);
+
+        uint256 id = id_ & NONCE_MASK;
+        ERC1155._burn(subscriber, id_, 1);
+        ERC1155._mint(tokenIdToCreator[id], id, 1, bytes(""));
+    }
+
+    function executeSubscription(uint256 id_, address subscriber) public {
+        require(id_ & TYPE_NF_BIT == 0, "Qualla/Wrong-Token-Type");
+        require(id_ & NF_INDEX_MASK > 0, "Qualla/Invalid-Subscription-Index");
+        require(
+            ERC1155._balances[id_][subscriber] == 1,
+            "Qualla/Invalid-Subscriber"
+        );
+
+        uint256 id = id_ & NONCE_MASK;
+        address creator = tokenIdToCreator[id];
+
+        uint256 creatorCut = 100 - fee;
+
+        // _transfer tokens
+        ERC20(tokenIdToPaymentToken[id]).transferFrom(
+            subscriber,
+            creator,
+            tokenIdToPaymentValue[id].mul(creatorCut).div(100)
+        );
+        ERC20(tokenIdToPaymentToken[id]).transferFrom(
+            subscriber,
+            address(this), // Change this to owner
+            tokenIdToPaymentValue[id].mul(fee).div(100)
+        );
+
+        // add month in seconds
+        tokenId_ToNextWithdraw[id_] += 2592000;
+    }
+
+    function updateSubscriptionCreator(
+        address newCreator,
+        uint256 id,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external {
+        require(id & TYPE_NF_BIT == 0, "Qualla/Wrong-Token-Type");
+        require(id & NF_INDEX_MASK == 0, "Qualla/Invalid-Subscription-Index");
+
+        address oldCreator = tokenIdToCreator[id];
+
+        _verifySignature(oldCreator, v, r, s);
+
+        ERC1155.safeTransferFrom(
+            oldCreator,
+            newCreator,
+            id,
+            ERC1155._balances[id][oldCreator],
+            bytes("")
+        );
+
+        tokenIdToCreator[id] = newCreator;
+    }
+
+    // function _mintToContract(
+    //     address operator,
+    //     uint256 id,
+    //     uint256 amount,
+    //     bytes memory data
+    // ) internal virtual {
+    //     _beforeTokenTransfer(
+    //         operator,
+    //         address(0),
+    //         address(this),
+    //         _asSingletonArray(id),
+    //         _asSingletonArray(amount),
+    //         data
+    //     );
+
+    //     _balances[id][address(this)] = _balances[id][address(this)].add(amount);
+    //     emit TransferSingle(operator, address(0), address(this), id, amount);
+    // }
+
+    function _pushTokenData(
+        uint256[] memory id,
+        address creator,
+        bytes memory data
+    ) internal {
+        // Need to find the packing limit for data. Then revert if id.length is longer than that
+        // Also might hit a gas limit
+
+        address[] memory paymentToken = new address[](id.length);
+        uint256[] memory paymentValue = new uint256[](id.length);
+
+        // need to be careful with this. I dont think there is a good way to require the same length of data[] and id[]
+        (paymentToken, paymentValue) = abi.decode(data, (address[], uint256[]));
+
+        for (uint256 i = 0; i < id.length; i++) {
+            tokenIdToPaymentValue[id[i]] = paymentValue[i];
+            tokenIdToPaymentToken[id[i]] = paymentToken[i];
+            tokenIdToCreator[id[i]] = creator;
         }
     }
 
-    // ------------------------ View Functions ------------------------------------
-
-    // Used for initiating and modifying
-    function getSubscriptionHash(
-        address subscriber,
-        uint256 value,
-        address paymentToken,
-        uint256 nonce,
-        Enum.Status status
-    ) public pure returns (bytes32) {
-        return
+    function _verifySignature(
+        address user,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) internal {
+        bytes32 digest =
             keccak256(
                 abi.encodePacked(
-                    bytes1(0x19),
-                    bytes1(0),
-                    subscriber,
-                    value,
-                    nonce,
-                    paymentToken,
-                    status
+                    "\x19\x01",
+                    DOMAIN_SEPARATOR,
+                    keccak256(abi.encode(USER_TYPEHASH, user, userNonce[user]))
                 )
             );
-    }
 
-    function getPublisherModificationHash(
-        address[] memory _paymentTokens,
-        uint256[] memory _acceptedValues,
-        uint256 _publisherNonce
-    ) public view returns (bytes32) {
-        return
-            keccak256(
-                (
-                    abi.encodePacked(
-                        bytes1(0x19),
-                        bytes1(0),
-                        publisher,
-                        _paymentTokens,
-                        _acceptedValues,
-                        _publisherNonce
-                    )
-                )
-            );
-    }
-
-    function allSubscribersLength() external view returns (uint256) {
-        return allSubscribers.length;
-    }
-
-    function acceptedValuesLength() external view returns (uint256) {
-        return acceptedValues.length;
-    }
-
-    function paymentTokensLength() external view returns (uint256) {
-        return paymentTokens.length;
-    }
-
-    function isHashValid(bytes32 subscriptionHash) public view returns (bool) {
-        uint256 subNumber = hashToSubscription[subscriptionHash];
-        Subscriber memory _sub = allSubscribers[subNumber];
-        return (_sub.subscriber != address(0) &&
-            _sub.nextWithdraw < block.timestamp &&
-            _sub.status == Enum.Status.ACTIVE &&
-            _sub.subscriber ==
-            _getHashSigner(subscriptionHash, _sub.signedHash));
-    }
-
-    // ------------------------ Public Functions ------------------------------------
-
-    function createSubscription(
-        address _subscriber,
-        uint256 _value,
-        address _paymentToken,
-        bytes memory _signedHash
-    ) external {
-        bytes32 _subscriptionHash = getSubscriptionHash(
-            _subscriber,
-            _value,
-            _paymentToken,
-            0,
-            Enum.Status.ACTIVE
-        );
-
-        require(
-            hashToSubscription[_subscriptionHash] == 0,
-            "REPEAT SUBSCRIPTION"
-        );
-
-        require(validToken[_paymentToken] == true, "INVALID TOKEN");
-        require(validValue[_value] == true, "INVALID VALUE");
-
-        address _signer = _getHashSigner(_subscriptionHash, _signedHash);
-        require(_signer == _subscriber, "INVALID SIGNATURE");
-
-        allSubscribers.push(
-            Subscriber(
-                _subscriber,
-                _paymentToken,
-                Enum.Status.ACTIVE,
-                _value,
-                block.timestamp - 1,
-                0,
-                _signedHash
-            )
-        );
-
-        hashToSubscription[_subscriptionHash] = allSubscribers.length - 1;
-
-        emit newSubscriber(
-            _subscriber,
-            _paymentToken,
-            _value,
-            allSubscribers.length - 1,
-            _subscriptionHash,
-            _signedHash
-        );
-    }
-
-    function executeSubscription(bytes32 subscriptionHash) public {
-        require(isHashValid(subscriptionHash), "INVALID HASH");
-        uint256 subNumber = hashToSubscription[subscriptionHash];
-        _transferTokens(subNumber);
-        _updateTimestamp(subNumber);
-        // _payGas(); future implementation for GSN
-        emit subscriptionExecuted(
-            allSubscribers[subNumber].subscriber,
-            allSubscribers[subNumber].nextWithdraw,
-            subNumber
-        );
-    }
-
-    function modifySubscription(
-        address _subscriber,
-        uint256 _value,
-        address _paymentToken,
-        Enum.Status status,
-        bytes32 _currentSubscriptionHash,
-        bytes memory _signedModifyHash
-    ) public {
-        require(validToken[_paymentToken] == true, "INVALID TOKEN");
-        require(validValue[_value] == true, "INVALID VALUE");
-
-        uint256 subNumber = hashToSubscription[_currentSubscriptionHash];
-        require(subNumber != 0, "INVALID SUBSCRIPTION");
-
-        Subscriber memory _sub = allSubscribers[subNumber];
-
-        bytes32 _modifySubscriptionHash = getSubscriptionHash(
-            _subscriber,
-            _value,
-            _paymentToken,
-            _sub.nonce++,
-            status
-        );
-
-        address _signer = _getHashSigner(
-            _modifySubscriptionHash,
-            _signedModifyHash
-        );
-
-        require(_signer == _subscriber, "INVALID SIGNATURE");
-        require(
-            _signer == allSubscribers[subNumber].subscriber,
-            "INVALID SIGNATURE"
-        );
-
-        allSubscribers[subNumber] = Subscriber(
-            _subscriber,
-            _paymentToken,
-            status,
-            _value,
-            _sub.nextWithdraw,
-            _sub.nonce++,
-            _signedModifyHash
-        );
-
-        hashToSubscription[_modifySubscriptionHash] = subNumber;
-        hashToSubscription[_currentSubscriptionHash] = 0;
-
-        emit subscriptionModified(
-            _subscriber,
-            status,
-            _value,
-            _sub.nonce++,
-            _modifySubscriptionHash,
-            _signedModifyHash
-        );
-    }
-
-    function modifyContract(
-        address[] memory _paymentTokens,
-        uint256[] memory _acceptedValues,
-        bytes memory _signedModifyHash
-    ) public {
-        bytes32 _modifySubscriptionHash = getPublisherModificationHash(
-            _paymentTokens,
-            _acceptedValues,
-            publisherNonce++
-        );
-
-        address _signer = _getHashSigner(
-            _modifySubscriptionHash,
-            _signedModifyHash
-        );
-
-        require(_signer == publisher, "INVALID SIGNATURE");
-
-        for (uint256 i = 0; i < paymentTokens.length; i++) {
-            validToken[paymentTokens[i]] = false;
-        }
-
-        for (uint256 i = 0; i < acceptedValues.length; i++) {
-            validValue[acceptedValues[i]] = false;
-        }
-
-        paymentTokens = _paymentTokens;
-        acceptedValues = _acceptedValues;
-        publisherNonce = publisherNonce++;
-
-        for (uint256 i = 0; i < paymentTokens.length; i++) {
-            validToken[paymentTokens[i]] = true;
-        }
-
-        for (uint256 i = 0; i < acceptedValues.length; i++) {
-            validValue[acceptedValues[i]] = true;
-        }
-
-        emit contractModified(paymentTokens, acceptedValues, publisherNonce);
-    }
-
-    // ------------------------ Internal Functions ------------------------------------
-    function _getHashSigner(bytes32 subscriptionHash, bytes memory signatures)
-        internal
-        pure
-        returns (address)
-    {
-        return subscriptionHash.toEthSignedMessageHash().recover(signatures);
-    }
-
-    function _updateTimestamp(uint256 _subNumber) internal {
-        // Defaults to one month
-        allSubscribers[_subNumber].nextWithdraw = allSubscribers[_subNumber]
-            .nextWithdraw
-            .add(5);
-        // .add(2592000); // One Month
-    }
-
-    function _transferTokens(uint256 _subNumber) internal {
-        Subscriber memory _sub = allSubscribers[_subNumber];
-
-        uint256 _startingBal = ERC20(_sub.paymentToken).balanceOf(
-            address(this)
-        );
-
-        ERC20(_sub.paymentToken).transferFrom(
-            _sub.subscriber,
-            address(this),
-            _sub.value
-        );
-
-        require(
-            _startingBal.add(_sub.value) ==
-                ERC20(_sub.paymentToken).balanceOf(address(this)),
-            "TRANSFER FAILED"
-        );
+        require(user == ecrecover(digest, v, r, s), "Qualla/invalid-permit");
+        userNonce[user]++;
     }
 }

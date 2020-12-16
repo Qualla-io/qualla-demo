@@ -1,7 +1,7 @@
 var TestDai = artifacts.require("./TestDai.sol");
-var SubscriptionFactory = artifacts.require("./SubscriptionFactory.sol");
+var SubscriptionV1 = artifacts.require("./SubscriptionV1.sol");
 
 module.exports = function (deployer) {
   deployer.deploy(TestDai, 1337);
-  deployer.deploy(SubscriptionFactory, 5);
+  deployer.deploy(SubscriptionV1);
 };
