@@ -1,10 +1,11 @@
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 
-import {BrowserRouter as Router} from "react-router-dom";
+import { BrowserRouter as Router } from "react-router-dom";
 import BaseRouter from "./routes";
-import {SnackbarProvider} from "notistack";
+import { SnackbarProvider } from "notistack";
+
 import "./App.css";
-import {createMuiTheme, ThemeProvider} from "@material-ui/core/styles";
+import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Layout from "./containers/Layout";
 
@@ -19,9 +20,8 @@ const theme = createMuiTheme({
   },
 });
 
+
 export default function App() {
-
-
   // useEffect(async () => {
   //   if (account && signer) {
   //     if (account !== (await signer.getAddress())) {
@@ -29,7 +29,6 @@ export default function App() {
   //     }
   //   }
   // }, [account, signer]);
-
 
   // TODO: redo monotoring
   // async function moniterWeb3() {

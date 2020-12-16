@@ -5,11 +5,11 @@ import GridList from "@material-ui/core/GridList";
 import { makeStyles } from "@material-ui/core/styles";
 
 import { useReactiveVar } from "@apollo/client";
-import { GET_USER_BASETOKENS } from "../queries";
+import { GET_USER_SUBSCRIPTIONS } from "../queries";
 import { accountVar } from "../../../cache";
 import { useQueryWithAccount } from "../../../hooks";
-import BaseTokenCard from "../components/BaseTokenCard";
-import BlankBaseTokenCard from "../components/BlankBaseTokenCard";
+import SubbedToCard from "../components/SubbedToCard";
+import BlankSubbedToCard from "../components/BlankSubbedToCard";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -42,15 +42,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SubTokens() {
+export default function SubbedTo() {
   const classes = useStyles();
   let account = useReactiveVar(accountVar);
-  const { error, loading, data } = useQueryWithAccount(GET_USER_BASETOKENS);
+  const { error, loading, data } = useQueryWithAccount(GET_USER_SUBSCRIPTIONS);
 
   const handleWheel = (e) => {
     e.preventDefault();
-    const container = document.getElementById("container");
-    const containerScrollPos = document.getElementById("container").scrollLeft;
+    const container = document.getElementById("subToContainer");
+    const containerScrollPos = document.getElementById("subToContainer")
+      .scrollLeft;
     container.scrollTo({
       top: 0,
       left: containerScrollPos + e.deltaY,
@@ -90,16 +91,15 @@ export default function SubTokens() {
     window.removeEventListener(wheelEvent, preventDefault, wheelOpt);
     window.removeEventListener("touchmove", preventDefault, wheelOpt);
   };
-
   return (
     <div className={classes.root}>
       <Typography variant="h4">
-        <b>Subscription Tokens:</b>
+        <b>Subscribed To:</b>
       </Typography>
       <div className={classes.cardsDiv}>
-        {data?.user?.baseTokens.length > 0 ? (
+        {data?.user?.subscriptions.length > 0 ? (
           <GridList
-            id="container"
+            id="subToContainer"
             className={classes.cards}
             cellHeight={"auto"}
             cols={0}
@@ -108,19 +108,16 @@ export default function SubTokens() {
             onMouseEnter={disableScroll}
             onMouseLeave={enableScroll}
           >
-            {data?.user?.baseTokens.map((token, i) => (
+            {data?.user?.subscriptions.map((token, i) => (
               <GridListTile key={i} className={classes.cardTile}>
-                <BaseTokenCard token={token} className={classes.card} />
+                <SubbedToCard token={token} className={classes.card} />
               </GridListTile>
             ))}
           </GridList>
         ) : (
-          <BlankBaseTokenCard />
+          <BlankSubbedToCard />
         )}
       </div>
-      <Button variant="contained" color="secondary" className={classes.btn}>
-        Edit Tokens
-      </Button>
     </div>
   );
 }
