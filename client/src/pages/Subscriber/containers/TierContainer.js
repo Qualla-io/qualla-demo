@@ -8,7 +8,7 @@ import {ethers} from "ethers";
 import {Grid} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
 
-import TierCard from "./TierCard";
+import TierCard from "../components/TierCard";
 
 import {signPermit} from "../utils";
 import {useQueryWithAccount} from "../../../hooks";
@@ -26,38 +26,6 @@ import SubscriptionContract from "../../../contracts/SubscriptionV1.json";
 
 const CreatorAddress = "0xe16449fAA5EFb9e334EeE36D68f7522F9Ded1D3f";
 
-const GET_SUBSCRIBER_DETAILS = gql`
-  query getSubscriberDetails($id: ID!) {
-    user(id: $id) {
-      id
-      username
-      subscriptions {
-        id
-        contract {
-          id
-        }
-      }
-    }
-  }
-`;
-
-const GET_CREATOR_DETAILS = gql`
-  query getCreatorDetails($id: ID!) {
-    user(id: $id) {
-      id
-      username
-      contract {
-        id
-        tiers {
-          id
-          value
-          title
-          perks
-        }
-      }
-    }
-  }
-`;
 
 const PERMIT = gql`
   mutation sendPermit(
@@ -117,11 +85,11 @@ const useStyles = makeStyles((theme) => ({
 
 export default function TierContainer() {
   const classes = useStyles();
-  let dai = useReactiveVar(daiVar);
-  let signer = useReactiveVar(signerVar);
+  // let dai = useReactiveVar(daiVar);
+  // let signer = useReactiveVar(signerVar);
   let account = useReactiveVar(accountVar);
-  let eth = useReactiveVar(ethVar);
-  const {enqueueSnackbar} = useSnackbar();
+  // let eth = useReactiveVar(ethVar);
+  // const {enqueueSnackbar} = useSnackbar();
   // const {_, __, userData} = useQueryWithAccount(GET_SUBSCRIBER_DETAILS);
   const {error, loading, data} = useQuery(GET_CREATOR_DETAILS, {
     variables: {id: CreatorAddress},

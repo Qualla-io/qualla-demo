@@ -44,7 +44,7 @@ export default function HeaderCard() {
   const { error, loading, data } = useQueryWithAccount(GET_USER_OVERVIEW);
 
   useEffect(() => {
-    if (data?.user) {
+    if (data?.user?.subscribers) {
       let total = 0;
       for (var i = 0; i < data.user.subscribers.length; i++) {
         total += data.user.subscribers[i].baseToken.paymentValue;
@@ -59,7 +59,7 @@ export default function HeaderCard() {
         <Grid item className={classes.subs} xs>
           <div>
             <Typography variant="h4">
-              {data?.user ? data.user.subscribers.length : 0}
+              {data?.user?.subscribers ? data.user.subscribers.length : 0}
             </Typography>
             <Typography variant="subtitle1">Subscribers</Typography>
           </div>

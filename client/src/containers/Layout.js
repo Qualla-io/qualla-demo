@@ -3,6 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Topbar from "../components/Topbar.js";
 // import Balances from "../components/Balances.js";
 import MainSection from "./MainSection.js";
+import Footer from "./Footer.js";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -22,6 +23,7 @@ export default function Layout(props) {
       <Topbar />
       {/* <Balances /> */}
       <MainSection>{props.children}</MainSection>
+      <Footer />
     </div>
   );
 }

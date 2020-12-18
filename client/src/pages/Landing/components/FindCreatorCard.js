@@ -1,33 +1,38 @@
 import React from "react";
 
+import { makeStyles } from "@material-ui/core/styles";
 import { cardStyles } from "./styles";
 import { Avatar, Typography, Button } from "@material-ui/core";
-import PriorityHighIcon from "@material-ui/icons/PriorityHigh";
+import LoyaltyIcon from "@material-ui/icons/Loyalty";
 import { Link } from "react-router-dom";
 
-export default function BlankSubbedToCard() {
+const useStyles = makeStyles((theme) => ({
+  icon: {
+    fontSize: "10em",
+    color: theme.palette.secondary.main,
+  },
+}));
+
+export default function FindCreatorCard() {
   const classes = cardStyles();
+  const _classes = useStyles();
   return (
     <div className={classes.card}>
-      <Avatar className={classes.avatar}>
-        <PriorityHighIcon className={classes.icons} />
-      </Avatar>
+      <LoyaltyIcon className={_classes.icon} />
       <div className={classes.content}>
         <Typography variant="h5" align="center">
-          No Subscriptions!
+          Find your next favorite creator!
         </Typography>
       </div>
-      {/* <div className={classes.content}>
-    <Typography align="center">Mint your frist subscription:</Typography>
-  </div> */}
+      <div style={{ margin: "auto" }} />
       <Button
-        component={Link}
         to={`/${process.env.REACT_APP_CREATOR_ADDRESS}`}
+        component={Link}
         variant="contained"
         color="secondary"
-        className={classes.content}
+        className={classes.btn}
       >
-        find Creator
+        search
       </Button>
     </div>
   );

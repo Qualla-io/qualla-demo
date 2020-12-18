@@ -15,12 +15,12 @@ const useStyles = makeStyles((theme) => ({
     direction: "row",
   },
   grow: {
-    flexGrow: 1,
+    // flexGrow: 1,
     margin: "auto",
-    display: "flex",
-    direction: "row",
-    justifyContent: "center",
-    alignItems: "center",
+    // display: "flex",
+    // direction: "row",
+    // justifyContent: "center",
+    // alignItems: "center",
   },
   title: {
     // marginRight: theme.spacing(4),
@@ -62,34 +62,25 @@ export default function Topbar() {
               >
                 Qualla
               </Typography>
-              <div className={classes.grow}>
-                <Typography
-                  component={Link}
-                  to={"/creator"}
-                  variant="h6"
-                  className={classes.pages}
-                  color="inherit"
-                >
-                  Creator
-                </Typography>
-                <Typography
-                  component={Link}
-                  to={"/subscriber"}
-                  variant="h6"
-                  className={classes.pages}
-                  color="inherit"
-                >
-                  Subscriber
-                </Typography>
-              </div>
-              <Button
-                variant="contained"
-                color="primary"
-                className={classes.btn}
-                size="large"
+              <div className={classes.grow}></div>
+              <Typography
+                component={Link}
+                to={"/"}
+                variant="h6"
+                className={classes.pages}
+                color="inherit"
               >
-                Sign Up
-              </Button>
+                Dashboard
+              </Typography>
+              <Typography
+                component={Link}
+                to={"/"}
+                variant="h6"
+                className={classes.pages}
+                color="inherit"
+              >
+                Join Waitlist
+              </Typography>
             </div>
           </Container>
         </Toolbar>

@@ -1,14 +1,15 @@
-import React, {useEffect} from "react";
-import {useSelector} from "react-redux";
-import {useDispatch} from "react-redux";
+import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { Link, Route, useParams, useRouteMatch } from "react-router-dom";
 
 import Container from "@material-ui/core/Container";
 import HeroImage from "./components/HeroImage";
 import CreatorAvatar from "./components/CreatorAvatar";
-import {Typography} from "@material-ui/core";
-import {makeStyles} from "@material-ui/core/styles";
-import TierContainer from "./components/TierContainer";
-
+import { Typography } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+import SubTokens from "./containers/SubTokens";
+// import TierContainer from "./components/TierContainer";
 
 const useStyles = makeStyles((theme) => ({
   heading: {
@@ -32,8 +33,12 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Subscriber() {
   const classes = useStyles();
+  const { name } = useParams();
+  const { url, path } = useRouteMatch();
 
-
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   return (
     <>
@@ -47,9 +52,9 @@ export default function Subscriber() {
           A decentralized platorm for creators to take control
         </Typography>
         <Typography variant="h5" className={classes.tierTitle}>
-          Select a supporter tier:
+          Buy a subscription token:
         </Typography>
-        <TierContainer />
+        <SubTokens />
       </Container>
     </>
   );

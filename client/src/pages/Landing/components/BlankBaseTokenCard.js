@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 import { cardStyles } from "./styles";
 import { Avatar, Typography, Button } from "@material-ui/core";
@@ -19,7 +20,13 @@ export default function BlankBaseTokenCard() {
       {/* <div className={classes.content}>
         <Typography align="center">Mint your frist subscription:</Typography>
       </div> */}
-      <Button variant="contained" color="secondary" className={classes.content}>
+      <Button
+        component={Link}
+        to="/mint"
+        variant="contained"
+        color="secondary"
+        className={classes.content}
+      >
         Mint Now
       </Button>
     </div>

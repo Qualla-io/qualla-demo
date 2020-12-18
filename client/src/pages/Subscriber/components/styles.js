@@ -15,7 +15,7 @@ export const cardStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(4),
     marginBottom: theme.spacing(2),
     width: 250,
-    minHeight: 385,
+    minHeight: 367,
   },
   avatar: {
     height: 125,
@@ -27,9 +27,5 @@ export const cardStyles = makeStyles((theme) => ({
   },
   content: {
     marginTop: theme.spacing(2),
-  },
-  btn: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
   },
 }));
