@@ -19,3 +19,9 @@ export const PERMIT = gql`
     permit(userID: $userID, signature: $signature, nonce: $nonce)
   }
 `;
+
+export const SUBSCRIBE = gql`
+  mutation subscribe($userID: ID!, $baseTokenID: ID!, $signature: String!) {
+    subscribe(userID: $userID, baseTokenID: $baseTokenID, signature: $signature)
+  }
+`;

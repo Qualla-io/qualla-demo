@@ -6,7 +6,7 @@ import AndroidIcon from "@material-ui/icons/Android";
 
 import { gql, useReactiveVar, useMutation, useQuery } from "@apollo/client";
 import { ethers } from "ethers";
-import { PERMIT } from "../queries";
+import { PERMIT, SUBSCRIBE } from "../queries";
 import {
   daiVar,
   accountVar,
@@ -14,8 +14,6 @@ import {
   signerVar,
   ethVar,
 } from "../../../cache";
-
-import { signPermit } from "../utils";
 
 export default function SubCard(props) {
   let account = useReactiveVar(accountVar);
@@ -27,6 +25,7 @@ export default function SubCard(props) {
   let token = props.token;
 
   let [permit] = useMutation(PERMIT);
+  let [subscribe] = useMutation(SUBSCRIBE);
 
   async function _subscribe() {
     let subscriberData = {
@@ -53,6 +52,10 @@ export default function SubCard(props) {
       creatorTypes,
       subscriberData
     );
+
+    await subscribe({
+      variables: { userID: account, baseTokenID: token?.id, signature },
+    });
   }
 
   async function _permit() {
@@ -124,6 +127,16 @@ export default function SubCard(props) {
     await permit({ variables: { userID: account, signature, nonce } });
   }
 
+  async function handleSub() {
+    let allowance = await dai.allowance(account, subscriptionV1.address);
+
+    if (!allowance.gt(0)) {
+      _permit();
+    }
+
+    _subscribe();
+  }
+
   return (
     <div className={classes.card}>
       <Avatar className={classes.avatar}>
@@ -144,7 +157,7 @@ export default function SubCard(props) {
         variant="contained"
         color="secondary"
         className={classes.content}
-        onClick={_permit}
+        onClick={handleSub}
       >
         Subscribe
       </Button>

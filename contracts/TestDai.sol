@@ -132,7 +132,7 @@ contract TestDai is LibNote {
         console.log(nonce);
         console.log(address(this));
         console.log(expiry);
-        
+         
 
         require(holder != address(0), "Dai/invalid-address-0");
         require(holder == ecrecover(digest, v, r, s), "Dai/invalid-permit");

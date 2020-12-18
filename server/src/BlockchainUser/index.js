@@ -60,10 +60,6 @@ const resolvers = {
         signature.s
       );
 
-      let allowance = await dai.allowance(userID, process.env.SUB_CONTRACT);
-
-      console.log(allowance.toString());
-
       return true;
     },
   },
