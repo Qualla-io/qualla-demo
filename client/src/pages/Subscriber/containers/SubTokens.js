@@ -1,9 +1,8 @@
 import React from "react";
 
 import { useRouteMatch } from "react-router-dom";
-import { useQuery, useReactiveVar } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { GET_CREATOR_OVERVIEW } from "../queries";
-import { accountVar } from "../../../cache";
 import { makeStyles } from "@material-ui/core/styles";
 import SubCard from "../components/SubCard";
 import CustomGridlist from "../../../containers/CustomGridlist";

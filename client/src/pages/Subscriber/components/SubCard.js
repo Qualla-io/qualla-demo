@@ -6,31 +6,31 @@ import AndroidIcon from "@material-ui/icons/Android";
 
 import { gql, useReactiveVar, useMutation, useQuery } from "@apollo/client";
 import { ethers } from "ethers";
-import { PERMIT, SUBSCRIBE } from "../queries";
+import { PERMIT, SUBSCRIBE, GET_USER_NONCE } from "../queries";
 import {
   daiVar,
   accountVar,
   subscriptionVar,
   signerVar,
-  ethVar,
 } from "../../../cache";
+import { useQueryWithAccount } from "../../../hooks";
 
 export default function SubCard(props) {
   let account = useReactiveVar(accountVar);
   let dai = useReactiveVar(daiVar);
   let signer = useReactiveVar(signerVar);
   let subscriptionV1 = useReactiveVar(subscriptionVar);
-  let eth = useReactiveVar(ethVar);
+  let { data } = useQueryWithAccount(GET_USER_NONCE);
+
   const classes = cardStyles();
   let token = props.token;
-
   let [permit] = useMutation(PERMIT);
   let [subscribe] = useMutation(SUBSCRIBE);
 
   async function _subscribe() {
     let subscriberData = {
       user: account,
-      nonce: 0,
+      nonce: data?.user?.nonce,
     };
 
     let domain = {
@@ -53,8 +53,22 @@ export default function SubCard(props) {
       subscriberData
     );
 
-    await subscribe({
+    subscribe({
       variables: { userID: account, baseTokenID: token?.id, signature },
+      update(cache) {
+        cache.modify({
+          id: cache.identify({
+            id: account.toLowerCase(),
+            __typename: "User",
+          }),
+          fields: {
+            nonce(cachedNonce) {
+              return cachedNonce + 1;
+            },
+          },
+          broadcast: false,
+        });
+      },
     });
   }
 
@@ -72,7 +86,7 @@ export default function SubCard(props) {
     var message = {
       holder: account,
       spender: subscriptionV1.address,
-      nonce: parseInt(0),
+      nonce,
       expiry: parseInt(0),
       allowed: true,
     };
@@ -131,10 +145,10 @@ export default function SubCard(props) {
     let allowance = await dai.allowance(account, subscriptionV1.address);
 
     if (!allowance.gt(0)) {
-      _permit();
+      await _permit();
     }
 
-    _subscribe();
+    await _subscribe();
   }
 
   return (
