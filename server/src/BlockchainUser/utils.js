@@ -1,11 +1,12 @@
 import {ethers} from "ethers";
 import Dai from "./abi/TestDai.json";
 
+
 const privateKey = process.env.PRIVATE_KEY;
 const provider = new ethers.providers.JsonRpcProvider(process.env.NETWORK_URI);
 const account = new ethers.Wallet(new Buffer.from(privateKey, "hex"), provider);
 var dai = new ethers.Contract(
-  Dai.networks[process.env.NETWORK_ID].address,
+  process.env.DAI_CONTRACT,
   Dai.abi,
   provider
 );

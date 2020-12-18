@@ -1,5 +1,5 @@
-import React, {useEffect} from "react";
-import {ethers} from "ethers";
+import React, { useEffect } from "react";
+import { ethers } from "ethers";
 
 import Web3Modal from "web3modal";
 // import Fortmatic from "fortmatic";
@@ -16,22 +16,27 @@ import {
   providerVar,
   signerVar,
   daiVar,
-  factoryVar,
   subscriptionVar,
   ethVar,
 } from "../cache";
-import {useQueryWithAccount} from "../hooks";
 
-import DaiContract from "../contracts/TestDai.json";
-import SubscriptionFactory from "../contracts/SubscriptionFactory.json";
-import SubscriptionContract from "../contracts/SubscriptionV1.json";
+import { useQueryWithAccount } from "../hooks";
+
+import DaiContract from "../artifacts/contracts/TestDai.sol/TestDai.json";
+import SubscriptionContract from "../artifacts/contracts/SubscriptionV1.sol/SubscriptionV1.json";
 
 const INIT_APP = gql`
   query InitApp($id: ID!) {
     user(id: $id) {
       id
-      username
-      contract {
+      nonce
+      baseTokens {
+        id
+      }
+      subscribers {
+        id
+      }
+      subscriptions {
         id
       }
     }
@@ -41,19 +46,8 @@ const INIT_APP = gql`
 export default function MainSection(props) {
   let account = useReactiveVar(accountVar);
   let signer = useReactiveVar(signerVar);
-  const {loading, error, data} = useQueryWithAccount(INIT_APP);
+  const { loading, error, data } = useQueryWithAccount(INIT_APP);
   // const [initUser] = useMutation(CREATE_USER);
-
-  useEffect(() => {
-    if (data?.user?.contract && signer) {
-      var subscriptionV1 = new ethers.Contract(
-        data.user.contract.id,
-        SubscriptionContract.abi,
-        signer
-      );
-      subscriptionVar(subscriptionV1);
-    }
-  }, [data, signer]);
 
   useEffect(() => {
     initWeb3();
@@ -99,9 +93,8 @@ export default function MainSection(props) {
       const signer = provider.getSigner();
       signerVar(signer);
 
-      var deployedNetwork = DaiContract.networks[1337];
       var Dai = new ethers.Contract(
-        deployedNetwork && deployedNetwork.address,
+        process.env.REACT_APP_GRAPHQL_DAI_CONTRACT,
         DaiContract.abi,
         provider
       );
@@ -109,22 +102,17 @@ export default function MainSection(props) {
       Dai = Dai.connect(signer);
       daiVar(Dai);
 
-      deployedNetwork = SubscriptionFactory.networks[1337];
-      var Factory = new ethers.Contract(
-        deployedNetwork && deployedNetwork.address,
-        DaiContract.abi,
-        provider
+      const account = await signer.getAddress();
+
+      accountVar(account);
+      var subscriptionV1 = new ethers.Contract(
+        process.env.REACT_APP_GRAPHQL_SUB_CONTRACT,
+        SubscriptionContract.abi,
+        signer
       );
 
-      Factory = Factory.connect(signer);
-      factoryVar(Factory);
-
-      // // Use web3 to get the user's accounts.
-      const account = await signer.getAddress();
-      accountVar(account);
-
-      const networkId = await provider.getNetwork();
-      // updateWeb3("chainId", networkId.chainId);
+      subscriptionV1 = subscriptionV1.connect(signer);
+      subscriptionVar(subscriptionV1);
     } catch (error) {
       alert(
         `Failed to load web3, accounts, or contract. Check console for details.`
@@ -139,7 +127,7 @@ export default function MainSection(props) {
 
   return (
     <>
-      <h1>{data?.user ? data.user.id : null}</h1>
+      {/* <h1>{data?.user ? data.user.id : null}</h1> */}
       {props.children}
     </>
   );

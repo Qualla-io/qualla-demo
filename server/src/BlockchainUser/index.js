@@ -1,8 +1,9 @@
-import {ApolloServer, gql, UserInputError} from "apollo-server";
-import {buildFederatedSchema} from "@apollo/federation";
+import { ApolloServer, gql, UserInputError } from "apollo-server";
+import { buildFederatedSchema } from "@apollo/federation";
+import { ethers } from "ethers";
 
-import {getUser, getUsers} from "./userData";
-import {dai, account} from "./utils";
+import { getUser, getUsers } from "./getUsers";
+import { dai } from "./utils";
 
 const typeDefs = gql`
   type Query {
@@ -11,64 +12,53 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    mintTokens(id: ID!): Boolean!
-    permit(
-      userID: ID!
-      contractID: ID!
-      nonce: String!
-      expiry: Float!
-      allowed: Boolean!
-      v: String!
-      r: String!
-      s: String!
-    ): Boolean!
-  }
-
-  extend type Contract @key(fields: "id") {
-    id: ID! @external
-  }
-
-  extend type SubscriptionObj @key(fields: "id") {
-    id: ID! @external
+    permit(userID: ID!, signature: String!, nonce: String!): Boolean!
   }
 
   type User @key(fields: "id") {
     id: ID!
-    contract: Contract
-    subscriptions: [SubscriptionObj!]
+    nonce: Float!
+    baseTokens: [BaseToken!]
+    subscriptions: [SubscriptionToken!]
+    subscribers: [SubscriptionToken!]
+  }
+
+  extend type BaseToken @key(fields: "id") {
+    id: ID! @external
+  }
+
+  extend type SubscriptionToken @key(fields: "id") {
+    id: ID! @external
   }
 `;
 
 const resolvers = {
   Query: {
-    user: async (_, {id}) => {
-      return getUser(id.toLowerCase());
+    user: async (_, { id }) => {
+      return await getUser(id.toLowerCase());
     },
     users: async () => await getUsers(),
   },
   Mutation: {
-    mintTokens: async (_, {id}) => {
-      const initBal = await dai.balanceOf(id.toLowerCase());
-      console.log(`Old balance: ${initBal}`);
+    permit: async (_, { userID, signature, nonce }) => {
+      // check if already permitted
 
-      if (initBal < 3000000000000000000000) {
-        await dai.mintTokens(id.toLowerCase());
-      } else {
-        throw new UserInputError("Excessive funds, don't be greedy!", {
-          invalidArgs: Object.keys(id),
-        });
-      }
+      signature = ethers.utils.splitSignature(signature);
 
-      return true;
-    },
-    permit: async (
-      _,
-      {userID, contractID, nonce, expiry, allowed, v, r, s}
-    ) => {
+      // console.log(signature);
+      console.log(process.env.SUB_CONTRACT);
+      console.log(userID);
 
-
-      // TODO: Check if already approved
-      await dai.permit(userID, contractID, nonce, expiry, allowed, v, r, s);
+      await dai.permit(
+        userID,
+        process.env.SUB_CONTRACT,
+        0,
+        0, // expiry
+        true,
+        signature.v,
+        signature.r,
+        signature.s
+      );
 
       return true;
     },
@@ -76,23 +66,6 @@ const resolvers = {
   User: {
     __resolveReference(user) {
       return getUser(user.id);
-    },
-    contract: async (user) => {
-      if (user.contract) {
-        return {__typename: "Contract", id: user.contract.id};
-      } else {
-        return null;
-      }
-    },
-    subscriptions: async (user) => {
-      let subs = [];
-      for (var i = 0; i < user.subscriptions.length; i++) {
-        subs.push({
-          __typename: "SubscriptionObj",
-          id: user.subscriptions[i].id,
-        });
-      }
-      return subs;
     },
   },
 };
@@ -106,6 +79,6 @@ const server = new ApolloServer({
   ]),
 });
 
-server.listen(4001).then(({url}) => {
+server.listen(4001).then(({ url }) => {
   console.log(`🚀 Server ready at ${url}`);
 });

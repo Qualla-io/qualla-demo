@@ -19,21 +19,21 @@ export function useQueryWithAccount(QUERY) {
   return {loading, error, data};
 }
 
-export function useQueryWithContract(QUERY) {
-  let contractID = useReactiveVar(contractIDVar);
-  let [sendQuery, {loading, error, data, refetch}] = useLazyQuery(QUERY, {
-    fetchPolicy: "cache-only",
-  });
+// export function useQueryWithContract(QUERY) {
+//   let contractID = useReactiveVar(contractIDVar);
+//   let [sendQuery, {loading, error, data, refetch}] = useLazyQuery(QUERY, {
+//     fetchPolicy: "cache-only",
+//   });
 
-  useEffect(() => {
-    if (contractID) {
-      sendQuery({variables: {id: contractID}});
-    }
-  }, [contractID]);
+//   useEffect(() => {
+//     if (contractID) {
+//       sendQuery({variables: {id: contractID}});
+//     }
+//   }, [contractID]);
 
-  if (error) {
-    console.log(error);
-  }
+//   if (error) {
+//     console.log(error);
+//   }
 
-  return {loading, error, data, refetch};
-}
+//   return {loading, error, data, refetch};
+// }

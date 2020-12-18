@@ -1,13 +1,18 @@
 import React from "react";
-import {makeStyles} from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import Topbar from "../components/Topbar.js";
-import Balances from "../components/Balances.js";
+// import Balances from "../components/Balances.js";
 import MainSection from "./MainSection.js";
+import Footer from "./Footer.js";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: "flex",
-    flexFlow: "column",
+    // display: "flex",
+    // flexFlow: "column",
+    overflowY: "scroll",
+    "&::-webkit-scrollbar": {
+      display: "none",
+    },
   },
 }));
 
@@ -16,8 +21,9 @@ export default function Layout(props) {
   return (
     <div className={classes.root}>
       <Topbar />
-      <Balances />
+      {/* <Balances /> */}
       <MainSection>{props.children}</MainSection>
+      <Footer />
     </div>
   );
 }

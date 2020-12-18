@@ -1,18 +1,18 @@
 version: "3.1"
 services:
-  mongo:
-    image: mongo
-    container_name: "mongo"
-    restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
-    volumes:
-      - "./mongodata:/data/db"
-    ports:
-      - 27017:27017
-    networks:
-      - "docker_default"
+  # mongo:
+  #   image: mongo
+  #   container_name: "mongo"
+  #   restart: always
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: root
+  #     MONGO_INITDB_ROOT_PASSWORD: example
+  #   volumes:
+  #     - "./mongodata:/data/db"
+  #   ports:
+  #     - 27017:27017
+  #   networks:
+  #     - "docker_default"
   blockchain_user:
     build: ./server/src/BlockchainUser
     container_name: "blockchain_user"
@@ -22,35 +22,35 @@ services:
       - "4001:4001"
     networks:
       - "docker_default"
-  blockchain_contract:
-    build: ./server/src/BlockchainContract
-    container_name: "blockchain_contract"
+  blockchain_basetoken:
+    build: ./server/src/BlockchainBaseToken
+    container_name: "blockchain_basetoken"
     env_file:
       - server/.env
     ports:
       - "4002:4002"
     networks:
       - "docker_default"
-  blockchain_subscription:
-    build: ./server/src/BlockchainSubscription
-    container_name: "blockchain_subscription"
+  blockchain_subtoken:
+    build: ./server/src/BlockchainSubToken
+    container_name: "blockchain_subtoken"
     env_file:
       - server/.env
     ports:
       - "4003:4003"
     networks:
       - "docker_default"
-  local_data:
-    build: ./server/src/LocalData
-    container_name: "local_data"
-    env_file:
-      - server/.env
-    ports:
-      - "4004:4004"
-    networks:
-      - "docker_default"
-    depends_on:
-      - mongo
+  # local_data:
+  #   build: ./server/src/LocalData
+  #   container_name: "local_data"
+  #   env_file:
+  #     - server/.env
+  #   ports:
+  #     - "4004:4004"
+  #   networks:
+  #     - "docker_default"
+  #   depends_on:
+  #     - mongo
   gateway:
     build: ./server/src/gateway
     container_name: "gateway"
@@ -60,18 +60,27 @@ services:
       - "4000:4000"
     networks:
       - "docker_default"
-    depends_on: 
+    depends_on:
       - "blockchain_user"
-      - "blockchain_contract"
-      - "blockchain_subscription"
-      - "local_data"
-  relayer:
-    build: ./server/src/relayer
-    container_name: "relayer"
-    env_file:
-      - server/.env
-    networks:
-      - "docker_default"
+      - "blockchain_basetoken"
+      - "blockchain_subtoken"
+      # - "local_data"
+  # relayer:
+  #   build: ./server/src/relayer
+  #   container_name: "relayer"
+  #   env_file:
+  #     - server/.env
+  #   networks:
+  #     - "docker_default"
+  # balance_subscriptions:
+  #   build: ./server/src/BalanceSubscriptions
+  #   container_name: "balance_subscriptions"
+  #   env_file:
+  #     - server/.env
+  #   ports:
+  #     - "5000:5000"
+  #   networks:
+  #     - "docker_default"
 
 networks:
   docker_default:

@@ -18,8 +18,9 @@ import Fab from "@material-ui/core/Fab";
 import {accountVar, providerVar, daiVar} from "../cache";
 import {useQueryWithAccount} from "../hooks";
 import {useReactiveVar, gql, useQuery, useMutation} from "@apollo/client";
+import UserBalance from "./GetBalance";
 
-const GET_BALACES = gql`
+const INIT_BALACES = gql`
   query getBalances($id: ID!) {
     user(id: $id) {
       id
@@ -39,6 +40,24 @@ const MINT_TOKENS = gql`
 const WITHDRAW_BALANCE = gql`
   mutation withdraw($id: ID!) {
     withdraw(id: $id)
+  }
+`;
+
+const SUBSCRIBE_BALANCE = gql`
+  subscription subscribeBalance($id: ID!) {
+    daiBalance(id: $id) {
+      id
+      balance
+    }
+  }
+`;
+
+const GET_BALANCE = gql`
+  query getBalance($id: id) {
+    getBalance(id: $id) {
+      id
+      balance
+    }
   }
 `;
 
@@ -68,7 +87,7 @@ export default function Balances() {
   let dai = useReactiveVar(daiVar);
   let provider = useReactiveVar(providerVar);
   let account = useReactiveVar(accountVar);
-  let {loading, data} = useQueryWithAccount(GET_BALACES);
+  let {loading, data} = useQueryWithAccount(INIT_BALACES);
   let [withdraw] = useMutation(WITHDRAW_BALANCE);
 
   let [mintTokens, {error}] = useMutation(MINT_TOKENS);
@@ -93,83 +112,6 @@ export default function Balances() {
     setOpen(false);
   };
 
-  useEffect(() => {
-    getBlances();
-  }, [account]);
-
-  useEffect(() => {
-    subscribePersonalDai();
-  }, [dai, account]);
-
-  useEffect(() => {
-    if (data?.user?.contract) subscribeContractDai();
-  }, [dai, data]);
-
-  async function subscribePersonalDai() {
-    if (dai && account) {
-      let filterFromMe = dai.filters.Transfer(account, null);
-
-      let filterToMe = dai.filters.Transfer(null, account);
-
-      let handleTransfer = async function (from, to, amount) {
-        dai.balanceOf(account).then((daibal) => {
-          setDaiBal(ethers.utils.formatEther(daibal));
-
-          enqueueSnackbar("Personal Balance Updated", {
-            variant: "success",
-            autoHideDuration: 2000,
-          });
-        });
-      };
-
-      dai.on(filterFromMe, handleTransfer);
-      dai.on(filterToMe, handleTransfer);
-    }
-  }
-
-  async function subscribeContractDai() {
-    // web3State.Dai.removeAllListeners("Transfer");
-
-    let filterFromMe = dai.filters.Transfer(data.user.contract.id, null);
-
-    let filterToMe = dai.filters.Transfer(null, data.user.contract.id);
-
-    let handleTransfer = async function (from, to, amount) {
-      dai.balanceOf(data.user.contract.id).then((contractbal) => {
-        if (ethers.utils.formatEther(contractbal) !== contractbal) {
-          enqueueSnackbar("Contract Balance Updated", {
-            variant: "success",
-            autoHideDuration: 2000,
-          });
-        }
-        setContractbal(ethers.utils.formatEther(contractbal));
-      });
-    };
-
-    dai.on(filterFromMe, handleTransfer);
-    dai.on(filterToMe, handleTransfer);
-  }
-
-  async function getBlances() {
-    if (provider && account) {
-      provider.getBalance(account).then((ethbal) => {
-        setEthBal(parseFloat(ethers.utils.formatEther(ethbal)).toFixed(3));
-      });
-
-      if (dai) {
-        dai.balanceOf(account).then((daibal) => {
-          setDaiBal(ethers.utils.formatEther(daibal));
-        });
-      }
-
-      if (data?.user?.contract) {
-        dai.balanceOf(data.user.contract.id).then((contractbal) => {
-          setContractbal(ethers.utils.formatEther(contractbal));
-        });
-      }
-    }
-  }
-
   function _mintTokens() {
     if (account) {
       enqueueSnackbar("Request Processing", {
@@ -189,6 +131,7 @@ export default function Balances() {
   }
 
   function _withdraw() {
+    // this isnt working because I get rid of contractBal subs on front end. need to pass setstate to component
     if (contractbal === "0.0") {
       enqueueSnackbar("No funds to withdraw", {
         variant: "warning",
@@ -202,17 +145,6 @@ export default function Balances() {
     withdraw({variables: {id: data.user.contract.id}}).then((data) => {
       console.log(data);
     });
-    // axios
-    //   .post("http://localhost:8080/withdraw", {
-    //     publisher: web3State.account,
-    //   })
-    //   .then((res) => {})
-    //   .catch((err) => {
-    //     enqueueSnackbar(err.response.data.error, {
-    //       variant: "error",
-    //       autoHideDuration: 2000,
-    //     });
-    //   });
   }
 
   const contractComp = (
@@ -223,7 +155,9 @@ export default function Balances() {
         </Typography>
       </Grid>
       <Grid item>
-        <Typography>${contractbal} Dai</Typography>
+        {data?.user?.contract?.id ? (
+          <UserBalance id={data.user.contract.id} balName="Contract" />
+        ) : null}
       </Grid>
       <Grid item>
         <Button onClick={_withdraw} color="primary" variant="contained">
@@ -237,18 +171,16 @@ export default function Balances() {
   const balancesCard = (
     <>
       <Grid container className={classes.container} spacing={1}>
-        {data && data.user && data.user.contract ? contractComp : null}
+        {data?.user?.contract ? contractComp : null}
         <Grid item>
           <Typography variant="subtitle1" className={classes.underline}>
             Personal:
           </Typography>
         </Grid>
         <Grid item>
-          <Typography>{ethbal} Eth</Typography>
-        </Grid>
-
-        <Grid item>
-          <Typography>${daibal} Dai</Typography>
+          {data?.user?.id ? (
+            <UserBalance id={data.user.id} balName="Personal" />
+          ) : null}
         </Grid>
         <Grid item>
           <Button onClick={_mintTokens} color="primary" variant="contained">

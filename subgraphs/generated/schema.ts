@@ -12,216 +12,6 @@ import {
   BigDecimal
 } from "@graphprotocol/graph-ts";
 
-export class SubscriptionFactory extends Entity {
-  constructor(id: string) {
-    super();
-    this.set("id", Value.fromString(id));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id !== null, "Cannot save SubscriptionFactory entity without an ID");
-    assert(
-      id.kind == ValueKind.STRING,
-      "Cannot save SubscriptionFactory entity with non-string ID. " +
-        'Considering using .toHex() to convert the "id" to a string.'
-    );
-    store.set("SubscriptionFactory", id.toString(), this);
-  }
-
-  static load(id: string): SubscriptionFactory | null {
-    return store.get("SubscriptionFactory", id) as SubscriptionFactory | null;
-  }
-
-  get id(): string {
-    let value = this.get("id");
-    return value.toString();
-  }
-
-  set id(value: string) {
-    this.set("id", Value.fromString(value));
-  }
-
-  get master(): string | null {
-    let value = this.get("master");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set master(value: string | null) {
-    if (value === null) {
-      this.unset("master");
-    } else {
-      this.set("master", Value.fromString(value as string));
-    }
-  }
-
-  get fee(): i32 {
-    let value = this.get("fee");
-    return value.toI32();
-  }
-
-  set fee(value: i32) {
-    this.set("fee", Value.fromI32(value));
-  }
-
-  get contracts(): Array<string> | null {
-    let value = this.get("contracts");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toStringArray();
-    }
-  }
-
-  set contracts(value: Array<string> | null) {
-    if (value === null) {
-      this.unset("contracts");
-    } else {
-      this.set("contracts", Value.fromStringArray(value as Array<string>));
-    }
-  }
-}
-
-export class SubscriptionContract extends Entity {
-  constructor(id: string) {
-    super();
-    this.set("id", Value.fromString(id));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(
-      id !== null,
-      "Cannot save SubscriptionContract entity without an ID"
-    );
-    assert(
-      id.kind == ValueKind.STRING,
-      "Cannot save SubscriptionContract entity with non-string ID. " +
-        'Considering using .toHex() to convert the "id" to a string.'
-    );
-    store.set("SubscriptionContract", id.toString(), this);
-  }
-
-  static load(id: string): SubscriptionContract | null {
-    return store.get("SubscriptionContract", id) as SubscriptionContract | null;
-  }
-
-  get id(): string {
-    let value = this.get("id");
-    return value.toString();
-  }
-
-  set id(value: string) {
-    this.set("id", Value.fromString(value));
-  }
-
-  get publisher(): string | null {
-    let value = this.get("publisher");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set publisher(value: string | null) {
-    if (value === null) {
-      this.unset("publisher");
-    } else {
-      this.set("publisher", Value.fromString(value as string));
-    }
-  }
-
-  get factory(): string | null {
-    let value = this.get("factory");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set factory(value: string | null) {
-    if (value === null) {
-      this.unset("factory");
-    } else {
-      this.set("factory", Value.fromString(value as string));
-    }
-  }
-
-  get paymentTokens(): Array<Bytes> | null {
-    let value = this.get("paymentTokens");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toBytesArray();
-    }
-  }
-
-  set paymentTokens(value: Array<Bytes> | null) {
-    if (value === null) {
-      this.unset("paymentTokens");
-    } else {
-      this.set("paymentTokens", Value.fromBytesArray(value as Array<Bytes>));
-    }
-  }
-
-  get acceptedValues(): Array<BigInt> | null {
-    let value = this.get("acceptedValues");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toBigIntArray();
-    }
-  }
-
-  set acceptedValues(value: Array<BigInt> | null) {
-    if (value === null) {
-      this.unset("acceptedValues");
-    } else {
-      this.set("acceptedValues", Value.fromBigIntArray(value as Array<BigInt>));
-    }
-  }
-
-  get publisherNonce(): BigInt | null {
-    let value = this.get("publisherNonce");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set publisherNonce(value: BigInt | null) {
-    if (value === null) {
-      this.unset("publisherNonce");
-    } else {
-      this.set("publisherNonce", Value.fromBigInt(value as BigInt));
-    }
-  }
-
-  get subscribers(): Array<string> | null {
-    let value = this.get("subscribers");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toStringArray();
-    }
-  }
-
-  set subscribers(value: Array<string> | null) {
-    if (value === null) {
-      this.unset("subscribers");
-    } else {
-      this.set("subscribers", Value.fromStringArray(value as Array<string>));
-    }
-  }
-}
-
 export class User extends Entity {
   constructor(id: string) {
     super();
@@ -252,20 +42,20 @@ export class User extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get contract(): string | null {
-    let value = this.get("contract");
+  get baseTokens(): Array<string> | null {
+    let value = this.get("baseTokens");
     if (value === null) {
       return null;
     } else {
-      return value.toString();
+      return value.toStringArray();
     }
   }
 
-  set contract(value: string | null) {
+  set baseTokens(value: Array<string> | null) {
     if (value === null) {
-      this.unset("contract");
+      this.unset("baseTokens");
     } else {
-      this.set("contract", Value.fromString(value as string));
+      this.set("baseTokens", Value.fromStringArray(value as Array<string>));
     }
   }
 
@@ -285,9 +75,43 @@ export class User extends Entity {
       this.set("subscriptions", Value.fromStringArray(value as Array<string>));
     }
   }
+
+  get subscribers(): Array<string> | null {
+    let value = this.get("subscribers");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set subscribers(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("subscribers");
+    } else {
+      this.set("subscribers", Value.fromStringArray(value as Array<string>));
+    }
+  }
+
+  get nonce(): BigInt | null {
+    let value = this.get("nonce");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set nonce(value: BigInt | null) {
+    if (value === null) {
+      this.unset("nonce");
+    } else {
+      this.set("nonce", Value.fromBigInt(value as BigInt));
+    }
+  }
 }
 
-export class SubscriptionObj extends Entity {
+export class BaseToken extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -295,17 +119,17 @@ export class SubscriptionObj extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id !== null, "Cannot save SubscriptionObj entity without an ID");
+    assert(id !== null, "Cannot save BaseToken entity without an ID");
     assert(
       id.kind == ValueKind.STRING,
-      "Cannot save SubscriptionObj entity with non-string ID. " +
+      "Cannot save BaseToken entity with non-string ID. " +
         'Considering using .toHex() to convert the "id" to a string.'
     );
-    store.set("SubscriptionObj", id.toString(), this);
+    store.set("BaseToken", id.toString(), this);
   }
 
-  static load(id: string): SubscriptionObj | null {
-    return store.get("SubscriptionObj", id) as SubscriptionObj | null;
+  static load(id: string): BaseToken | null {
+    return store.get("BaseToken", id) as BaseToken | null;
   }
 
   get id(): string {
@@ -317,76 +141,61 @@ export class SubscriptionObj extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get subscriber(): string | null {
-    let value = this.get("subscriber");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toString();
-    }
+  get quantity(): BigInt {
+    let value = this.get("quantity");
+    return value.toBigInt();
   }
 
-  set subscriber(value: string | null) {
-    if (value === null) {
-      this.unset("subscriber");
-    } else {
-      this.set("subscriber", Value.fromString(value as string));
-    }
+  set quantity(value: BigInt) {
+    this.set("quantity", Value.fromBigInt(value));
   }
 
-  get contract(): string | null {
-    let value = this.get("contract");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toString();
-    }
+  get owner(): string {
+    let value = this.get("owner");
+    return value.toString();
   }
 
-  set contract(value: string | null) {
-    if (value === null) {
-      this.unset("contract");
-    } else {
-      this.set("contract", Value.fromString(value as string));
-    }
+  set owner(value: string) {
+    this.set("owner", Value.fromString(value));
   }
 
-  get status(): string | null {
-    let value = this.get("status");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toString();
-    }
+  get paymentValue(): BigInt {
+    let value = this.get("paymentValue");
+    return value.toBigInt();
   }
 
-  set status(value: string | null) {
-    if (value === null) {
-      this.unset("status");
-    } else {
-      this.set("status", Value.fromString(value as string));
-    }
+  set paymentValue(value: BigInt) {
+    this.set("paymentValue", Value.fromBigInt(value));
   }
 
-  get value(): BigInt | null {
-    let value = this.get("value");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set value(value: BigInt | null) {
-    if (value === null) {
-      this.unset("value");
-    } else {
-      this.set("value", Value.fromBigInt(value as BigInt));
-    }
-  }
-
-  get paymentToken(): string | null {
+  get paymentToken(): string {
     let value = this.get("paymentToken");
+    return value.toString();
+  }
+
+  set paymentToken(value: string) {
+    this.set("paymentToken", Value.fromString(value));
+  }
+
+  get activeTokens(): Array<string> | null {
+    let value = this.get("activeTokens");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set activeTokens(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("activeTokens");
+    } else {
+      this.set("activeTokens", Value.fromStringArray(value as Array<string>));
+    }
+  }
+
+  get testID(): string | null {
+    let value = this.get("testID");
     if (value === null) {
       return null;
     } else {
@@ -394,63 +203,61 @@ export class SubscriptionObj extends Entity {
     }
   }
 
-  set paymentToken(value: string | null) {
+  set testID(value: string | null) {
     if (value === null) {
-      this.unset("paymentToken");
+      this.unset("testID");
     } else {
-      this.set("paymentToken", Value.fromString(value as string));
+      this.set("testID", Value.fromString(value as string));
     }
   }
+}
 
-  get subNum(): BigInt | null {
-    let value = this.get("subNum");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
+export class SubscriptionToken extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
   }
 
-  set subNum(value: BigInt | null) {
-    if (value === null) {
-      this.unset("subNum");
-    } else {
-      this.set("subNum", Value.fromBigInt(value as BigInt));
-    }
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save SubscriptionToken entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save SubscriptionToken entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("SubscriptionToken", id.toString(), this);
   }
 
-  get hash(): Bytes | null {
-    let value = this.get("hash");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toBytes();
-    }
+  static load(id: string): SubscriptionToken | null {
+    return store.get("SubscriptionToken", id) as SubscriptionToken | null;
   }
 
-  set hash(value: Bytes | null) {
-    if (value === null) {
-      this.unset("hash");
-    } else {
-      this.set("hash", Value.fromBytes(value as Bytes));
-    }
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
   }
 
-  get signedHash(): Bytes | null {
-    let value = this.get("signedHash");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toBytes();
-    }
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
   }
 
-  set signedHash(value: Bytes | null) {
-    if (value === null) {
-      this.unset("signedHash");
-    } else {
-      this.set("signedHash", Value.fromBytes(value as Bytes));
-    }
+  get owner(): string {
+    let value = this.get("owner");
+    return value.toString();
+  }
+
+  set owner(value: string) {
+    this.set("owner", Value.fromString(value));
+  }
+
+  get creator(): string {
+    let value = this.get("creator");
+    return value.toString();
+  }
+
+  set creator(value: string) {
+    this.set("creator", Value.fromString(value));
   }
 
   get nextWithdraw(): BigInt | null {
@@ -470,20 +277,68 @@ export class SubscriptionObj extends Entity {
     }
   }
 
-  get nonce(): BigInt | null {
-    let value = this.get("nonce");
+  get baseToken(): string | null {
+    let value = this.get("baseToken");
     if (value === null) {
       return null;
     } else {
-      return value.toBigInt();
+      return value.toString();
     }
   }
 
-  set nonce(value: BigInt | null) {
+  set baseToken(value: string | null) {
     if (value === null) {
-      this.unset("nonce");
+      this.unset("baseToken");
     } else {
-      this.set("nonce", Value.fromBigInt(value as BigInt));
+      this.set("baseToken", Value.fromString(value as string));
     }
+  }
+
+  get testID(): string | null {
+    let value = this.get("testID");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set testID(value: string | null) {
+    if (value === null) {
+      this.unset("testID");
+    } else {
+      this.set("testID", Value.fromString(value as string));
+    }
+  }
+}
+
+export class NftToken extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save NftToken entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save NftToken entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("NftToken", id.toString(), this);
+  }
+
+  static load(id: string): NftToken | null {
+    return store.get("NftToken", id) as NftToken | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
   }
 }
