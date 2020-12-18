@@ -1,6 +1,7 @@
 pragma solidity ^0.7.0;
 
 import "./lib.sol";
+import "hardhat/console.sol";
 
 contract TestDai is LibNote {
     
@@ -127,6 +128,11 @@ contract TestDai is LibNote {
                                      expiry,
                                      allowed))
         ));
+
+        console.log(nonce);
+        console.log(address(this));
+        console.log(expiry);
+        
 
         require(holder != address(0), "Dai/invalid-address-0");
         require(holder == ecrecover(digest, v, r, s), "Dai/invalid-permit");

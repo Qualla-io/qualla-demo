@@ -13,3 +13,9 @@ export const GET_CREATOR_OVERVIEW = gql`
     }
   }
 `;
+
+export const PERMIT = gql`
+  mutation permitDai($userID: ID!, $signature: String!, $nonce: String!) {
+    permit(userID: $userID, signature: $signature, nonce: $nonce)
+  }
+`;

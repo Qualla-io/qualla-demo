@@ -1230,8 +1230,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\TestDai.sol": {
-      "lastModificationDate": 1608084922228,
-      "contentHash": "74580919815cd80b935cd776e719cc66",
+      "lastModificationDate": 1608310743310,
+      "contentHash": "b548478dca6a7180a94036470c8880a9",
       "sourceName": "contracts/TestDai.sol",
       "solcConfig": {
         "version": "0.7.3",
@@ -1256,7 +1256,8 @@
         }
       },
       "imports": [
-        "./lib.sol"
+        "./lib.sol",
+        "hardhat/console.sol"
       ],
       "versionPragmas": [
         "^0.7.0"

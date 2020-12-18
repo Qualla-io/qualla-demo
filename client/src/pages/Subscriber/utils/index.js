@@ -48,7 +48,7 @@ const createPermitMessageData = function (message, coinAddr) {
     domain: {
       name: "Dai Stablecoin",
       version: "1",
-      chainId: 1337,
+      chainId: 31337,
       verifyingContract: coinAddr,
     },
     message: message,
@@ -63,7 +63,7 @@ const createPermitMessageData = function (message, coinAddr) {
 const signData = async function (eth, fromAddress, typeData) {
   return new Promise(function (resolve, reject) {
     let web3 = new Web3(window.ethereum);
-    console.log(web3)
+    console.log(web3);
     web3.currentProvider.send(
       {
         id: 1,
@@ -75,6 +75,7 @@ const signData = async function (eth, fromAddress, typeData) {
         if (err) {
           reject(err); //TODO
         } else {
+          console.log(result.result);
           const r = result.result.slice(0, 66);
           const s = "0x" + result.result.slice(66, 130);
           const v = Number("0x" + result.result.slice(130, 132));

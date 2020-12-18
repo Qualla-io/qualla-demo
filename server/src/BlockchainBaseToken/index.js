@@ -1,12 +1,18 @@
 import { ApolloServer, gql, UserInputError } from "apollo-server";
 import { buildFederatedSchema } from "@apollo/federation";
+import { ethers } from "ethers";
 
 import { getBaseToken, getBaseTokens } from "./getBaseToken";
+import { subscriptionV1 } from "./utils";
 
 const typeDefs = gql`
   type Query {
     baseToken(id: ID!): BaseToken
     baseTokens: [BaseToken!]
+  }
+
+  type Mutation {
+    subscribe(userID: ID!, baseTokenID: ID!, signature: String!): Boolean!
   }
 
   extend type User @key(fields: "id") {
@@ -34,6 +40,24 @@ const resolvers = {
       return await getBaseToken(id.toLowerCase());
     },
     baseTokens: async () => await getBaseTokens(),
+  },
+  Mutation: {
+    subscribe: async (_, { userID, baseTokenID, signature }) => {
+      signature = ethers.utils.splitSignature(signature);
+
+      // validate userID and baseTokenID
+
+      await subscriptionV1.buySubscription(
+        userID,
+        baseTokenID,
+        signature.v,
+        signature.r,
+        signature.s
+      );
+
+      // How to get subscription token?
+      return true;
+    },
   },
   BaseToken: {
     __resolveReference(baseToken) {
