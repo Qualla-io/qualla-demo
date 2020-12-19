@@ -1,9 +1,8 @@
 import React from "react";
-
-import {cardStyles} from "./styles"
+import { ethers } from "ethers";
+import { cardStyles } from "./styles";
 import { Avatar, Typography } from "@material-ui/core";
 import AndroidIcon from "@material-ui/icons/Android";
-
 
 export default function BaseTokenCard(props) {
   const classes = cardStyles();
@@ -21,7 +20,12 @@ export default function BaseTokenCard(props) {
       </div>
       <div className={classes.content}>
         <Typography variant="h5" display="inline">
-          <b>${token?.paymentValue}</b>
+          <b>
+            $
+            {ethers.utils
+              .formatEther(token?.paymentValue.toString())
+              .toString()}
+          </b>
         </Typography>
         <Typography display="inline">{` `}Dai/mo.</Typography>
       </div>

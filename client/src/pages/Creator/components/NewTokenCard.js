@@ -8,33 +8,45 @@ import InputAdornment from "@material-ui/core/InputAdornment";
 import FormControl from "@material-ui/core/FormControl";
 import MenuItem from "@material-ui/core/MenuItem";
 import Select from "@material-ui/core/Select";
+import Switch from "@material-ui/core/Switch";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
 import AvatarIcons, { iconsLength } from "../../../components/AvatarIcons";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
+
 export default function NewTokenCard(props) {
   const classes = cardStyles();
+  const [max, setmax] = useState(false);
   const [iconNum, setIconNum] = useState(0);
   const [period, setPeriod] = useState(2628000);
 
+
   function incIcons() {
-    if (iconNum < iconsLength) {
-      setIconNum(iconNum + 1);
+    if (props.token.avatar < iconsLength) {
+      props.onTokenChange(props.i, "avatar", props.token.avatar + 1);
     } else {
-      setIconNum(0);
+      props.onTokenChange(props.i, "avatar", 0);
     }
   }
 
   function decIcons() {
-    if (iconNum > 0) {
-      setIconNum(iconNum - 1);
+    if (props.token.avatar > 0) {
+      props.onTokenChange(props.i, "avatar", props.token.avatar - 1);
     } else {
-      setIconNum(6);
+      props.onTokenChange(props.i, "avatar", iconsLength);
     }
   }
 
   const handlePeriodChange = (event) => {
     setPeriod(event.target.value);
+  };
+
+  const handleQuantChange = () => {
+    if (max) {
+      props.onTokenChange(props.i, "quantity", 0);
+    }
+    setmax(!max);
   };
 
   function _customOnClick() {
@@ -60,7 +72,7 @@ export default function NewTokenCard(props) {
           onClick={decIcons}
         />
         <Avatar className={classes.avatar}>
-          <AvatarIcons customProps={classes.icons} i={iconNum} />
+          <AvatarIcons customProps={classes.icons} i={props.token.avatar} />
         </Avatar>
         <KeyboardArrowRightIcon
           className={classes.arrowIcon}
@@ -125,6 +137,22 @@ export default function NewTokenCard(props) {
         onChange={handleChange}
         value={props.token.description}
       />
+      <div className={classes.dollarSection}>
+        <TextField
+          disabled={!max}
+          variant="outlined"
+          className={classes.titleInput}
+          label="Quantity"
+          name="quantity"
+          onChange={handleChange}
+          value={props.token.quantity}
+        />
+        <FormControlLabel
+          control={<Switch checked={max} onChange={handleQuantChange} />}
+          label="Limited Quantity?"
+          className={classes.toggle}
+        />
+      </div>
     </div>
   );
 }

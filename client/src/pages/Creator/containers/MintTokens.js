@@ -5,6 +5,10 @@ import { Button, GridListTile, Typography } from "@material-ui/core";
 import CustomGridlist from "../../../containers/CustomGridlist";
 import AddTokenCard from "../components/AddTokenCard";
 import NewTokenCard from "../components/NewTokenCard";
+import { useMutation, useQuery, useReactiveVar } from "@apollo/client";
+import { GET_USER_NONCE, MINT_ONE, MINT_BATCH } from "../queries";
+import { accountVar, signerVar, subscriptionVar } from "../../../cache";
+import { useQueryWithAccount } from "../../../hooks";
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -22,18 +26,24 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function MintTokens() {
+  let account = useReactiveVar(accountVar);
+  let signer = useReactiveVar(signerVar);
+  let subscriptionV1 = useReactiveVar(subscriptionVar);
+  let { data } = useQueryWithAccount(GET_USER_NONCE);
   const [tokens, setTokens] = useState([]);
   const classes = useStyles();
+  const [mintOne] = useMutation(MINT_ONE);
+  const [mintBatch] = useMutation(MINT_BATCH);
+
   function addToken() {
-    setTokens([...tokens, { title: "", value: "", description: "" }]);
+    setTokens([
+      ...tokens,
+      { title: "", value: "", description: "", quantity: "0", avatar: 0 },
+    ]);
   }
 
   function subToken(key) {
-    console.log(key);
-    console.log(tokens);
     let _tokens = [...tokens];
-    console.log(_tokens.splice(key, 1));
-    console.log(_tokens);
     setTokens(_tokens);
   }
 
@@ -45,11 +55,111 @@ export default function MintTokens() {
     setTokens(temp);
   }
 
-  async function _mintBatch() {}
+  async function _mintBatch() {
+    let userData = {
+      user: account,
+      nonce: data?.user?.nonce,
+    };
 
-  async function _mintOne() {}
+    let domain = {
+      name: "Qualla Subscription",
+      version: "1",
+      chainId: 31337,
+      verifyingContract: subscriptionV1.address,
+    };
+
+    let creatorTypes = {
+      User: [
+        { name: "user", type: "address" },
+        { name: "nonce", type: "uint256" },
+      ],
+    };
+
+    let signature = await signer._signTypedData(domain, creatorTypes, userData);
+
+    let _quantity = [];
+    let _value = [];
+
+    for (var i = 0; i < tokens.length; i++) {
+      _quantity.push(tokens[i].quantity);
+      _value.push(tokens[i].value);
+    }
+
+    mintBatch({
+      variables: {
+        userID: account,
+        quantity: _quantity,
+        paymentValue: _value,
+        signature,
+      },
+      update(cache) {
+        // update basetoken to cache
+        cache.modify({
+          id: cache.identify({
+            id: account.toLowerCase(),
+            __typename: "User",
+          }),
+          fields: {
+            nonce(cachedNonce) {
+              return cachedNonce + 1;
+            },
+          },
+          broadcast: false,
+        });
+      },
+    });
+  }
+
+  async function _mintOne() {
+    let userData = {
+      user: account,
+      nonce: data?.user?.nonce,
+    };
+
+    let domain = {
+      name: "Qualla Subscription",
+      version: "1",
+      chainId: 31337,
+      verifyingContract: subscriptionV1.address,
+    };
+
+    let creatorTypes = {
+      User: [
+        { name: "user", type: "address" },
+        { name: "nonce", type: "uint256" },
+      ],
+    };
+
+    let signature = await signer._signTypedData(domain, creatorTypes, userData);
+
+    mintOne({
+      variables: {
+        userID: account,
+        quantity: tokens[0].quantity,
+        paymentValue: tokens[0].value,
+        signature,
+      },
+      update(cache) {
+        // update basetoken to cache
+        cache.modify({
+          id: cache.identify({
+            id: account.toLowerCase(),
+            __typename: "User",
+          }),
+          fields: {
+            nonce(cachedNonce) {
+              return cachedNonce + 1;
+            },
+          },
+          broadcast: false,
+        });
+      },
+    });
+  }
 
   function _onMint() {
+    // TODO: some form validation
+
     if (tokens.length > 1) {
       _mintBatch();
     } else {
@@ -83,7 +193,7 @@ export default function MintTokens() {
         {/* To justify button right: */}
         {/* <div style={{ margin: "auto" }} /> */}
         {tokens.length > 0 ? (
-          <Button variant="contained" color="secondary">
+          <Button variant="contained" color="secondary" onClick={_onMint}>
             Mint
           </Button>
         ) : null}

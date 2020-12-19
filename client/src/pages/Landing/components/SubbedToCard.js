@@ -1,5 +1,5 @@
 import React from "react";
-
+import { ethers } from "ethers";
 import { cardStyles } from "./styles";
 import { Avatar, Button, Typography } from "@material-ui/core";
 import AndroidIcon from "@material-ui/icons/Android";
@@ -23,7 +23,12 @@ export default function SubbedToCard(props) {
       </div>
       <div className={classes.content}>
         <Typography variant="h5" display="inline">
-          <b>${token?.baseToken?.paymentValue}</b>
+          <b>
+            $
+            {ethers.utils
+              .formatEther(token?.baseToken?.paymentValue.toString())
+              .toString()}
+          </b>
         </Typography>
         <Typography display="inline">{` `}Dai/mo.</Typography>
       </div>

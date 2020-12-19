@@ -72,4 +72,7 @@ export const cardStyles = makeStyles((theme) => ({
   slash: {
     margin: "auto",
   },
+  toggle: {
+    marginLeft: theme.spacing(1),
+  },
 }));
