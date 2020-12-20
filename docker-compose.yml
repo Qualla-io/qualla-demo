@@ -1,18 +1,18 @@
 version: "3.1"
 services:
-  # mongo:
-  #   image: mongo
-  #   container_name: "mongo"
-  #   restart: always
-  #   environment:
-  #     MONGO_INITDB_ROOT_USERNAME: root
-  #     MONGO_INITDB_ROOT_PASSWORD: example
-  #   volumes:
-  #     - "./mongodata:/data/db"
-  #   ports:
-  #     - 27017:27017
-  #   networks:
-  #     - "docker_default"
+  mongo:
+    image: mongo
+    container_name: "mongo"
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - "./mongodata:/data/db"
+    ports:
+      - 27017:27017
+    networks:
+      - "docker_default"
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: rabbitmq
@@ -37,6 +37,8 @@ services:
       - server/.env
     ports:
       - "4001:4001"
+    depends_on:
+      - rabbitmq
     networks:
       - "docker_default"
   blockchain_basetoken:
@@ -46,6 +48,8 @@ services:
       - server/.env
     ports:
       - "4002:4002"
+    depends_on:
+      - rabbitmq
     networks:
       - "docker_default"
   blockchain_subtoken:
@@ -55,19 +59,22 @@ services:
       - server/.env
     ports:
       - "4003:4003"
+    depends_on:
+      - rabbitmq
     networks:
       - "docker_default"
-  # local_data:
-  #   build: ./server/src/LocalData
-  #   container_name: "local_data"
-  #   env_file:
-  #     - server/.env
-  #   ports:
-  #     - "4004:4004"
-  #   networks:
-  #     - "docker_default"
-  #   depends_on:
-  #     - mongo
+  local_data:
+    build: ./server/src/LocalData
+    container_name: "local_data"
+    env_file:
+      - server/.env
+    ports:
+      - "4004:4004"
+    networks:
+      - "docker_default"
+    depends_on:
+      - mongo
+      - rabbitmq
   gateway:
     build: ./server/src/gateway
     container_name: "gateway"
@@ -81,7 +88,7 @@ services:
       - "blockchain_user"
       - "blockchain_basetoken"
       - "blockchain_subtoken"
-      # - "local_data"
+      - "local_data"
 
   # relayer:
   #   build: ./server/src/relayer

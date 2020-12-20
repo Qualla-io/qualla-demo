@@ -44,6 +44,7 @@ export default function MintTokens() {
 
   function subToken(key) {
     let _tokens = [...tokens];
+    _tokens.splice(key, 1)
     setTokens(_tokens);
   }
 

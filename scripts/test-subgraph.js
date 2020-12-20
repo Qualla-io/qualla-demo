@@ -51,9 +51,9 @@ async function main() {
     [
       [testDai.address, testDai.address, testDai.address],
       [
-        ethers.utils.formatEther(10),
-        ethers.utils.formatEther(20),
-        ethers.utils.formatEther(30),
+        ethers.utils.parseEther("10").toString(),
+        ethers.utils.parseEther("20").toString(),
+        ethers.utils.parseEther("30").toString(),
       ],
     ]
   );
@@ -82,7 +82,7 @@ async function main() {
 
   data = abiCoder.encode(
     ["address[]", "uint256[]"],
-    [[testDai.address], [ethers.utils.formatEther(10)]]
+    [[testDai.address], [ethers.utils.parseEther("10").toString()]]
   );
 
   // mint a bunch of subscriptions

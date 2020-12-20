@@ -1,10 +1,14 @@
 import { ApolloServer, gql } from "apollo-server";
 import { buildFederatedSchema } from "@apollo/federation";
+import amqp from "amqplib/callback_api";
 
 import UserModel from "./models/user";
 import BaseTokenModel from "./models/baseToken";
 
 import mongoose from "mongoose";
+
+let _channel;
+let exchange = "direct_services";
 
 const typeDefs = gql`
   type Mutation {
@@ -16,10 +20,9 @@ const typeDefs = gql`
     username: String
   }
 
-  extend type BaseToken @key(fields: "id") {
-    id: ID! @external
-    txHash: String! @external
-    title: String
+  extend type BaseToken @key(fields: "txHash") {
+    txHash: ID! @external
+    title: String @requires(fields: "txHash")
     description: String
     avatarID: Float
   }
@@ -52,7 +55,8 @@ const resolvers = {
   },
   BaseToken: {
     title: async (baseToken) => {
-      let _baseToken = BaseTokenModel.findById(baseToken.txHash.toLowerCase());
+
+      let _baseToken = await BaseTokenModel.findById(baseToken.txHash.toLowerCase());
 
       if (_baseToken) {
         return _baseToken.title;
@@ -61,7 +65,8 @@ const resolvers = {
       }
     },
     description: async (baseToken) => {
-      let _baseToken = BaseTokenModel.findById(baseToken.txHash.toLowerCase());
+
+      let _baseToken = await BaseTokenModel.findById(baseToken.txHash.toLowerCase());
 
       if (_baseToken) {
         return _baseToken.description;
@@ -70,7 +75,7 @@ const resolvers = {
       }
     },
     avatarID: async (baseToken) => {
-      let _baseToken = BaseTokenModel.findById(baseToken.txHash.toLowerCase());
+      let _baseToken = await BaseTokenModel.findById(baseToken.txHash.toLowerCase());
 
       if (_baseToken) {
         return _baseToken.avatarID;
@@ -95,6 +100,8 @@ const server = new ApolloServer({
 
 // test this
 async function handleMint(data) {
+
+  console.log(data)
   // data structure:
   // {
   //     action: "mint",
@@ -105,13 +112,16 @@ async function handleMint(data) {
   // }
 
   for (var i = 0; i < data.title.length; i++) {
-    let _baseToken = new BaseTokenModel(txHash + "-" + i.toString());
+    let _baseToken = new BaseTokenModel();
 
+    _baseToken._id = data.txHash.toLowerCase() + "-" + i.toString()
     _baseToken.title = data.title[i];
     _baseToken.description = data.description[i];
     _baseToken.avatarID = parseInt(data.avatarID[i]);
 
-    _baseToken.save();
+    console.log(_baseToken)
+
+    await _baseToken.save();
   }
 }
 

@@ -41,14 +41,14 @@ const typeDefs = gql`
     id: ID! @external
   }
 
-  type BaseToken @key(fields: "id") {
+  type BaseToken @key(fields: "id") @key(fields: "txHash") {
     id: ID!
     quantity: Float!
     owner: User!
     paymentValue: Float!
     paymentToken: String!
     activeTokens: [SubscriptionToken!]
-    txHash: String!
+    txHash: ID!
   }
 
   extend type SubscriptionToken @key(fields: "id") {
