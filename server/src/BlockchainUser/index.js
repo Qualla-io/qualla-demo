@@ -1,9 +1,13 @@
 import { ApolloServer, gql, UserInputError } from "apollo-server";
 import { buildFederatedSchema } from "@apollo/federation";
 import { ethers } from "ethers";
+import amqp from "amqplib/callback_api";
 
 import { getUser, getUsers } from "./getUsers";
 import { dai } from "./utils";
+
+let _channel;
+let exchange = "direct_services";
 
 const typeDefs = gql`
   type Query {
@@ -13,6 +17,7 @@ const typeDefs = gql`
 
   type Mutation {
     permit(userID: ID!, signature: String!, nonce: String!): Boolean!
+    testPub(msg: String!): Boolean!
   }
 
   type User @key(fields: "id") {
@@ -62,6 +67,11 @@ const resolvers = {
 
       return true;
     },
+    testPub: async (_, { msg }) => {
+      _channel.publish(exchange, "SubToken", Buffer.from(msg));
+      console.log(" [x] Sent %s: '%s'", "SubToken", msg);
+      return true;
+    },
   },
   User: {
     __resolveReference(user) {
@@ -81,4 +91,27 @@ const server = new ApolloServer({
 
 server.listen(4001).then(({ url }) => {
   console.log(`🚀 Server ready at ${url}`);
+});
+
+amqp.connect("amqp://root:example@rabbitmq", function (error0, connection) {
+  if (error0) {
+    throw error0;
+  }
+  connection.createChannel(function (error1, channel) {
+    if (error1) {
+      throw error1;
+    }
+
+    channel.assertExchange(exchange, "direct", {
+      durable: false,
+    });
+
+    _channel = channel;
+    // channel.publish(exchange, "local", Buffer.from(msg));
+    // console.log(" [x] Sent %s: '%s'", severity, msg);
+  });
+
+  // setTimeout(function () {
+  //   connection.close();
+  // }, 500);
 });

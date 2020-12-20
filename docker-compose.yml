@@ -13,6 +13,23 @@ services:
   #     - 27017:27017
   #   networks:
   #     - "docker_default"
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    restart: always
+    volumes:
+      - ./.docker/rabbitmq/etc/:/etc/rabbitmq/
+      - ./.docker/rabbitmq/data/:/var/lib/rabbitmq/
+      - ./.docker/rabbitmq/logs/:/var/log/rabbitmq/
+    environment:
+    #   # RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE}
+      RABBITMQ_DEFAULT_USER: root
+      RABBITMQ_DEFAULT_PASS: example
+    ports:
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - "docker_default"
   blockchain_user:
     build: ./server/src/BlockchainUser
     container_name: "blockchain_user"
@@ -65,6 +82,7 @@ services:
       - "blockchain_basetoken"
       - "blockchain_subtoken"
       # - "local_data"
+
   # relayer:
   #   build: ./server/src/relayer
   #   container_name: "relayer"
