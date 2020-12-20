@@ -79,10 +79,16 @@ export default function MintTokens() {
 
     let _quantity = [];
     let _value = [];
+    let _title = [];
+    let _description = [];
+    let _avatar = [];
 
     for (var i = 0; i < tokens.length; i++) {
       _quantity.push(tokens[i].quantity);
       _value.push(tokens[i].value);
+      _title.push(tokens[i].title);
+      _description.push(tokens[i].description);
+      _avatar.push(tokens[i].avatar.toString());
     }
 
     mintBatch({
@@ -91,6 +97,9 @@ export default function MintTokens() {
         quantity: _quantity,
         paymentValue: _value,
         signature,
+        title: _title,
+        description: _description,
+        avatarID: _avatar,
       },
       update(cache) {
         // update basetoken to cache
@@ -138,6 +147,9 @@ export default function MintTokens() {
         quantity: tokens[0].quantity,
         paymentValue: tokens[0].value,
         signature,
+        title: tokens[0].title,
+        description: tokens[0].description,
+        avatarID: tokens[0].avatar.toString(),
       },
       update(cache) {
         // update basetoken to cache

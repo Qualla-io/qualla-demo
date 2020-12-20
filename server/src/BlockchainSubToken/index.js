@@ -117,7 +117,11 @@ amqp.connect("amqp://root:example@rabbitmq", function (error0, connection) {
             noAck: true,
           }
         );
+
+        
       }
     );
+
+    _channel = channel;
   });
 });

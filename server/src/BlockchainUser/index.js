@@ -69,7 +69,9 @@ const resolvers = {
     },
     testPub: async (_, { msg }) => {
       _channel.publish(exchange, "SubToken", Buffer.from(msg));
+      _channel.publish(exchange, "BaseToken", Buffer.from(msg));
       console.log(" [x] Sent %s: '%s'", "SubToken", msg);
+      console.log(" [x] Sent %s: '%s'", "BaseToken", msg);
       return true;
     },
   },
@@ -106,12 +108,35 @@ amqp.connect("amqp://root:example@rabbitmq", function (error0, connection) {
       durable: false,
     });
 
-    _channel = channel;
-    // channel.publish(exchange, "local", Buffer.from(msg));
-    // console.log(" [x] Sent %s: '%s'", severity, msg);
-  });
+    channel.assertQueue(
+      "",
+      {
+        exclusive: true,
+      },
+      function (error2, q) {
+        if (error2) {
+          throw error2;
+        }
+        console.log(" [*] Waiting for logs. To exit press CTRL+C");
 
-  // setTimeout(function () {
-  //   connection.close();
-  // }, 500);
+        channel.bindQueue(q.queue, exchange, "BlockUser");
+
+        channel.consume(
+          q.queue,
+          function (msg) {
+            console.log(
+              " [x] %s: '%s'",
+              msg.fields.routingKey,
+              msg.content.toString()
+            );
+          },
+          {
+            noAck: true,
+          }
+        );
+      }
+    );
+
+    _channel = channel;
+  });
 });

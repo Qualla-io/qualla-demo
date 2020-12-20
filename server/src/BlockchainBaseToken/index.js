@@ -1,9 +1,13 @@
 import { ApolloServer, gql, UserInputError } from "apollo-server";
 import { buildFederatedSchema } from "@apollo/federation";
 import { ethers } from "ethers";
+import amqp from "amqplib/callback_api";
 
 import { getBaseToken, getBaseTokens } from "./getBaseToken";
 import { subscriptionV1, dai } from "./utils";
+
+let _channel;
+let exchange = "direct_services";
 
 const typeDefs = gql`
   type Query {
@@ -18,12 +22,18 @@ const typeDefs = gql`
       quantity: String!
       paymentValue: String!
       signature: String!
+      title: String!
+      description: String!
+      avatarID: String!
     ): Boolean!
     mintBatch(
       userID: ID!
       quantity: [String]!
       paymentValue: [String]!
       signature: String!
+      title: [String]!
+      description: [String]!
+      avatarID: [String]!
     ): Boolean!
   }
 
@@ -31,7 +41,6 @@ const typeDefs = gql`
     id: ID! @external
   }
 
-  #   TODO: Make External below
   type BaseToken @key(fields: "id") {
     id: ID!
     quantity: Float!
@@ -39,6 +48,7 @@ const typeDefs = gql`
     paymentValue: Float!
     paymentToken: String!
     activeTokens: [SubscriptionToken!]
+    txHash: String!
   }
 
   extend type SubscriptionToken @key(fields: "id") {
@@ -70,7 +80,18 @@ const resolvers = {
       // How to get subscription token?
       return true;
     },
-    mint: async (_, { userID, quantity, paymentValue, signature }) => {
+    mint: async (
+      _,
+      {
+        userID,
+        quantity,
+        paymentValue,
+        signature,
+        title,
+        description,
+        avatarID,
+      }
+    ) => {
       signature = ethers.utils.splitSignature(signature);
 
       let abiCoder = ethers.utils.defaultAbiCoder;
@@ -80,7 +101,7 @@ const resolvers = {
         [[dai.address], [ethers.utils.parseEther(paymentValue).toString()]]
       );
 
-      await subscriptionV1.mintSubscription(
+      let res = await subscriptionV1.mintSubscription(
         userID,
         quantity,
         signature.v,
@@ -89,9 +110,33 @@ const resolvers = {
         data
       );
 
+      let localData = {
+        action: "mint",
+        txHash: res.hash,
+        title: [title],
+        description: [description],
+        avatarID: [avatarID],
+      };
+
+      let msg = JSON.stringify(localData);
+
+      _channel.publish(exchange, "Local", Buffer.from(msg));
+      console.log(" [x] Sent %s: '%s'", "Local", msg);
+
       return true;
     },
-    mintBatch: async (_, { userID, quantity, paymentValue, signature }) => {
+    mintBatch: async (
+      _,
+      {
+        userID,
+        quantity,
+        paymentValue,
+        signature,
+        title,
+        description,
+        avatarID,
+      }
+    ) => {
       signature = ethers.utils.splitSignature(signature);
 
       let abiCoder = ethers.utils.defaultAbiCoder;
@@ -109,7 +154,7 @@ const resolvers = {
         [_addresses, _values]
       );
 
-      await subscriptionV1.mintBatchSubscription(
+      let res = await subscriptionV1.mintBatchSubscription(
         userID,
         quantity,
         signature.v,
@@ -117,6 +162,19 @@ const resolvers = {
         signature.s,
         data
       );
+
+      let localData = {
+        action: "mint",
+        txHash: res.hash,
+        title: title,
+        description: description,
+        avatarID: avatarID,
+      };
+
+      let msg = JSON.stringify(localData);
+
+      _channel.publish(exchange, "Local", Buffer.from(msg));
+      console.log(" [x] Sent %s: '%s'", "Local", msg);
 
       return true;
     },
@@ -139,4 +197,50 @@ const server = new ApolloServer({
 
 server.listen(4002).then(({ url }) => {
   console.log(`🚀 Server ready at ${url}`);
+});
+
+amqp.connect("amqp://root:example@rabbitmq", function (error0, connection) {
+  if (error0) {
+    throw error0;
+  }
+  connection.createChannel(function (error1, channel) {
+    if (error1) {
+      throw error1;
+    }
+
+    channel.assertExchange(exchange, "direct", {
+      durable: false,
+    });
+
+    channel.assertQueue(
+      "",
+      {
+        exclusive: true,
+      },
+      function (error2, q) {
+        if (error2) {
+          throw error2;
+        }
+        console.log(" [*] Waiting for logs. To exit press CTRL+C");
+
+        channel.bindQueue(q.queue, exchange, "BaseToken");
+
+        channel.consume(
+          q.queue,
+          function (msg) {
+            console.log(
+              " [x] %s: '%s'",
+              msg.fields.routingKey,
+              msg.content.toString()
+            );
+          },
+          {
+            noAck: true,
+          }
+        );
+      }
+    );
+
+    _channel = channel;
+  });
 });

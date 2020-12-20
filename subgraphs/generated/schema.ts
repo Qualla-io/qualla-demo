@@ -210,6 +210,15 @@ export class BaseToken extends Entity {
       this.set("testID", Value.fromString(value as string));
     }
   }
+
+  get txHash(): string {
+    let value = this.get("txHash");
+    return value.toString();
+  }
+
+  set txHash(value: string) {
+    this.set("txHash", Value.fromString(value));
+  }
 }
 
 export class SubscriptionToken extends Entity {

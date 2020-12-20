@@ -14,6 +14,7 @@ type BaseToken @entity {
   paymentToken: String!
   activeTokens: [SubscriptionToken!] @derivedFrom(field: "baseToken")
   testID: String
+  txHash: String!
 }
 
 type SubscriptionToken @entity {

@@ -86,6 +86,8 @@ export function handleTransferBatch(event: TransferBatch): void {
           baseToken.paymentToken = contract
             .tokenIdToPaymentToken(_tokenId)
             .toHexString();
+          baseToken.txHash =
+            event.transaction.hash.toHex() + "-" + i.toString();
         } else {
           baseToken.quantity = baseToken.quantity.minus(value);
         }
@@ -212,6 +214,7 @@ export function handleTransferSingle(event: TransferSingle): void {
         baseToken.paymentToken = contract
           .tokenIdToPaymentToken(event.params.id)
           .toHexString();
+        baseToken.txHash = event.transaction.hash.toHex() + "-" + "0";
       } else {
         baseToken.quantity = baseToken.quantity.minus(event.params.value);
       }
