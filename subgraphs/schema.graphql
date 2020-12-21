@@ -14,11 +14,14 @@ type BaseToken @entity {
   paymentToken: String!
   activeTokens: [SubscriptionToken!] @derivedFrom(field: "baseToken")
   testID: String
+  txHash: String!
+  index: BigInt!
+  initialSupply: BigInt!
 }
 
 type SubscriptionToken @entity {
   id: ID!
-  owner: User!
+  owner: User
   creator: User!
   nextWithdraw: BigInt
   baseToken: BaseToken

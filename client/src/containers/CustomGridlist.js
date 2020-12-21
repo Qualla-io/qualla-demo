@@ -26,14 +26,47 @@ export default function CustomGridlist(props) {
   }, []);
 
   const handleWheel = (e) => {
-    e.preventDefault();
     const container = document.getElementById(props.name);
     const containerScrollPos = document.getElementById(props.name).scrollLeft;
-    container.scrollTo({
-      top: 0,
-      left: containerScrollPos + e.deltaY,
-      behaviour: "smooth",
-    });
+    const windowScrollPos = window.scrollY;
+
+    const divWidth = container.clientWidth;
+
+    let scroll;
+    if (containerScrollPos === 0 && e.deltaY < 0) {
+      scroll = e.deltaY;
+
+      container.scrollTo({
+        top: 0,
+        left: 0,
+        behaviour: "smooth",
+      });
+
+      window.scrollTo({
+        top: windowScrollPos + scroll,
+      });
+    } else if (
+      containerScrollPos === container.scrollWidth - divWidth &&
+      e.deltaY > 0
+    ) {
+      scroll = e.deltaY;
+
+      container.scrollTo({
+        top: 0,
+        left: container.scrollWidth - divWidth,
+        behaviour: "smooth",
+      });
+
+      window.scrollTo({
+        top: windowScrollPos + scroll,
+      });
+    } else {
+      container.scrollTo({
+        top: 0,
+        left: containerScrollPos + e.deltaY,
+        behaviour: "smooth",
+      });
+    }
   };
 
   function preventDefault(e) {
@@ -68,6 +101,7 @@ export default function CustomGridlist(props) {
     window.removeEventListener(wheelEvent, preventDefault, wheelOpt);
     window.removeEventListener("touchmove", preventDefault, wheelOpt);
   };
+
   return (
     <GridList
       id={props.name}

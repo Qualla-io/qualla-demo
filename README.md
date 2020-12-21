@@ -5,7 +5,7 @@ Subscription and digital good marketplace for creators
 To reset chain and database:
 
 1. Stop hardhat, graph node, apollo server
-<!-- 2. In ./server run "node resetDB.js" -->
+2. In ./ run "node resetDB.js"
 3. In graph-node/docker run "rm -Recurse -Force data/" && "docker-compose up"
 4. In ./: "npx hardhat node --hostname 0.0.0.0"
 5. In ./: "npx hardhat run scripts/init-deploy.js --network localhost"

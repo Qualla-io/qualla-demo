@@ -18,6 +18,9 @@ const GET_BASETOKEN = `
       activeTokens{
         id
       }
+      txHash
+      initialSupply
+      index
     }
   }
 `;
@@ -47,6 +50,9 @@ const GET_BASETOKENS = `
       activeTokens{
         id
       }
+      txHash
+      initialSupply
+      index
     }
   }
 `;

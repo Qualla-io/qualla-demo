@@ -1,9 +1,11 @@
 import React from "react";
+import { ethers } from "ethers";
+import { BigNumber } from "bignumber.js";
 
-import {cardStyles} from "./styles"
+import { cardStyles } from "./styles";
 import { Avatar, Typography } from "@material-ui/core";
 import AndroidIcon from "@material-ui/icons/Android";
-
+import AvatarIcons from "../../../components/AvatarIcons";
 
 export default function BaseTokenCard(props) {
   const classes = cardStyles();
@@ -12,16 +14,21 @@ export default function BaseTokenCard(props) {
   return (
     <div className={classes.card}>
       <Avatar className={classes.avatar}>
-        <AndroidIcon className={classes.icons} />
+        <AvatarIcons customProps={classes.icons} i={token.avatarID} />
       </Avatar>
       <div className={classes.content}>
         <Typography variant="h5" display="inline">
-          Nickname
+          {token.title}
         </Typography>
       </div>
       <div className={classes.content}>
         <Typography variant="h5" display="inline">
-          <b>${token?.paymentValue}</b>
+          <b>
+            $
+            {ethers.utils
+              .formatEther(token?.paymentValue)
+              .toString()}
+          </b>
         </Typography>
         <Typography display="inline">{` `}Dai/mo.</Typography>
       </div>

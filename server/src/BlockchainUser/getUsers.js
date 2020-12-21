@@ -31,14 +31,13 @@ export async function getUser(id) {
   if (res.data.user) {
     return res.data.user;
   } else {
-    return null;
-    // return {
-    //   id: id,
-    //   baseTokens: null,
-    //   subscriptions: null,
-    //   subscribers: null,
-    //   nonce: -1,
-    // };
+    return {
+      id: id,
+      baseTokens: null,
+      subscriptions: null,
+      subscribers: null,
+      nonce: 0,
+    };
   }
 }
 

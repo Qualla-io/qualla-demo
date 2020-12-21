@@ -1,8 +1,9 @@
 import React from "react";
-
+import { ethers } from "ethers";
 import { cardStyles } from "./styles";
 import { Avatar, Button, Typography } from "@material-ui/core";
 import AndroidIcon from "@material-ui/icons/Android";
+import AvatarIcons from "../../../components/AvatarIcons";
 import { Link } from "react-router-dom";
 
 export default function SubbedToCard(props) {
@@ -11,7 +12,7 @@ export default function SubbedToCard(props) {
   return (
     <div className={classes.card}>
       <Avatar className={classes.avatar}>
-        <AndroidIcon className={classes.icons} />
+        <AvatarIcons customProps={classes.icons} i={token.baseToken.avatarID} />
       </Avatar>
       <div className={classes.content}>
         <Typography display="inline">Creator:</Typography>
@@ -23,7 +24,12 @@ export default function SubbedToCard(props) {
       </div>
       <div className={classes.content}>
         <Typography variant="h5" display="inline">
-          <b>${token?.baseToken?.paymentValue}</b>
+          <b>
+            $
+            {ethers.utils
+              .formatEther(token?.baseToken?.paymentValue)
+              .toString()}
+          </b>
         </Typography>
         <Typography display="inline">{` `}Dai/mo.</Typography>
       </div>

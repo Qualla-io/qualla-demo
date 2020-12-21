@@ -570,6 +570,52 @@ export class ConstructorCall__Outputs {
   }
 }
 
+export class BurnSubscriptionCall extends ethereum.Call {
+  get inputs(): BurnSubscriptionCall__Inputs {
+    return new BurnSubscriptionCall__Inputs(this);
+  }
+
+  get outputs(): BurnSubscriptionCall__Outputs {
+    return new BurnSubscriptionCall__Outputs(this);
+  }
+}
+
+export class BurnSubscriptionCall__Inputs {
+  _call: BurnSubscriptionCall;
+
+  constructor(call: BurnSubscriptionCall) {
+    this._call = call;
+  }
+
+  get id(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+
+  get amount(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+
+  get v(): i32 {
+    return this._call.inputValues[2].value.toI32();
+  }
+
+  get r(): Bytes {
+    return this._call.inputValues[3].value.toBytes();
+  }
+
+  get s(): Bytes {
+    return this._call.inputValues[4].value.toBytes();
+  }
+}
+
+export class BurnSubscriptionCall__Outputs {
+  _call: BurnSubscriptionCall;
+
+  constructor(call: BurnSubscriptionCall) {
+    this._call = call;
+  }
+}
+
 export class BuySubscriptionCall extends ethereum.Call {
   get inputs(): BuySubscriptionCall__Inputs {
     return new BuySubscriptionCall__Inputs(this);

@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { ethers } from "ethers";
+import { BigNumber } from "bignumber.js";
 
 import Card from "@material-ui/core/Card";
 import Grid from "@material-ui/core/Grid";
@@ -45,11 +47,11 @@ export default function HeaderCard() {
 
   useEffect(() => {
     if (data?.user?.subscribers) {
-      let total = 0;
+      let total = new BigNumber(0);
       for (var i = 0; i < data.user.subscribers.length; i++) {
-        total += data.user.subscribers[i].baseToken.paymentValue;
+        total = total.plus(data.user.subscribers[i]?.baseToken?.paymentValue);
       }
-      setValue(total);
+      setValue(total.toFixed());
     }
   }, [data]);
 
@@ -66,7 +68,9 @@ export default function HeaderCard() {
         </Grid>
         <Grid item xs className={classes.value}>
           <div>
-            <Typography variant="h4">${value}</Typography>
+            <Typography variant="h4">
+              ${ethers.utils.formatEther(value.toString()).toString()}
+            </Typography>
             <Typography variant="subtitle1">Dai/month</Typography>
           </div>
         </Grid>

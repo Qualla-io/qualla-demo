@@ -27,15 +27,6 @@ const useStyles = makeStyles((theme) => ({
     overflow: "hidden",
     flexGrow: 1,
   },
-  cards: {
-    flexWrap: "nowrap !important",
-    paddingLeft: 140,
-    transform: "translateZ(0)",
-    "&::-webkit-scrollbar": {
-      width: "0em",
-      height: "0em",
-    },
-  },
   card: {
     padding: theme.spacing(4),
   },

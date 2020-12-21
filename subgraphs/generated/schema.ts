@@ -210,6 +210,33 @@ export class BaseToken extends Entity {
       this.set("testID", Value.fromString(value as string));
     }
   }
+
+  get txHash(): string {
+    let value = this.get("txHash");
+    return value.toString();
+  }
+
+  set txHash(value: string) {
+    this.set("txHash", Value.fromString(value));
+  }
+
+  get index(): BigInt {
+    let value = this.get("index");
+    return value.toBigInt();
+  }
+
+  set index(value: BigInt) {
+    this.set("index", Value.fromBigInt(value));
+  }
+
+  get initialSupply(): BigInt {
+    let value = this.get("initialSupply");
+    return value.toBigInt();
+  }
+
+  set initialSupply(value: BigInt) {
+    this.set("initialSupply", Value.fromBigInt(value));
+  }
 }
 
 export class SubscriptionToken extends Entity {
@@ -242,13 +269,21 @@ export class SubscriptionToken extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get owner(): string {
+  get owner(): string | null {
     let value = this.get("owner");
-    return value.toString();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set owner(value: string) {
-    this.set("owner", Value.fromString(value));
+  set owner(value: string | null) {
+    if (value === null) {
+      this.unset("owner");
+    } else {
+      this.set("owner", Value.fromString(value as string));
+    }
   }
 
   get creator(): string {

@@ -106,3 +106,5 @@ dist
 client/src/contracts/
 mongodata/
 .prettierrc
+
+.docker*

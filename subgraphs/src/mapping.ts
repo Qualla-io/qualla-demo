@@ -13,7 +13,7 @@ import {
   NftToken,
 } from "../generated/schema";
 
-import { BigInt } from "@graphprotocol/graph-ts";
+import { BigInt, store } from "@graphprotocol/graph-ts";
 import { log } from "@graphprotocol/graph-ts";
 
 export function handleNFTevent(event: NFTevent): void {
@@ -49,15 +49,28 @@ export function handleTransferBatch(event: TransferBatch): void {
         let baseToken = BaseToken.load(tokenId);
         baseToken.quantity = baseToken.quantity.minus(value);
 
+        if (user.id === baseToken.owner) {
+          baseToken.initialSupply = baseToken.initialSupply.minus(value);
+        }
+
         baseToken.save();
+
+        if (baseToken.initialSupply === BigInt.fromI32(0)) {
+          // better way than to just delete?
+          store.remove("BaseToken", tokenId);
+        }
       } else if (hexedID.slice(-17) == "fffffffffffffffff") {
         // NFT Token
       } else {
         // Sub Token
-        let subToken = SubscriptionToken.load(tokenId);
-        subToken.owner = null;
 
-        subToken.save();
+        // maybe a better way than just delete?
+        store.remove("SubscriptionToken", tokenId);
+        // let subToken = SubscriptionToken.load(tokenId);
+        // subToken.owner = null;
+        // subToken.baseToken = null;
+
+        // subToken.save();
       }
 
       user.save();
@@ -69,7 +82,7 @@ export function handleTransferBatch(event: TransferBatch): void {
       let user = User.load(idTo);
       if (user == null) {
         user = new User(idTo);
-        user.nonce = BigInt.fromI32(0);
+        user.nonce = BigInt.fromI32(1);
       } else {
         user.nonce = contract.userNonce(event.params.to);
       }
@@ -86,6 +99,10 @@ export function handleTransferBatch(event: TransferBatch): void {
           baseToken.paymentToken = contract
             .tokenIdToPaymentToken(_tokenId)
             .toHexString();
+          baseToken.txHash =
+            event.transaction.hash.toHex() + "-" + i.toString();
+          baseToken.initialSupply = value;
+          baseToken.index = BigInt.fromI32(1);
         } else {
           baseToken.quantity = baseToken.quantity.minus(value);
         }
@@ -114,13 +131,13 @@ export function handleTransferBatch(event: TransferBatch): void {
       let userFrom = User.load(idFrom);
       if (userFrom == null) {
         userFrom = new User(idFrom);
-        userFrom.nonce = BigInt.fromI32(0);
+        userFrom.nonce = BigInt.fromI32(0); // check this
       }
 
       let userTo = User.load(idTo);
       if (userTo == null) {
         userTo = new User(idTo);
-        userTo.nonce = BigInt.fromI32(0);
+        userTo.nonce = BigInt.fromI32(0); // check this
       }
 
       if (hexedID[hexedID.length - 1] == "0") {
@@ -173,15 +190,30 @@ export function handleTransferSingle(event: TransferSingle): void {
       let baseToken = BaseToken.load(tokenId);
       baseToken.quantity = baseToken.quantity.minus(event.params.value);
 
+      // This doesn't seem to be working
+      if (user.id === baseToken.owner) {
+        baseToken.initialSupply = baseToken.initialSupply.minus(
+          event.params.value
+        );
+      }
+
       baseToken.save();
+
+      if (baseToken.initialSupply === BigInt.fromI32(0)) {
+        // better way than to just delete?
+        store.remove("BaseToken", tokenId);
+      }
     } else if (hexedID.slice(-17) == "fffffffffffffffff") {
       // NFT Token
     } else {
       // Sub Token
-      let subToken = SubscriptionToken.load(tokenId);
-      subToken.owner = null;
 
-      subToken.save();
+      // maybe a better way than to just delete?
+      store.remove("SubscriptionToken", tokenId);
+      // let subToken = SubscriptionToken.load(tokenId);
+      // subToken.owner = null;
+      // subToken.baseToken = null;
+      // subToken.save()
     }
 
     user.save();
@@ -193,7 +225,7 @@ export function handleTransferSingle(event: TransferSingle): void {
     let user = User.load(idTo);
     if (user == null) {
       user = new User(idTo);
-      user.nonce = BigInt.fromI32(0);
+      user.nonce = BigInt.fromI32(1);
     } else {
       user.nonce = contract.userNonce(event.params.to);
     }
@@ -212,6 +244,9 @@ export function handleTransferSingle(event: TransferSingle): void {
         baseToken.paymentToken = contract
           .tokenIdToPaymentToken(event.params.id)
           .toHexString();
+        baseToken.txHash = event.transaction.hash.toHex() + "-" + "0";
+        baseToken.initialSupply = event.params.value;
+        baseToken.index = BigInt.fromI32(1);
       } else {
         baseToken.quantity = baseToken.quantity.minus(event.params.value);
       }
@@ -225,12 +260,14 @@ export function handleTransferSingle(event: TransferSingle): void {
       let baseToken = BaseToken.load(
         contract.getBaseIdFromToken(event.params.id).toString()
       );
+      baseToken.index = baseToken.index.plus(BigInt.fromI32(1));
       subToken.baseToken = baseToken.id;
       subToken.owner = user.id;
       subToken.creator = baseToken.owner;
       subToken.nextWithdraw = contract.tokenId_ToNextWithdraw(event.params.id);
       subToken.testID = hexedID;
 
+      baseToken.save();
       subToken.save();
     }
 
@@ -240,13 +277,13 @@ export function handleTransferSingle(event: TransferSingle): void {
     let userFrom = User.load(idFrom);
     if (userFrom == null) {
       userFrom = new User(idFrom);
-      userFrom.nonce = BigInt.fromI32(0);
+      userFrom.nonce = BigInt.fromI32(0); //Check this
     }
 
     let userTo = User.load(idTo);
     if (userTo == null) {
       userTo = new User(idTo);
-      userTo.nonce = BigInt.fromI32(0);
+      userTo.nonce = BigInt.fromI32(0); //Check this
     }
 
     if (hexedID[hexedID.length - 1] == "0") {
