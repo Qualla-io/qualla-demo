@@ -1,5 +1,7 @@
 import React from "react";
 import { ethers } from "ethers";
+import { BigNumber } from "bignumber.js";
+
 import { cardStyles } from "./styles";
 import { Avatar, Typography } from "@material-ui/core";
 import AndroidIcon from "@material-ui/icons/Android";
@@ -24,7 +26,7 @@ export default function BaseTokenCard(props) {
           <b>
             $
             {ethers.utils
-              .formatEther(token?.paymentValue.toString())
+              .formatEther(new BigNumber(token?.paymentValue.toString()).toFixed())
               .toString()}
           </b>
         </Typography>

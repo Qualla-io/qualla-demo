@@ -60,6 +60,7 @@ export function handleTransferBatch(event: TransferBatch): void {
         // Sub Token
         let subToken = SubscriptionToken.load(tokenId);
         subToken.owner = null;
+        subToken.baseToken = null;
 
         subToken.save();
       }
@@ -194,6 +195,7 @@ export function handleTransferSingle(event: TransferSingle): void {
       // Sub Token
       let subToken = SubscriptionToken.load(tokenId);
       subToken.owner = null;
+      subToken.baseToken = null;
 
       subToken.save();
     }

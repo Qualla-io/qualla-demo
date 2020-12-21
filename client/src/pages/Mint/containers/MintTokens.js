@@ -5,14 +5,14 @@ import { Button, GridListTile, Typography } from "@material-ui/core";
 import CustomGridlist from "../../../containers/CustomGridlist";
 import AddTokenCard from "../components/AddTokenCard";
 import NewTokenCard from "../components/NewTokenCard";
-import { useMutation, useQuery, useReactiveVar } from "@apollo/client";
+import { useMutation, useReactiveVar } from "@apollo/client";
 import { GET_USER_NONCE, MINT_ONE, MINT_BATCH } from "../queries";
 import { accountVar, signerVar, subscriptionVar } from "../../../cache";
 import { useQueryWithAccount } from "../../../hooks";
 
 const useStyles = makeStyles((theme) => ({
   title: {
-    marginTop: theme.spacing(2),
+    marginTop: theme.spacing(6),
   },
   cardsDiv: {
     marginTop: theme.spacing(2),

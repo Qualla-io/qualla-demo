@@ -29,10 +29,10 @@ const typeDefs = gql`
 
   type SubscriptionToken @key(fields: "id") {
     id: ID!
-    owner: User!
+    owner: User
     creator: User!
     nextWithdraw: Float!
-    baseToken: BaseToken!
+    baseToken: BaseToken
   }
 `;
 

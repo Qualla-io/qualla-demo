@@ -9,6 +9,10 @@ export const GET_USER_BASETOKENS = gql`
         quantity
         paymentValue
         paymentToken
+        description
+        title
+        avatarID
+        initialSupply
       }
     }
   }

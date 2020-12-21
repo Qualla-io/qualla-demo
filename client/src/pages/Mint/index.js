@@ -15,6 +15,7 @@ import { useQueryWithAccount } from "../../hooks";
 
 import { GET_USER_BASETOKENS } from "./queries";
 import MintTokens from "./containers/MintTokens";
+import ExsistingTokens from "./containers/ExsistingTokens";
 
 const useStyles = makeStyles((theme) => ({
   headings: {
@@ -38,6 +39,7 @@ export default function Creator() {
         </Alert>
       )}
       <MintTokens />
+      <ExsistingTokens/>
 
       {/* <Typography gutterBottom variant="h4" className={classes.headings}>
         Overview
