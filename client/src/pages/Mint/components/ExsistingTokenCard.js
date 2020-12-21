@@ -23,14 +23,16 @@ export default function ExsistingTokenCard(props) {
       </Avatar>
       <Typography variant="h5">{token.title}</Typography>
       <Typography> {token.description}</Typography>
-      {token.initialSupply < 10000 ? (
+      {token.initialSupply < 100000 ? (
         <Typography>
           {token.quantity} of {token.initialSupply} Available
         </Typography>
       ) : (
         <>
           <Typography>Unlimited Subscriptions</Typography>
-          <Typography>{token.quantity} Available</Typography>
+          <Typography>
+            {token.quantity < 100000 ? token.quantity : "Unlimited"} Available
+          </Typography>
         </>
       )}
       <Typography variant="h5" display="inline">
