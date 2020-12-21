@@ -26,7 +26,7 @@ export default function BaseTokenCard(props) {
           <b>
             $
             {ethers.utils
-              .formatEther(new BigNumber(token?.paymentValue.toString()).toFixed())
+              .formatEther(token?.paymentValue)
               .toString()}
           </b>
         </Typography>

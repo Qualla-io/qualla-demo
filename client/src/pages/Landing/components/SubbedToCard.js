@@ -27,7 +27,7 @@ export default function SubbedToCard(props) {
           <b>
             $
             {ethers.utils
-              .formatEther(token?.baseToken?.paymentValue.toString())
+              .formatEther(token?.baseToken?.paymentValue)
               .toString()}
           </b>
         </Typography>

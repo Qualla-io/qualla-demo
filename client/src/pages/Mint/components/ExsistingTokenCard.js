@@ -35,7 +35,7 @@ export default function ExsistingTokenCard(props) {
           $
           {ethers.utils
             .formatEther(
-              new BigNumber(token?.paymentValue.toString()).toFixed()
+              token?.paymentValue
             )
             .toString()}
         </b>

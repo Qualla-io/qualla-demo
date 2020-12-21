@@ -31,7 +31,7 @@ const typeDefs = gql`
     id: ID!
     owner: User
     creator: User!
-    nextWithdraw: Float!
+    nextWithdraw: String!
     baseToken: BaseToken
   }
 `;
