@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { BigNumber } from "bignumber.js";
+import { useMutation, useReactiveVar } from "@apollo/client";
+
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Dialog from "@material-ui/core/Dialog";
@@ -7,30 +10,37 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import Switch from "@material-ui/core/Switch";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import AvatarIcons, { iconsLength } from "../../../components/AvatarIcons";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 import { cardStyles } from "./styles";
+import { BURN_OR_MODIFY, GET_USER_NONCE } from "../queries";
+import { accountVar, signerVar, subscriptionVar } from "../../../cache";
+import { useQueryWithAccount } from "../../../hooks";
 
 export default function ManageTokenModal(props) {
+  let account = useReactiveVar(accountVar);
+  let signer = useReactiveVar(signerVar);
+  let subscriptionV1 = useReactiveVar(subscriptionVar);
   const classes = cardStyles();
   const [max, setmax] = useState(false);
   const [toBurn, setToBurn] = useState(0);
   const [token, setToken] = useState(null);
+  const { data } = useQueryWithAccount(GET_USER_NONCE);
+  const [burnOrModify] = useMutation(BURN_OR_MODIFY);
 
   useEffect(() => {
     let _token = { ...props.token };
-    _token.quantity = 0;
+    _token.burn = 0;
     setToken(_token);
   }, [props.open]);
 
   const handleQuantChange = () => {
     if (!max) {
-      onChange("quantity", props.token.quantity);
+      onChange("burn", props.token.quantity);
     } else {
-      onChange("quantity", 0);
+      onChange("burn", 0);
     }
     setmax(!max);
   };
@@ -58,7 +68,103 @@ export default function ManageTokenModal(props) {
   }
 
   function handleChange(event) {
+    console.log(event.target);
     onChange(event.target.name, event.target.value);
+  }
+
+  async function _burnOrModify() {
+    let userData = {
+      user: account,
+      nonce: data?.user?.nonce,
+      action: "burn",
+    };
+    let domain = {
+      name: "Qualla Subscription",
+      version: "1",
+      chainId: 31337,
+      verifyingContract: subscriptionV1.address,
+    };
+
+    let creatorTypes = {
+      User: [
+        { name: "user", type: "address" },
+        { name: "nonce", type: "uint256" },
+        { name: "action", type: "string" },
+      ],
+    };
+    let signature = "";
+
+    let burn = new BigNumber(token.burn);
+
+    if (burn.gt(0)) {
+      signature = await signer._signTypedData(domain, creatorTypes, userData);
+    }
+
+    console.log(token);
+
+    burnOrModify({
+      variables: {
+        baseTokenID: token.id,
+        baseTokenTxHash: token.txHash,
+        quantity: burn.toFixed(),
+        signature,
+        title: token.title,
+        description: token.description,
+        avatarID: token.avatarID.toString(),
+      },
+      update(cache) {
+        cache.modify({
+          id: cache.identify({
+            id: token.id,
+            __typename: "BaseToken",
+          }),
+          fields: {
+            description() {
+              return token.description;
+            },
+            title() {
+              return token.title;
+            },
+            avatarID() {
+              return token.avatarID;
+            },
+          },
+          broadcast: false,
+        });
+
+        if (burn.gt(0)) {
+          cache.modify({
+            id: cache.identify({
+              id: account.toLowerCase(),
+              __typename: "User",
+            }),
+            fields: {
+              nonce(cachedNonce) {
+                return cachedNonce + 1;
+              },
+            },
+            broadcast: false,
+          });
+
+          let _quantity = new BigNumber(token.quantity);
+
+          cache.modify({
+            id: cache.identify({
+              id: token.id,
+              __typename: "BaseToken",
+            }),
+            fields: {
+              quantity() {
+                return _quantity.minus(burn).toFixed();
+              },
+            },
+            broadcast: false,
+          });
+        }
+      },
+    });
+
+    props.handleClose();
   }
 
   return (
@@ -109,8 +215,15 @@ export default function ManageTokenModal(props) {
               className={classes.titleInput}
               label="Burn"
               name="burn"
+              type="number"
               onChange={handleChange}
-              value={token?.quantity}
+              value={token?.burn}
+              error={new BigNumber(token?.burn).gt(token?.quantity)}
+              helperText={
+                new BigNumber(token?.burn).gt(token?.quantity)
+                  ? "Invalid Quantity."
+                  : null
+              }
             />
           )}
 
@@ -125,7 +238,9 @@ export default function ManageTokenModal(props) {
         <Button autoFocus color="secondary" onClick={props.handleClose}>
           Cancel
         </Button>
-        <Button color="secondary">Update</Button>
+        <Button color="secondary" onClick={_burnOrModify}>
+          Update
+        </Button>
       </DialogActions>
     </Dialog>
   );

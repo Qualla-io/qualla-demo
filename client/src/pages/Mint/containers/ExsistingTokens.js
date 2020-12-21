@@ -33,7 +33,7 @@ export default function ExsistingTokens() {
       </Typography>
       <div className={classes.cardsDiv}>
         <CustomGridlist name="ExsistingTokens">
-          {data?.user?.baseTokens.map((token, i) => (
+          {data?.user?.baseTokens?.map((token, i) => (
             <GridListTile key={i}>
               <ExsistingTokenCard
                 token={token}

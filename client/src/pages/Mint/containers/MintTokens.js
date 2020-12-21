@@ -44,7 +44,7 @@ export default function MintTokens() {
 
   function subToken(key) {
     let _tokens = [...tokens];
-    _tokens.splice(key, 1)
+    _tokens.splice(key, 1);
     setTokens(_tokens);
   }
 
@@ -60,7 +60,7 @@ export default function MintTokens() {
     let userData = {
       user: account,
       nonce: data?.user?.nonce,
-      action: "mint"
+      action: "mint",
     };
 
     let domain = {
@@ -74,7 +74,7 @@ export default function MintTokens() {
       User: [
         { name: "user", type: "address" },
         { name: "nonce", type: "uint256" },
-        { name: "action", type: "string"},
+        { name: "action", type: "string" },
       ],
     };
 
@@ -120,13 +120,15 @@ export default function MintTokens() {
         });
       },
     });
+
+    setTokens([]);
   }
 
   async function _mintOne() {
     let userData = {
       user: account,
       nonce: data?.user?.nonce,
-      action: "mint"
+      action: "mint",
     };
 
     let domain = {
@@ -140,7 +142,7 @@ export default function MintTokens() {
       User: [
         { name: "user", type: "address" },
         { name: "nonce", type: "uint256" },
-        { name: "action", type: "string"},
+        { name: "action", type: "string" },
       ],
     };
 
@@ -172,6 +174,8 @@ export default function MintTokens() {
         });
       },
     });
+
+    setTokens([]);
   }
 
   function _onMint() {

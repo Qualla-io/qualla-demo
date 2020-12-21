@@ -269,13 +269,21 @@ export class SubscriptionToken extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get owner(): string {
+  get owner(): string | null {
     let value = this.get("owner");
-    return value.toString();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set owner(value: string) {
-    this.set("owner", Value.fromString(value));
+  set owner(value: string | null) {
+    if (value === null) {
+      this.unset("owner");
+    } else {
+      this.set("owner", Value.fromString(value as string));
+    }
   }
 
   get creator(): string {

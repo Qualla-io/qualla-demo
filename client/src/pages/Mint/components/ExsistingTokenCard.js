@@ -28,22 +28,19 @@ export default function ExsistingTokenCard(props) {
           {token.quantity} of {token.initialSupply} Available
         </Typography>
       ) : (
-        <Typography> Unlimited Subscriptions Available</Typography>
+        <>
+          <Typography>Unlimited Subscriptions</Typography>
+          <Typography>{token.quantity} Available</Typography>
+        </>
       )}
       <Typography variant="h5" display="inline">
-        <b>
-          $
-          {ethers.utils
-            .formatEther(
-              token?.paymentValue
-            )
-            .toString()}
-        </b>
+        <b>${ethers.utils.formatEther(token?.paymentValue).toString()}</b>
       </Typography>
       <Typography display="inline">{` `}Dai/mo.</Typography>
       <Button
         variant="contained"
         color="secondary"
+        // disabled={token.quantity === "0"}
         onClick={() => setModalOpen(true)}
       >
         Manage

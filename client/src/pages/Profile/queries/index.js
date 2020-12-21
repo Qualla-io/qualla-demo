@@ -30,7 +30,7 @@ export const GET_USER_NONCE = gql`
 export const GET_USER_SUBTOKENS = gql`
   query getUserSubtokens($id: ID!) {
     user(id: $id) {
-      idzl
+      id
       subscriptions {
         id
         creator {

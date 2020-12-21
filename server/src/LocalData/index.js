@@ -31,7 +31,6 @@ const typeDefs = gql`
 const resolvers = {
   Mutation: {
     username: async (_, { id, username }) => {
-
       console.log(id);
       console.log(username);
 
@@ -59,8 +58,9 @@ const resolvers = {
   },
   BaseToken: {
     title: async (baseToken) => {
-
-      let _baseToken = await BaseTokenModel.findById(baseToken.txHash.toLowerCase());
+      let _baseToken = await BaseTokenModel.findById(
+        baseToken.txHash.toLowerCase()
+      );
 
       if (_baseToken) {
         return _baseToken.title;
@@ -69,8 +69,9 @@ const resolvers = {
       }
     },
     description: async (baseToken) => {
-
-      let _baseToken = await BaseTokenModel.findById(baseToken.txHash.toLowerCase());
+      let _baseToken = await BaseTokenModel.findById(
+        baseToken.txHash.toLowerCase()
+      );
 
       if (_baseToken) {
         return _baseToken.description;
@@ -79,7 +80,9 @@ const resolvers = {
       }
     },
     avatarID: async (baseToken) => {
-      let _baseToken = await BaseTokenModel.findById(baseToken.txHash.toLowerCase());
+      let _baseToken = await BaseTokenModel.findById(
+        baseToken.txHash.toLowerCase()
+      );
 
       if (_baseToken) {
         return _baseToken.avatarID;
@@ -104,8 +107,6 @@ const server = new ApolloServer({
 
 // test this
 async function handleMint(data) {
-
-  console.log(data)
   // data structure:
   // {
   //     action: "mint",
@@ -118,12 +119,38 @@ async function handleMint(data) {
   for (var i = 0; i < data.title.length; i++) {
     let _baseToken = new BaseTokenModel();
 
-    _baseToken._id = data.txHash.toLowerCase() + "-" + i.toString()
+    _baseToken._id = data.txHash.toLowerCase() + "-" + i.toString();
     _baseToken.title = data.title[i];
     _baseToken.description = data.description[i];
     _baseToken.avatarID = parseInt(data.avatarID[i]);
 
-    console.log(_baseToken)
+    console.log(_baseToken);
+
+    await _baseToken.save();
+  }
+}
+
+async function handleModify(data) {
+  // data structure:
+  // {
+  //     action: "modify",
+  //     txHash: ["...", "..."],
+  //     title: ["...", "..."],
+  //     description: ["...", "..."],
+  //     avatarID: ["...", "..."]
+  // }
+
+  for (var i = 0; i < data.title.length; i++) {
+
+    let _baseToken = await BaseTokenModel.findById(data.txHash[i]).exec();
+
+    // console.log(_baseToken);
+
+    _baseToken.title = data.title[i];
+    _baseToken.description = data.description[i];
+    _baseToken.avatarID = parseInt(data.avatarID[i]);
+
+    console.log(_baseToken);
 
     await _baseToken.save();
   }
@@ -172,6 +199,9 @@ amqp.connect("amqp://root:example@rabbitmq", function (error0, connection) {
             switch (data.action) {
               case "mint":
                 handleMint(data);
+                break;
+              case "modify":
+                handleModify(data);
                 break;
               default:
                 console.log(data);

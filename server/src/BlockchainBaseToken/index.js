@@ -40,6 +40,15 @@ const typeDefs = gql`
       description: [String]!
       avatarID: [String]!
     ): Boolean!
+    burnOrModify(
+      baseTokenID: ID!
+      baseTokenTxHash: String!
+      quantity: String!
+      signature: String!
+      title: String!
+      description: String!
+      avatarID: String!
+    ): Boolean!
   }
 
   extend type User @key(fields: "id") {
@@ -189,6 +198,47 @@ const resolvers = {
         title: title,
         description: description,
         avatarID: avatarID,
+      };
+
+      let msg = JSON.stringify(localData);
+
+      _channel.publish(exchange, "Local", Buffer.from(msg));
+      console.log(" [x] Sent %s: '%s'", "Local", msg);
+
+      return true;
+    },
+    burnOrModify: async (
+      _,
+      {
+        baseTokenID,
+        baseTokenTxHash,
+        quantity,
+        signature,
+        title,
+        description,
+        avatarID,
+      }
+    ) => {
+      quantity = new BigNumber(quantity);
+
+      if (quantity.gt(0)) {
+        signature = ethers.utils.splitSignature(signature);
+
+        await subscriptionV1.burnSubscription(
+          baseTokenID,
+          quantity.toFixed(),
+          signature.v,
+          signature.r,
+          signature.s
+        );
+      }
+
+      let localData = {
+        action: "modify",
+        txHash: [baseTokenTxHash],
+        title: [title],
+        description: [description],
+        avatarID: [avatarID],
       };
 
       let msg = JSON.stringify(localData);
