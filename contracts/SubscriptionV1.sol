@@ -32,7 +32,7 @@ contract SubscriptionV1 is Context, ERC1155 {
     // --- EIP712 niceties ---
     bytes32 public DOMAIN_SEPARATOR;
     bytes32 public constant USER_TYPEHASH =
-        keccak256("User(address user,uint256 nonce)");
+        keccak256("User(address user,uint256 nonce,string action)");
     string public constant name = "Qualla Subscription";
     string public constant version = "1";
     uint256 public chainId = 31337;
@@ -82,6 +82,22 @@ contract SubscriptionV1 is Context, ERC1155 {
         tokenNonce++;
     }
 
+    function burnSubscription(
+        uint256 id,
+        uint256 amount,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public {
+        require(id & TYPE_NF_BIT == 0, "Qualla/Wrong-Token-Type");
+        require(id & NF_INDEX_MASK == 0, "Qualla/Invalid-Subscription-Index");
+
+        address creator = tokenIdToCreator[id];
+
+         _verifySignature(creator, "burn", v, r, s);
+         ERC1155._burn(creator, id, amount);
+    }
+
     function mintSubscription(
         address creator,
         uint256 amount,
@@ -91,7 +107,7 @@ contract SubscriptionV1 is Context, ERC1155 {
         bytes memory data
     ) public {
         // verify signature
-        _verifySignature(creator, v, r, s);
+        _verifySignature(creator, "mint", v, r, s);
 
         if (amount == 0) {
             amount = uint256(-1);
@@ -121,7 +137,7 @@ contract SubscriptionV1 is Context, ERC1155 {
         bytes32 s,
         bytes memory data
     ) public {
-        _verifySignature(creator, v, r, s);
+        _verifySignature(creator, "mint", v, r, s);
 
         uint256[] memory ids = new uint256[](amounts.length);
 
@@ -149,9 +165,12 @@ contract SubscriptionV1 is Context, ERC1155 {
         bytes32 r,
         bytes32 s
     ) public {
-        require(id & TYPE_NF_BIT == 0, "Qualla/Wrong-Token-Type");
 
-        _verifySignature(subscriber, v, r, s);
+        require(id & TYPE_NF_BIT == 0, "Qualla/Wrong-Token-Type");
+        require(id & NF_INDEX_MASK == 0, "Qualla/Invalid-Subscription-Index");
+
+
+        _verifySignature(subscriber, "subscribe", v, r, s);
 
         uint256 index = tokenIdToNextIndex[id];
 
@@ -173,17 +192,20 @@ contract SubscriptionV1 is Context, ERC1155 {
         bytes32 s
     ) public {
         require(id_ & TYPE_NF_BIT == 0, "Qualla/Wrong-Token-Type");
+        require(id_ & NF_INDEX_MASK > 0, "Qualla/Invalid-Subscription-Index");
 
-        _verifySignature(subscriber, v, r, s);
+        _verifySignature(subscriber, "unsubscribe", v, r, s);
 
         uint256 id = id_ & NONCE_MASK;
         ERC1155._burn(subscriber, id_, 1);
         ERC1155._mint(tokenIdToCreator[id], id, 1, bytes(""));
     }
 
+    
+
     function getBaseIdFromToken(uint256 id_)
         external
-        view
+        pure
         returns (uint256 id)
     {
         require(id_ & TYPE_NF_BIT == 0, "Qualla/Wrong-Token-Type");
@@ -259,7 +281,7 @@ contract SubscriptionV1 is Context, ERC1155 {
 
         address oldCreator = tokenIdToCreator[id];
 
-        _verifySignature(oldCreator, v, r, s);
+        _verifySignature(oldCreator, "update", v, r, s);
 
         ERC1155.safeTransferFrom(
             oldCreator,
@@ -275,7 +297,7 @@ contract SubscriptionV1 is Context, ERC1155 {
     function _pushTokenData(
         uint256[] memory id,
         address creator,
-        uint256[] memory amounts,
+        uint256[] memory amounts, // Dont think I need this anymore
         bytes memory data
     ) internal {
         // Need to find the packing limit for data. Then revert if id.length is longer than that
@@ -296,16 +318,18 @@ contract SubscriptionV1 is Context, ERC1155 {
 
     function _verifySignature(
         address user,
+        string memory action,
         uint8 v,
         bytes32 r,
         bytes32 s
     ) internal {
+
         bytes32 digest =
             keccak256(
                 abi.encodePacked(
                     "\x19\x01",
                     DOMAIN_SEPARATOR,
-                    keccak256(abi.encode(USER_TYPEHASH, user, userNonce[user]))
+                    keccak256(abi.encode(USER_TYPEHASH, user, userNonce[user], keccak256(bytes(action))))
                 )
             );
 

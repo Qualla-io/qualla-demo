@@ -1,6 +1,7 @@
 import { ApolloServer, gql, UserInputError } from "apollo-server";
 import { buildFederatedSchema } from "@apollo/federation";
 import { ethers } from "ethers";
+import { BigNumber } from "bignumber.js";
 import amqp from "amqplib/callback_api";
 
 import { getBaseToken, getBaseTokens } from "./getBaseToken";
@@ -16,7 +17,11 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    subscribe(userID: ID!, baseTokenID: ID!, signature: String!): Boolean!
+    subscribe(
+      userID: ID!
+      baseTokenID: ID!
+      signature: String!
+    ): SubscriptionToken!
     mint(
       userID: ID!
       quantity: String!
@@ -49,10 +54,13 @@ const typeDefs = gql`
     paymentToken: String!
     activeTokens: [SubscriptionToken!]
     txHash: ID!
+    initialSupply: Float!
+    index: Float!
   }
 
   extend type SubscriptionToken @key(fields: "id") {
     id: ID! @external
+    # baseToken: BaseToken! @external
   }
 `;
 
@@ -65,6 +73,8 @@ const resolvers = {
   },
   Mutation: {
     subscribe: async (_, { userID, baseTokenID, signature }) => {
+      let _baseToken = await getBaseToken(baseTokenID.toLowerCase());
+
       signature = ethers.utils.splitSignature(signature);
 
       // validate userID and baseTokenID
@@ -78,7 +88,17 @@ const resolvers = {
       );
 
       // How to get subscription token?
-      return true;
+
+      let _subscriptionToken = {};
+
+      console.log(_baseToken.id);
+      console.log(_baseToken.index);
+
+      let _baseID = new BigNumber(_baseToken.id);
+
+      _subscriptionToken.id = _baseID.plus(_baseToken.index).plus(1).toFixed();
+
+      return _subscriptionToken;
     },
     mint: async (
       _,

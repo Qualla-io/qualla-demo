@@ -31,10 +31,14 @@ const typeDefs = gql`
 const resolvers = {
   Mutation: {
     username: async (_, { id, username }) => {
+
+      console.log(id);
+      console.log(username);
+
       let _user = await UserModel.findById(id.toLowerCase()).exec();
 
       if (_user === null) {
-        _user = await User.create({ _id: id.toLowerCase() });
+        _user = await UserModel.create({ _id: id.toLowerCase() });
       }
 
       _user.username = username;

@@ -59,8 +59,8 @@ const resolvers = {
     },
   },
   SubscriptionToken: {
-    __resolveReference(subscriptionToken) {
-      return getSubToken(subscriptionToken.id.toLowerCase());
+    async __resolveReference(subscriptionToken) {
+      return await getSubToken(subscriptionToken.id.toString());
     },
   },
 };

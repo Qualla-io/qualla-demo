@@ -28,7 +28,7 @@ export async function getSubToken(id) {
     query: GET_SUBTOKEN,
     variables: { id },
   });
-  if (res.data.subscriptionToken) {
+  if (res?.data?.subscriptionToken) {
     return res.data.subscriptionToken;
   } else {
     return null;

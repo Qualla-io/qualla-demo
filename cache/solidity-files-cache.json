@@ -1050,8 +1050,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\SubscriptionV1.sol": {
-      "lastModificationDate": 1608067867652,
-      "contentHash": "3aa5025b09939d161555977deb91abbd",
+      "lastModificationDate": 1608490244819,
+      "contentHash": "59c671724f90342ddde610784061cb41",
       "sourceName": "contracts/SubscriptionV1.sol",
       "solcConfig": {
         "version": "0.7.3",

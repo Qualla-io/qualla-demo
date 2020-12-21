@@ -49,6 +49,10 @@ export function handleTransferBatch(event: TransferBatch): void {
         let baseToken = BaseToken.load(tokenId);
         baseToken.quantity = baseToken.quantity.minus(value);
 
+        if (user.id === baseToken.owner) {
+          baseToken.initialSupply = baseToken.initialSupply.minus(value);
+        }
+
         baseToken.save();
       } else if (hexedID.slice(-17) == "fffffffffffffffff") {
         // NFT Token
@@ -88,6 +92,8 @@ export function handleTransferBatch(event: TransferBatch): void {
             .toHexString();
           baseToken.txHash =
             event.transaction.hash.toHex() + "-" + i.toString();
+          baseToken.initialSupply = value;
+          baseToken.index = BigInt.fromI32(1);
         } else {
           baseToken.quantity = baseToken.quantity.minus(value);
         }
@@ -175,6 +181,12 @@ export function handleTransferSingle(event: TransferSingle): void {
       let baseToken = BaseToken.load(tokenId);
       baseToken.quantity = baseToken.quantity.minus(event.params.value);
 
+      if (user.id === baseToken.owner) {
+        baseToken.initialSupply = baseToken.initialSupply.minus(
+          event.params.value
+        );
+      }
+
       baseToken.save();
     } else if (hexedID.slice(-17) == "fffffffffffffffff") {
       // NFT Token
@@ -215,6 +227,8 @@ export function handleTransferSingle(event: TransferSingle): void {
           .tokenIdToPaymentToken(event.params.id)
           .toHexString();
         baseToken.txHash = event.transaction.hash.toHex() + "-" + "0";
+        baseToken.initialSupply = event.params.value;
+        baseToken.index = BigInt.fromI32(1);
       } else {
         baseToken.quantity = baseToken.quantity.minus(event.params.value);
       }
@@ -228,12 +242,14 @@ export function handleTransferSingle(event: TransferSingle): void {
       let baseToken = BaseToken.load(
         contract.getBaseIdFromToken(event.params.id).toString()
       );
+      baseToken.index = baseToken.index.plus(BigInt.fromI32(1));
       subToken.baseToken = baseToken.id;
       subToken.owner = user.id;
       subToken.creator = baseToken.owner;
       subToken.nextWithdraw = contract.tokenId_ToNextWithdraw(event.params.id);
       subToken.testID = hexedID;
 
+      baseToken.save();
       subToken.save();
     }
 

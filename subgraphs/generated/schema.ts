@@ -219,6 +219,24 @@ export class BaseToken extends Entity {
   set txHash(value: string) {
     this.set("txHash", Value.fromString(value));
   }
+
+  get index(): BigInt {
+    let value = this.get("index");
+    return value.toBigInt();
+  }
+
+  set index(value: BigInt) {
+    this.set("index", Value.fromBigInt(value));
+  }
+
+  get initialSupply(): BigInt {
+    let value = this.get("initialSupply");
+    return value.toBigInt();
+  }
+
+  set initialSupply(value: BigInt) {
+    this.set("initialSupply", Value.fromBigInt(value));
+  }
 }
 
 export class SubscriptionToken extends Entity {

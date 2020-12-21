@@ -29,6 +29,7 @@ async function main() {
     User: [
       { name: "user", type: "address" },
       { name: "nonce", type: "uint256" },
+      { name: "action", type: "string"},
     ],
   };
 
@@ -46,39 +47,40 @@ async function main() {
     "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a"
   );
 
-  let data = abiCoder.encode(
-    ["address[]", "uint256[]"],
-    [
-      [testDai.address, testDai.address, testDai.address],
-      [
-        ethers.utils.parseEther("10").toString(),
-        ethers.utils.parseEther("20").toString(),
-        ethers.utils.parseEther("30").toString(),
-      ],
-    ]
-  );
+  // let data = abiCoder.encode(
+  //   ["address[]", "uint256[]"],
+  //   [
+  //     [testDai.address, testDai.address, testDai.address],
+  //     [
+  //       ethers.utils.parseEther("10").toString(),
+  //       ethers.utils.parseEther("20").toString(),
+  //       ethers.utils.parseEther("30").toString(),
+  //     ],
+  //   ]
+  // );
 
-  let creatorData = {
-    user: bob.address,
-    nonce: 0,
-  };
+  // let creatorData = {
+  //   user: bob.address,
+  //   nonce: 0,
+  //   action: "mint"
+  // };
 
-  let signature = await _wallet._signTypedData(
-    domain,
-    creatorTypes,
-    creatorData
-  );
+  // let signature = await _wallet._signTypedData(
+  //   domain,
+  //   creatorTypes,
+  //   creatorData
+  // );
 
-  signature = ethers.utils.splitSignature(signature);
+  // signature = ethers.utils.splitSignature(signature);
 
-  await subscriptionV1.mintBatchSubscription(
-    bob.address,
-    [0, 0, 0],
-    signature.v,
-    signature.r,
-    signature.s,
-    data
-  );
+  // await subscriptionV1.mintBatchSubscription(
+  //   bob.address,
+  //   [0, 0, 0],
+  //   signature.v,
+  //   signature.r,
+  //   signature.s,
+  //   data
+  // );
 
   data = abiCoder.encode(
     ["address[]", "uint256[]"],
@@ -86,10 +88,11 @@ async function main() {
   );
 
   // mint a bunch of subscriptions
-  for (var i = 1; i < 5; i++) {
+  for (var i = 0; i < 5; i++) {
     creatorData = {
       user: bob.address,
       nonce: i,
+      action: "mint",
     };
 
     signature = await _wallet._signTypedData(domain, creatorTypes, creatorData);
@@ -110,6 +113,7 @@ async function main() {
   let subscriberData = {
     user: charlie.address,
     nonce: 0,
+    action: "subscribe"
   };
 
   signature = await _walletCharlie._signTypedData(
@@ -133,6 +137,7 @@ async function main() {
     subscriberData = {
       user: charlie.address,
       nonce: i,
+      action: "subscribe"
     };
 
     signature = await _walletCharlie._signTypedData(

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import {ethers} from "ethers"
 
 import Card from "@material-ui/core/Card";
 import Grid from "@material-ui/core/Grid";
@@ -66,7 +67,7 @@ export default function HeaderCard() {
         </Grid>
         <Grid item xs className={classes.value}>
           <div>
-            <Typography variant="h4">${value}</Typography>
+            <Typography variant="h4">${ethers.utils.formatEther(value.toString()).toString()}</Typography>
             <Typography variant="subtitle1">Dai/month</Typography>
           </div>
         </Grid>
