@@ -94,8 +94,8 @@ contract SubscriptionV1 is Context, ERC1155 {
 
         address creator = tokenIdToCreator[id];
 
-         _verifySignature(creator, "burn", v, r, s);
-         ERC1155._burn(creator, id, amount);
+        _verifySignature(creator, "burn", v, r, s);
+        ERC1155._burn(creator, id, amount);
     }
 
     function mintSubscription(
@@ -165,10 +165,8 @@ contract SubscriptionV1 is Context, ERC1155 {
         bytes32 r,
         bytes32 s
     ) public {
-
         require(id & TYPE_NF_BIT == 0, "Qualla/Wrong-Token-Type");
         require(id & NF_INDEX_MASK == 0, "Qualla/Invalid-Subscription-Index");
-
 
         _verifySignature(subscriber, "subscribe", v, r, s);
 
@@ -179,9 +177,9 @@ contract SubscriptionV1 is Context, ERC1155 {
         ERC1155._burn(tokenIdToCreator[id], id, 1);
         ERC1155._mint(subscriber, id_, 1, bytes(""));
 
-        tokenId_ToNextWithdraw[id_] = block.timestamp - 1;
-
         tokenIdToNextIndex[id]++;
+
+        executeSubscription(id_, subscriber);
     }
 
     function unSubscribe(
@@ -200,8 +198,6 @@ contract SubscriptionV1 is Context, ERC1155 {
         ERC1155._burn(subscriber, id_, 1);
         ERC1155._mint(tokenIdToCreator[id], id, 1, bytes(""));
     }
-
-    
 
     function getBaseIdFromToken(uint256 id_)
         external
@@ -323,13 +319,19 @@ contract SubscriptionV1 is Context, ERC1155 {
         bytes32 r,
         bytes32 s
     ) internal {
-
         bytes32 digest =
             keccak256(
                 abi.encodePacked(
                     "\x19\x01",
                     DOMAIN_SEPARATOR,
-                    keccak256(abi.encode(USER_TYPEHASH, user, userNonce[user], keccak256(bytes(action))))
+                    keccak256(
+                        abi.encode(
+                            USER_TYPEHASH,
+                            user,
+                            userNonce[user],
+                            keccak256(bytes(action))
+                        )
+                    )
                 )
             );
 
