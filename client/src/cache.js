@@ -1,7 +1,7 @@
-import {makeVar, ApolloClient, InMemoryCache} from "@apollo/client";
-import {split, HttpLink} from "@apollo/client";
-import {getMainDefinition} from "@apollo/client/utilities";
-import {WebSocketLink} from "@apollo/client/link/ws";
+import { makeVar, ApolloClient, InMemoryCache } from "@apollo/client";
+import { split, HttpLink } from "@apollo/client";
+import { getMainDefinition } from "@apollo/client/utilities";
+import { WebSocketLink } from "@apollo/client/link/ws";
 
 export const accountVar = makeVar(null);
 export const providerVar = makeVar(null);
@@ -9,6 +9,7 @@ export const signerVar = makeVar(null);
 export const daiVar = makeVar(null);
 export const subscriptionVar = makeVar(null);
 export const ethVar = makeVar(null);
+export const feeVar = makeVar(0);
 
 const wsLink = new WebSocketLink({
   uri: process.env.REACT_APP_GRAPHQL_SUB_ENDPOINT,
@@ -22,7 +23,7 @@ const httpLink = new HttpLink({
 });
 
 const link = split(
-  ({query}) => {
+  ({ query }) => {
     const definition = getMainDefinition(query);
     return (
       definition.kind === "OperationDefinition" &&

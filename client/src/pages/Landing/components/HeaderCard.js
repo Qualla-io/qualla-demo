@@ -4,12 +4,12 @@ import { BigNumber } from "bignumber.js";
 
 import Card from "@material-ui/core/Card";
 import Grid from "@material-ui/core/Grid";
-import Divider from "@material-ui/core/Divider";
+import Tooltip from "@material-ui/core/Tooltip";
 import { makeStyles } from "@material-ui/core/styles";
 
 import { useReactiveVar, gql } from "@apollo/client";
 import { GET_USER_OVERVIEW } from "../queries";
-import { accountVar } from "../../../cache";
+import { accountVar, feeVar } from "../../../cache";
 import { useQueryWithAccount } from "../../../hooks";
 import { CardContent, Paper, Typography } from "@material-ui/core";
 
@@ -51,7 +51,8 @@ export default function HeaderCard() {
       for (var i = 0; i < data.user.subscribers.length; i++) {
         total = total.plus(data.user.subscribers[i]?.baseToken?.paymentValue);
       }
-      setValue(total.toFixed());
+      // unhard code in future
+      setValue(total.multipliedBy(95).dividedBy(100).toFixed());
     }
   }, [data]);
 
@@ -67,12 +68,18 @@ export default function HeaderCard() {
           </div>
         </Grid>
         <Grid item xs className={classes.value}>
-          <div>
-            <Typography variant="h4">
-              ${ethers.utils.formatEther(value.toString()).toString()}
-            </Typography>
-            <Typography variant="subtitle1">Dai/month</Typography>
-          </div>
+          <Tooltip
+            arrow
+            title="5% platfrom fee taken from subscriptions"
+            placement="top"
+          >
+            <div>
+              <Typography variant="h4">
+                ${ethers.utils.formatEther(value.toString()).toString()}
+              </Typography>
+              <Typography variant="subtitle1">Dai/month</Typography>
+            </div>
+          </Tooltip>
         </Grid>
       </Grid>
     </div>

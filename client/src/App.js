@@ -8,6 +8,8 @@ import "./App.css";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Layout from "./containers/Layout";
+import { IconButton } from "@material-ui/core";
+import ClearIcon from '@material-ui/icons/Clear';
 
 const font = "'Rubik', sans-serif";
 
@@ -20,6 +22,10 @@ const theme = createMuiTheme({
   },
 });
 
+const notistackRef = React.createRef();
+const onClickDismiss = (key) => () => {
+  notistackRef.current.closeSnackbar(key);
+};
 
 export default function App() {
   // useEffect(async () => {
@@ -47,7 +53,20 @@ export default function App() {
     <div className="App">
       <Router>
         <ThemeProvider theme={theme}>
-          <SnackbarProvider maxSnack={3} autoHideDuration={4000}>
+          <SnackbarProvider
+            ref={notistackRef}
+            maxSnack={3}
+            autoHideDuration={4000}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "center",
+            }}
+            action={(key) => (
+              <IconButton onClick={onClickDismiss(key)} style={{color: "#fff"}}>
+                <ClearIcon/>
+              </IconButton>
+            )}
+          >
             <CssBaseline />
             <Layout>
               <BaseRouter />

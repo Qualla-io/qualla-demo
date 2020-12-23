@@ -17,6 +17,7 @@ const typeDefs = gql`
 
   type Mutation {
     permit(userID: ID!, signature: String!, nonce: String!): Boolean!
+    mintDai(userID: ID!, amt: String!): Boolean!
     testPub(msg: String!): Boolean!
   }
 
@@ -64,6 +65,20 @@ const resolvers = {
         signature.r,
         signature.s
       );
+
+      return true;
+    },
+    mintDai: async (_, {userID, amt})=> {
+      const initBal = await dai.balanceOf(userID.toLowerCase());
+      console.log(`Old balance: ${initBal}`);
+
+      if (initBal < 3000000000000000000000) {
+        await dai.mintTokens(userID.toLowerCase(), amt);
+      } else {
+        throw new UserInputError("Excessive funds, don't be greedy!", {
+          invalidArgs: Object.keys(userID),
+        });
+      }
 
       return true;
     },

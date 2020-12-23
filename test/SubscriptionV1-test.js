@@ -40,8 +40,8 @@ describe("Subscription Contract", function () {
 
     [alice, bob, charlie] = await ethers.getSigners();
 
-    await testDai.mintTokens(bob.address);
-    await testDai.mintTokens(charlie.address);
+    await testDai.mintTokens(bob.address, 1000);
+    await testDai.mintTokens(charlie.address, 1000);
 
     let _testDai = await testDai.connect(charlie);
 
@@ -346,7 +346,7 @@ describe("Subscription Contract", function () {
 
       expect(bal.toString()).to.equal(initBal.add(95).toString());
 
-      bal = await testDai.balanceOf(subscriptionV1.address);
+      bal = await testDai.balanceOf(alice.address);
 
       expect(bal.toString()).to.equal("5");
 

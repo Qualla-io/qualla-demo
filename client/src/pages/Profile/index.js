@@ -43,7 +43,7 @@ export default function Subscriber() {
 
   // This should really move to the backend and be a filter on the query
   useEffect(() => {
-    for (var i = 0; i < data?.user?.subscriptions.length; i++) {
+    for (var i = 0; i < data?.user?.subscriptions?.length; i++) {
       if (data?.user?.subscriptions[i]?.creator?.id === url.slice(1).toLowerCase()) {
         setFound(true);
       }

@@ -8,6 +8,8 @@ import Button from "@material-ui/core/Button";
 import { Link } from "react-router-dom";
 import { Container } from "@material-ui/core";
 
+
+
 const marg = 14;
 
 const useStyles = makeStyles((theme) => ({
@@ -62,7 +64,9 @@ export default function Topbar() {
               >
                 Qualla
               </Typography>
-              <div className={classes.grow}></div>
+              <div className={classes.grow}>
+               
+              </div>
               <Typography
                 component={Link}
                 to={"/"}

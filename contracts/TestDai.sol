@@ -54,8 +54,8 @@ contract TestDai is LibNote {
 
     // --- Token ---
 
-    function mintTokens(address recipent) public {
-        _mint(recipent, 1000 ether);
+    function mintTokens(address recipent, uint256 amt) public {
+        _mint(recipent, amt * 1 ether );
     }
 
     function _mint(address usr, uint wad) internal {

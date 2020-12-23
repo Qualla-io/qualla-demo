@@ -18,6 +18,7 @@ import {
   daiVar,
   subscriptionVar,
   ethVar,
+  feeVar,
 } from "../cache";
 
 import { useQueryWithAccount } from "../hooks";
@@ -113,6 +114,7 @@ export default function MainSection(props) {
 
       subscriptionV1 = subscriptionV1.connect(signer);
       subscriptionVar(subscriptionV1);
+     
     } catch (error) {
       alert(
         `Failed to load web3, accounts, or contract. Check console for details.`
