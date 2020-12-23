@@ -47,11 +47,6 @@ export default function Header() {
   let {data} = useQueryWithAccount(GET_USER_HEADER)
   let [updateUsername] = useMutation(UPDATE_USERNAME)
 
-
-  useEffect(() => {
-    console.log(data)
-  }, [data])
-
   const editName = () => {setEdit(!edit)};
 
   const handleChange = (e) => {

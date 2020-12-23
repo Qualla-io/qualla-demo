@@ -1050,8 +1050,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\SubscriptionV1.sol": {
-      "lastModificationDate": 1608587750279,
-      "contentHash": "198ee8e3d0f6dcee3d78a1bfb30c16c3",
+      "lastModificationDate": 1608672595447,
+      "contentHash": "b3f89ed0ed83d355c66cbcb9a5cdac6b",
       "sourceName": "contracts/SubscriptionV1.sol",
       "solcConfig": {
         "version": "0.7.3",
@@ -1230,8 +1230,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\TestDai.sol": {
-      "lastModificationDate": 1608318345808,
-      "contentHash": "da06243435cc9131c544e222ed085757",
+      "lastModificationDate": 1608663413132,
+      "contentHash": "99e05957debf4ec5839e22756437d355",
       "sourceName": "contracts/TestDai.sol",
       "solcConfig": {
         "version": "0.7.3",

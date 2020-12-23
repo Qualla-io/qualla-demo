@@ -15,7 +15,8 @@ contract SubscriptionV1 is Context, ERC1155 {
     // id = base id of token, has index of 0
     // id_ = instance id of token, has index of 1+
 
-    uint256 fee = 5; // Percent
+    uint256 public fee = 5; // Percent
+    address master;
 
     uint256 public tokenNonce = 1;
 
@@ -49,6 +50,7 @@ contract SubscriptionV1 is Context, ERC1155 {
     mapping(address => uint256) public userNonce;
 
     event NFTevent(uint256 id);
+    event contractModified(address master, uint256 fee);
 
     constructor() ERC1155("URI") {
         // register the supported interfaces to conform to ERC1155 via ERC165
@@ -68,6 +70,21 @@ contract SubscriptionV1 is Context, ERC1155 {
                 address(this)
             )
         );
+
+        master = msg.sender;
+    }
+
+    function setFee(uint256 _fee) external {
+        require(msg.sender == master, "FORBIDDEN");
+        require(_fee < fee, "INVALID FEE INCREASE");
+        fee = _fee;
+        emit contractModified(master, fee);
+    }
+
+    function setMaster(address _master) external {
+        require(msg.sender == master, "FORBIDDEN");
+        master = _master;
+        emit contractModified(master, fee);
     }
 
     function mintNFT() public {
@@ -168,6 +185,20 @@ contract SubscriptionV1 is Context, ERC1155 {
         require(id & TYPE_NF_BIT == 0, "Qualla/Wrong-Token-Type");
         require(id & NF_INDEX_MASK == 0, "Qualla/Invalid-Subscription-Index");
 
+        require(
+            ERC20(tokenIdToPaymentToken[id]).balanceOf(subscriber) >
+                tokenIdToPaymentValue[id],
+            "Qualla/Insufficient-Balance"
+        );
+
+        require(
+            ERC20(tokenIdToPaymentToken[id]).allowance(
+                subscriber,
+                address(this)
+            ) > tokenIdToPaymentValue[id],
+            "Qualla/Insufficient-Allowance"
+        );
+
         _verifySignature(subscriber, "subscribe", v, r, s);
 
         uint256 index = tokenIdToNextIndex[id];
@@ -249,7 +280,7 @@ contract SubscriptionV1 is Context, ERC1155 {
         try
             ERC20(paymentToken).transferFrom(
                 subscriber,
-                address(this), // Change this to contract owner
+                master,
                 paymentValue.mul(fee).div(100)
             )
         returns (bool) {} catch {

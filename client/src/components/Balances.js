@@ -18,7 +18,7 @@ import Fab from "@material-ui/core/Fab";
 import {accountVar, providerVar, daiVar} from "../cache";
 import {useQueryWithAccount} from "../hooks";
 import {useReactiveVar, gql, useQuery, useMutation} from "@apollo/client";
-import UserBalance from "./GetBalance";
+import UserBalance from "./UserBalance";
 
 const INIT_BALACES = gql`
   query getBalances($id: ID!) {

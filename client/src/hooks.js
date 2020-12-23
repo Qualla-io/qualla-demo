@@ -1,14 +1,24 @@
-import React, {useEffect} from "react";
-import {accountVar, contractIDVar} from "./cache";
-import {useLazyQuery, useReactiveVar} from "@apollo/client";
+import React, { useEffect } from "react";
+import { accountVar, contractIDVar } from "./cache";
+import { useLazyQuery, useReactiveVar } from "@apollo/client";
 
-export function useQueryWithAccount(QUERY) {
+export function useQueryWithAccount(QUERY, network = false) {
   let account = useReactiveVar(accountVar);
-  let [sendQuery, {loading, error, data}] = useLazyQuery(QUERY);
+  let _fetchPolicy;
+
+  {
+    network
+      ? (_fetchPolicy = "cache-and-network")
+      : (_fetchPolicy = "cache-first");
+  }
+
+  let [sendQuery, { loading, error, data }] = useLazyQuery(QUERY, {
+    fetchPolicy: _fetchPolicy,
+  });
 
   useEffect(() => {
     if (account) {
-      sendQuery({variables: {id: account}});
+      sendQuery({ variables: { id: account } });
     }
   }, [account]);
 
@@ -16,7 +26,7 @@ export function useQueryWithAccount(QUERY) {
     console.log(error);
   }
 
-  return {loading, error, data};
+  return { loading, error, data };
 }
 
 // export function useQueryWithContract(QUERY) {
