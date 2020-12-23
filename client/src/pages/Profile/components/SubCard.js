@@ -1,21 +1,23 @@
 import React from "react";
+import { useSnackbar } from "notistack";
+import { useReactiveVar, useMutation } from "@apollo/client";
+import { ethers } from "ethers";
 
 import { cardStyles } from "./styles";
 import { Avatar, Button, Typography } from "@material-ui/core";
-import AndroidIcon from "@material-ui/icons/Android";
 
-import { gql, useReactiveVar, useMutation, useQuery } from "@apollo/client";
-import { ethers } from "ethers";
 import { PERMIT, SUBSCRIBE, GET_USER_NONCE } from "../queries";
 import { daiVar, accountVar, subscriptionVar, signerVar } from "../../../cache";
 import { useQueryWithAccount } from "../../../hooks";
 import AvatarIcons from "../../../components/AvatarIcons";
 
 export default function SubCard(props) {
+  const { enqueueSnackbar } = useSnackbar();
   let account = useReactiveVar(accountVar);
   let dai = useReactiveVar(daiVar);
   let signer = useReactiveVar(signerVar);
   let subscriptionV1 = useReactiveVar(subscriptionVar);
+
   let { data } = useQueryWithAccount(GET_USER_NONCE);
 
   const classes = cardStyles();
@@ -54,21 +56,6 @@ export default function SubCard(props) {
     subscribe({
       variables: { userID: account, baseTokenID: token?.id, signature },
       update(cache, { data: subscribe }) {
-
-        // This causes a refetch somewhere and wipes out the cached ref
-        // cache.modify({
-        //   id: cache.identify({
-        //     id: account.toLowerCase(),
-        //     __typename: "User",
-        //   }),
-        //   fields: {
-        //     subscriptions(exsistingSubscriptionRefs = [], { readField }) {
-        //       return [subscribe];
-        //     },
-        //   },
-        //   broadcast: false,
-        // });
-
         cache.modify({
           id: cache.identify({
             id: account.toLowerCase(),
@@ -81,7 +68,17 @@ export default function SubCard(props) {
           },
         });
       },
-    });
+    })
+      .then((res) => {
+        enqueueSnackbar(`Request proccessing, check back in a few minutes!`, {
+          variant: "success",
+        });
+      })
+      .catch((err) => {
+        enqueueSnackbar(`${err}`, {
+          variant: "error",
+        });
+      });
   }
 
   async function _permit() {

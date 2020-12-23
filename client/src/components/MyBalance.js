@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Card, CardContent, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
 import UserBalance from "./UserBalance";
@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
     zIndex: 1,
     position: "fixed",
     bottom: theme.spacing(2),
-    left: theme.spacing(2),
+    left: theme.spacing(1),
     padding: theme.spacing(2),
     background: "#FFFFFF",
     border: "3px solid #000000",

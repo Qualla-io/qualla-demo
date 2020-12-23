@@ -54,7 +54,6 @@ export default function FABspeeddial() {
         });
       })
       .catch((err) => {
-        console.log(err);
         enqueueSnackbar(`${err}`, {
           variant: "error",
         });

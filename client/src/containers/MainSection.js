@@ -26,28 +26,28 @@ import { useQueryWithAccount } from "../hooks";
 import DaiContract from "../artifacts/contracts/TestDai.sol/TestDai.json";
 import SubscriptionContract from "../artifacts/contracts/SubscriptionV1.sol/SubscriptionV1.json";
 
-const INIT_APP = gql`
-  query InitApp($id: ID!) {
-    user(id: $id) {
-      id
-      nonce
-      baseTokens {
-        id
-      }
-      subscribers {
-        id
-      }
-      subscriptions {
-        id
-      }
-    }
-  }
-`;
+// const INIT_APP = gql`
+//   query InitApp($id: ID!) {
+//     user(id: $id) {
+//       id
+//       nonce
+//       baseTokens {
+//         id
+//       }
+//       subscribers {
+//         id
+//       }
+//       subscriptions {
+//         id
+//       }
+//     }
+//   }
+// `;
 
 export default function MainSection(props) {
   let account = useReactiveVar(accountVar);
   let signer = useReactiveVar(signerVar);
-  const { loading, error, data } = useQueryWithAccount(INIT_APP);
+  // const { loading, error, data } = useQueryWithAccount(INIT_APP);
   // const [initUser] = useMutation(CREATE_USER);
 
   useEffect(() => {
@@ -123,9 +123,9 @@ export default function MainSection(props) {
     }
   }
 
-  if (loading) return <h1>Loading...</h1>;
+  // if (loading) return <h1>Loading...</h1>;
 
-  if (error) return `Error! ${error}`;
+  // if (error) return `Error! ${error}`;
 
   return (
     <>

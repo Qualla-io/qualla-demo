@@ -121,23 +121,33 @@ httpServer.listen({ port: 5000 }, () => {
 });
 
 let handleFromTransfer = async function (from, to, amount) {
-  dai.balanceOf(from).then((daibal) => {
-    // do stuff
+  dai
+    .balanceOf(from)
+    .then((daibal) => {
+      // do stuff
 
-    pubsub.publish(DAI_BALANCE_UPDATED, {
-      daiBalance: { id: from, balance: daibal.toString() },
+      pubsub.publish(DAI_BALANCE_UPDATED, {
+        daiBalance: { id: from, balance: daibal.toString() },
+      });
+    })
+    .catch((err) => {
+      console.log(err);
     });
-  });
 };
 
 let handleToTransfer = async function (from, to, amount) {
-  dai.balanceOf(to).then((daibal) => {
-    // do stuff
+  dai
+    .balanceOf(to)
+    .then((daibal) => {
+      // do stuff
 
-    pubsub.publish(DAI_BALANCE_UPDATED, {
-      daiBalance: { id: to, balance: daibal.toString() },
+      pubsub.publish(DAI_BALANCE_UPDATED, {
+        daiBalance: { id: to, balance: daibal.toString() },
+      });
+    })
+    .catch((err) => {
+      console.log(err);
     });
-  });
 };
 
 function _subscribe(id) {
@@ -148,11 +158,16 @@ function _subscribe(id) {
   dai.on(filterFromMe, handleFromTransfer);
   dai.on(filterToMe, handleToTransfer);
 
-  dai.balanceOf(id).then((daibal) => {
-    pubsub.publish(DAI_BALANCE_UPDATED, {
-      daiBalance: { id, balance: daibal.toString() },
+  dai
+    .balanceOf(id)
+    .then((daibal) => {
+      pubsub.publish(DAI_BALANCE_UPDATED, {
+        daiBalance: { id, balance: daibal.toString() },
+      });
+    })
+    .catch((err) => {
+      console.log(err);
     });
-  });
 }
 
 function _unsubscribe(id) {

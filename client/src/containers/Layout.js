@@ -1,7 +1,6 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Topbar from "../components/Topbar.js";
-// import Balances from "../components/Balances.js";
 import MainSection from "./MainSection.js";
 import Footer from "./Footer.js";
 import FABspeeddial from "../components/FABspeeddial.js";
@@ -24,7 +23,6 @@ export default function Layout(props) {
     <div className={classes.root}>
       <Topbar />
       <MyBalance />
-      {/* <Balances /> */}
       <MainSection>{props.children}</MainSection>
       <FABspeeddial />
       <Footer />

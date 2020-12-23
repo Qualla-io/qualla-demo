@@ -7,7 +7,10 @@ import { makeStyles } from "@material-ui/core/styles";
 import { useReactiveVar } from "@apollo/client";
 import { GET_USER_SUBSCRIPTIONS } from "../queries";
 import { accountVar } from "../../../cache";
-import { useQueryWithAccount } from "../../../hooks";
+import {
+  useQueryWithAccount,
+  useQueryWithAccountNetwork,
+} from "../../../hooks";
 import SubbedToCard from "../components/SubbedToCard";
 import BlankSubbedToCard from "../components/BlankSubbedToCard";
 import CustomGridlist from "../../../containers/CustomGridlist";
@@ -43,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
 export default function SubbedTo() {
   const classes = useStyles();
   let account = useReactiveVar(accountVar);
-  const { error, loading, data } = useQueryWithAccount(GET_USER_SUBSCRIPTIONS);
+  const { data } = useQueryWithAccountNetwork(GET_USER_SUBSCRIPTIONS);
 
   return (
     <div className={classes.root}>

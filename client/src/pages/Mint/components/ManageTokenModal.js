@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { BigNumber } from "bignumber.js";
 import { useMutation, useReactiveVar } from "@apollo/client";
+import { useSnackbar } from "notistack";
 
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
@@ -11,6 +12,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import Switch from "@material-ui/core/Switch";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import DialogTitle from "@material-ui/core/DialogTitle";
+
 import AvatarIcons, { iconsLength } from "../../../components/AvatarIcons";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
@@ -20,12 +22,12 @@ import { accountVar, signerVar, subscriptionVar } from "../../../cache";
 import { useQueryWithAccount } from "../../../hooks";
 
 export default function ManageTokenModal(props) {
+  const { enqueueSnackbar } = useSnackbar();
   let account = useReactiveVar(accountVar);
   let signer = useReactiveVar(signerVar);
   let subscriptionV1 = useReactiveVar(subscriptionVar);
   const classes = cardStyles();
   const [max, setmax] = useState(false);
-  const [toBurn, setToBurn] = useState(0);
   const [token, setToken] = useState(null);
   const { data } = useQueryWithAccount(GET_USER_NONCE);
   const [burnOrModify] = useMutation(BURN_OR_MODIFY);
@@ -162,7 +164,17 @@ export default function ManageTokenModal(props) {
           });
         }
       },
-    });
+    })
+      .then((res) => {
+        enqueueSnackbar(`Request proccessing, check back in a few minutes!`, {
+          variant: "success",
+        });
+      })
+      .catch((err) => {
+        enqueueSnackbar(`${err}`, {
+          variant: "error",
+        });
+      });
 
     props.handleClose();
   }

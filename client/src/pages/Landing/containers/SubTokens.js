@@ -7,7 +7,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { useReactiveVar } from "@apollo/client";
 import { GET_USER_BASETOKENS } from "../queries";
 import { accountVar } from "../../../cache";
-import { useQueryWithAccount } from "../../../hooks";
+import { useQueryWithAccountNetwork } from "../../../hooks";
 import BaseTokenCard from "../components/BaseTokenCard";
 import BlankBaseTokenCard from "../components/BlankBaseTokenCard";
 import CustomGridlist from "../../../containers/CustomGridlist";
@@ -42,8 +42,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function SubTokens() {
   const classes = useStyles();
-  let account = useReactiveVar(accountVar);
-  const { error, loading, data } = useQueryWithAccount(GET_USER_BASETOKENS);
+  const { data } = useQueryWithAccountNetwork(GET_USER_BASETOKENS);
 
   return (
     <div className={classes.root}>

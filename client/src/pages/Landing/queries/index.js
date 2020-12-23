@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 
 export const GET_USER_HEADER = gql`
-  query gerUserOverview($id: ID!) {
+  query gerUserHeader($id: ID!) {
     user(id: $id) {
       id
       username
@@ -69,6 +69,7 @@ export const GET_USER_SUBSCRIPTIONS = gql`
     }
   }
 `;
+
 
 export const UPDATE_USERNAME = gql`
   mutation updateUsername($id: ID!, $username: String!) {

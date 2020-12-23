@@ -1,21 +1,25 @@
 import React from "react";
-
-import { cardStyles } from "./styles";
-import { Avatar, Button, Typography } from "@material-ui/core";
-import AndroidIcon from "@material-ui/icons/Android";
+import { useSnackbar } from "notistack";
 import { ethers } from "ethers";
+import { useRouteMatch } from "react-router-dom";
 
 import { useReactiveVar, useMutation } from "@apollo/client";
+
+import { Avatar, Button, Typography } from "@material-ui/core";
+
 import { UNSUBSCRIBE, GET_USER_NONCE } from "../queries";
 import { accountVar, subscriptionVar, signerVar } from "../../../cache";
 import { useQueryWithAccount } from "../../../hooks";
 import AvatarIcons from "../../../components/AvatarIcons";
+import { cardStyles } from "./styles";
 
 export default function OwnedSubCard(props) {
+  const { enqueueSnackbar } = useSnackbar();
   const classes = cardStyles();
   let account = useReactiveVar(accountVar);
   let signer = useReactiveVar(signerVar);
   let subscriptionV1 = useReactiveVar(subscriptionVar);
+  const { url } = useRouteMatch();
 
   let { data } = useQueryWithAccount(GET_USER_NONCE);
   let [unsubscribe] = useMutation(UNSUBSCRIBE);
@@ -52,8 +56,8 @@ export default function OwnedSubCard(props) {
     unsubscribe({
       variables: { userID: account, tokenID: token?.id, signature },
       update(cache) {
-
         // update nonce and delete subtoken from cache
+
         cache.modify({
           id: cache.identify({
             id: account.toLowerCase(),
@@ -63,6 +67,7 @@ export default function OwnedSubCard(props) {
             nonce(cachedNonce) {
               return cachedNonce + 1;
             },
+            // Modify query
             subscriptions(exsistingSubscriptionRefs, { readField }) {
               return exsistingSubscriptionRefs.filter(
                 (subscriptionRef) =>
@@ -70,15 +75,20 @@ export default function OwnedSubCard(props) {
               );
             },
           },
-          broadcast: true,
+          broadcast: false,
         });
-
-        // TODO: update UI if the last subscription token is removed
-
       },
-    }).catch((err) => {
-      console.log(err);
-    });
+    })
+      .then((res) => {
+        enqueueSnackbar(`Unsubscribe successful`, {
+          variant: "success",
+        });
+      })
+      .catch((err) => {
+        enqueueSnackbar(`${err}`, {
+          variant: "error",
+        });
+      });
   }
 
   return (

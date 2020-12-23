@@ -65,3 +65,33 @@ export async function getUsers() {
   });
   return res.data.users;
 }
+
+const GET_SUBBED_TO = `
+  query GetSubbedTo($userID: ID!, $creatorID: String!) {
+    user(id: $userID) {
+      id
+      nonce
+      subscriptions(where: {creator: $creatorID}) {
+        id
+        creator {
+          id
+        }
+        owner {
+          id
+        }
+        baseToken {
+          id
+        }
+      }
+    }
+  }
+`;
+
+export async function getSubbedTo(userID, creatorID) {
+  const res = await fetch({
+    query: GET_SUBBED_TO,
+    variables: { userID, creatorID },
+  });
+  console.log(res)
+  return res.data.user;
+}

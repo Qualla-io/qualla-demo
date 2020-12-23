@@ -1,14 +1,18 @@
 import React, { useState } from "react";
+import { useMutation, useReactiveVar } from "@apollo/client";
+import { useSnackbar } from "notistack";
 
 import { makeStyles } from "@material-ui/core/styles";
 import { Button, GridListTile, Typography } from "@material-ui/core";
+
 import CustomGridlist from "../../../containers/CustomGridlist";
 import AddTokenCard from "../components/AddTokenCard";
 import NewTokenCard from "../components/NewTokenCard";
-import { useMutation, useReactiveVar } from "@apollo/client";
+
 import { GET_USER_NONCE, MINT_ONE, MINT_BATCH } from "../queries";
 import { accountVar, signerVar, subscriptionVar } from "../../../cache";
 import { useQueryWithAccount } from "../../../hooks";
+import BigNumber from "bignumber.js";
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -26,6 +30,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function MintTokens() {
+  const { enqueueSnackbar } = useSnackbar();
   let account = useReactiveVar(accountVar);
   let signer = useReactiveVar(signerVar);
   let subscriptionV1 = useReactiveVar(subscriptionVar);
@@ -38,7 +43,7 @@ export default function MintTokens() {
   function addToken() {
     setTokens([
       ...tokens,
-      { title: "", value: "", description: "", quantity: "0", avatar: 0 },
+      { title: "", value: "0", description: "", quantity: "0", avatar: 0 },
     ]);
   }
 
@@ -56,7 +61,7 @@ export default function MintTokens() {
     setTokens(temp);
   }
 
-  async function _mintBatch() {
+  async function _onMint() {
     let userData = {
       user: account,
       nonce: data?.user?.nonce,
@@ -77,8 +82,6 @@ export default function MintTokens() {
         { name: "action", type: "string" },
       ],
     };
-
-    let signature = await signer._signTypedData(domain, creatorTypes, userData);
 
     let _quantity = [];
     let _value = [];
@@ -87,105 +90,121 @@ export default function MintTokens() {
     let _avatar = [];
 
     for (var i = 0; i < tokens.length; i++) {
+      // Form Checking
+
+      if (tokens[i].title === "" || tokens[i].description === "") {
+        enqueueSnackbar(`Please fill out all fields before minting`, {
+          variant: "warning",
+        });
+        return;
+      }
+
+      if (new BigNumber(tokens[i].quantity).lt(0)) {
+        enqueueSnackbar(`Please enter valid quantities for all tokens`, {
+          variant: "warning",
+        });
+        return;
+      }
+
+      if (new BigNumber(tokens[i].value).lte(0) || tokens[i].value === "") {
+        enqueueSnackbar(`Please enter valid values for all tokens`, {
+          variant: "warning",
+        });
+        return;
+      } else if (new BigNumber(tokens[i].value).gt(100)) {
+        enqueueSnackbar(`Maximum value is $100 Dai for this demo`, {
+          variant: "warning",
+        });
+        return;
+      }
+
       _quantity.push(tokens[i].quantity);
       _value.push(tokens[i].value);
       _title.push(tokens[i].title);
       _description.push(tokens[i].description);
       _avatar.push(tokens[i].avatar.toString());
+      
     }
-
-    mintBatch({
-      variables: {
-        userID: account,
-        quantity: _quantity,
-        paymentValue: _value,
-        signature,
-        title: _title,
-        description: _description,
-        avatarID: _avatar,
-      },
-      update(cache) {
-        // update basetoken to cache
-        cache.modify({
-          id: cache.identify({
-            id: account.toLowerCase(),
-            __typename: "User",
-          }),
-          fields: {
-            nonce(cachedNonce) {
-              return cachedNonce + 1;
-            },
-          },
-          broadcast: false,
-        });
-      },
-    });
-
-    setTokens([]);
-  }
-
-  async function _mintOne() {
-    let userData = {
-      user: account,
-      nonce: data?.user?.nonce,
-      action: "mint",
-    };
-
-    let domain = {
-      name: "Qualla Subscription",
-      version: "1",
-      chainId: 31337,
-      verifyingContract: subscriptionV1.address,
-    };
-
-    let creatorTypes = {
-      User: [
-        { name: "user", type: "address" },
-        { name: "nonce", type: "uint256" },
-        { name: "action", type: "string" },
-      ],
-    };
 
     let signature = await signer._signTypedData(domain, creatorTypes, userData);
 
-    mintOne({
-      variables: {
-        userID: account,
-        quantity: tokens[0].quantity,
-        paymentValue: tokens[0].value,
-        signature,
-        title: tokens[0].title,
-        description: tokens[0].description,
-        avatarID: tokens[0].avatar.toString(),
-      },
-      update(cache) {
-        // update basetoken to cache
-        cache.modify({
-          id: cache.identify({
-            id: account.toLowerCase(),
-            __typename: "User",
-          }),
-          fields: {
-            nonce(cachedNonce) {
-              return cachedNonce + 1;
+    if (tokens.length > 1) {
+      mintBatch({
+        variables: {
+          userID: account,
+          quantity: _quantity,
+          paymentValue: _value,
+          signature,
+          title: _title,
+          description: _description,
+          avatarID: _avatar,
+        },
+        update(cache) {
+          // update basetoken to cache
+          cache.modify({
+            id: cache.identify({
+              id: account.toLowerCase(),
+              __typename: "User",
+            }),
+            fields: {
+              nonce(cachedNonce) {
+                return cachedNonce + 1;
+              },
             },
-          },
-          broadcast: false,
+            broadcast: false,
+          });
+        },
+      })
+        .then((res) => {
+          enqueueSnackbar(`Request proccessing, check back in a few minutes!`, {
+            variant: "success",
+          });
+        })
+        .catch((err) => {
+          enqueueSnackbar(`${err}`, {
+            variant: "error",
+          });
         });
-      },
-    });
+    } else {
+      mintOne({
+        variables: {
+          userID: account,
+          quantity: tokens[0].quantity,
+          paymentValue: tokens[0].value,
+          signature,
+          title: tokens[0].title,
+          description: tokens[0].description,
+          avatarID: tokens[0].avatar.toString(),
+        },
+        update(cache) {
+          // update basetoken to cache
+          cache.modify({
+            id: cache.identify({
+              id: account.toLowerCase(),
+              __typename: "User",
+            }),
+            fields: {
+              nonce(cachedNonce) {
+                return cachedNonce + 1;
+              },
+            },
+            broadcast: false,
+          });
+        },
+      })
+        .then((res) => {
+          enqueueSnackbar(`Request proccessing, check back in a few minutes!`, {
+            variant: "success",
+          });
+        })
+        .catch((err) => {
+          enqueueSnackbar(`${err}`, {
+            variant: "error",
+          });
+        });
+    }
 
     setTokens([]);
-  }
-
-  function _onMint() {
-    // TODO: some form validation
-
-    if (tokens.length > 1) {
-      _mintBatch();
-    } else {
-      _mintOne();
-    }
   }
 
   return (
