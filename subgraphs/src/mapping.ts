@@ -49,13 +49,13 @@ export function handleTransferBatch(event: TransferBatch): void {
         let baseToken = BaseToken.load(tokenId);
         baseToken.quantity = baseToken.quantity.minus(value);
 
-        if (user.id === baseToken.owner) {
+        if (user.id == baseToken.owner) {
           baseToken.initialSupply = baseToken.initialSupply.minus(value);
         }
 
         baseToken.save();
 
-        if (baseToken.initialSupply === BigInt.fromI32(0)) {
+        if (baseToken.initialSupply == BigInt.fromI32(0)) {
           // better way than to just delete?
           store.remove("BaseToken", tokenId);
         }
@@ -191,7 +191,8 @@ export function handleTransferSingle(event: TransferSingle): void {
       baseToken.quantity = baseToken.quantity.minus(event.params.value);
 
       // This doesn't seem to be working
-      if (user.id === baseToken.owner) {
+      if (idFrom == baseToken.owner) {
+        
         baseToken.initialSupply = baseToken.initialSupply.minus(
           event.params.value
         );
@@ -199,7 +200,7 @@ export function handleTransferSingle(event: TransferSingle): void {
 
       baseToken.save();
 
-      if (baseToken.initialSupply === BigInt.fromI32(0)) {
+      if (baseToken.initialSupply == BigInt.fromI32(0)) {
         // better way than to just delete?
         store.remove("BaseToken", tokenId);
       }
@@ -250,7 +251,7 @@ export function handleTransferSingle(event: TransferSingle): void {
       } else {
         baseToken.quantity = baseToken.quantity.minus(event.params.value);
       }
-
+      
       baseToken.save();
     } else if (hexedID.slice(-17) == "fffffffffffffffff") {
       // NFT Token

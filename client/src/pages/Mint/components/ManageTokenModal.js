@@ -20,6 +20,7 @@ import { cardStyles } from "./styles";
 import { BURN_OR_MODIFY, GET_USER_NONCE } from "../queries";
 import { accountVar, signerVar, subscriptionVar } from "../../../cache";
 import { useQueryWithAccount } from "../../../hooks";
+import ConfirmationModal from "../../../components/ConfirmationModal";
 
 export default function ManageTokenModal(props) {
   const { enqueueSnackbar } = useSnackbar();
@@ -31,6 +32,23 @@ export default function ManageTokenModal(props) {
   const [token, setToken] = useState(null);
   const { data } = useQueryWithAccount(GET_USER_NONCE);
   const [burnOrModify] = useMutation(BURN_OR_MODIFY);
+  let [confirmModal, setConfirmModal] = useState({
+    open: false,
+    title: "",
+    description: "",
+    onSubmit: null,
+    onClose: null,
+  });
+
+  function closeModal() {
+    setConfirmModal({
+      open: false,
+      title: "",
+      description: "",
+      onClose: null,
+      onSubmit: null,
+    });
+  }
 
   useEffect(() => {
     let _token = { ...props.token };
@@ -70,11 +88,40 @@ export default function ManageTokenModal(props) {
   }
 
   function handleChange(event) {
-    console.log(event.target);
     onChange(event.target.name, event.target.value);
   }
 
+  function burnDialog() {
+    setConfirmModal({
+      open: true,
+      onClose: closeModal,
+      onSubmit: _burnOrModify,
+      title: "Confirm Modification",
+      description: `Next you will be asked to sign a transaction to make changes and burn tokens. Burnt tokens will become permantly unavailable to potential subscribers. This action is irreversible.`,
+    });
+  }
+
+  function modifyDialog() {
+    setConfirmModal({
+      open: true,
+      onClose: closeModal,
+      onSubmit: _burnOrModify,
+      title: "Confirm Modification",
+      description: `Please confirm your token modifications. `,
+    });
+  }
+
+  function handleSubmit() {
+    let burn = new BigNumber(token.burn);
+    if (burn.gt(0)) {
+      burnDialog();
+    } else {
+      modifyDialog();
+    }
+  }
+
   async function _burnOrModify() {
+    closeModal();
     let userData = {
       user: account,
       nonce: data?.user?.nonce,
@@ -101,8 +148,6 @@ export default function ManageTokenModal(props) {
     if (burn.gt(0)) {
       signature = await signer._signTypedData(domain, creatorTypes, userData);
     }
-
-    console.log(token);
 
     burnOrModify({
       variables: {
@@ -180,80 +225,83 @@ export default function ManageTokenModal(props) {
   }
 
   return (
-    <Dialog
-      open={props.open}
-      onClose={props.handleClose}
-      aria-labelledby="form-dialog-title"
-    >
-      <DialogTitle id="form-dialog-title">Manage Tokens</DialogTitle>
-      <DialogContent dividers>
-        <div className={classes.avatarSelection}>
-          <KeyboardArrowLeftIcon
-            className={classes.arrowIcon}
-            onClick={decIcons}
-          />
-          <Avatar className={classes.avatar}>
-            <AvatarIcons customProps={classes.icons} i={token?.avatarID} />
-          </Avatar>
-          <KeyboardArrowRightIcon
-            className={classes.arrowIcon}
-            onClick={incIcons}
-          />
-        </div>
-        <TextField
-          variant="outlined"
-          className={classes.titleInput}
-          label="Title"
-          name="title"
-          onChange={handleChange}
-          value={token?.title}
-        />
-        <TextField
-          className={classes.description}
-          id="outlined-multiline-static"
-          label="Description"
-          multiline
-          rows={4}
-          variant="outlined"
-          name="description"
-          onChange={handleChange}
-          value={token?.description}
-        />
-        <div className={classes.dollarSection}>
-          {props.token.quantity > 100000 ? null : (
-            <TextField
-              disabled={max}
-              variant="outlined"
-              className={classes.titleInput}
-              label="Burn"
-              name="burn"
-              type="number"
-              onChange={handleChange}
-              value={token?.burn}
-              error={new BigNumber(token?.burn).gt(token?.quantity)}
-              helperText={
-                new BigNumber(token?.burn).gt(token?.quantity)
-                  ? "Invalid Quantity."
-                  : null
-              }
+    <>
+      <Dialog
+        open={props.open}
+        onClose={props.handleClose}
+        aria-labelledby="form-dialog-title"
+      >
+        <DialogTitle id="form-dialog-title">Manage Tokens</DialogTitle>
+        <DialogContent dividers>
+          <div className={classes.avatarSelection}>
+            <KeyboardArrowLeftIcon
+              className={classes.arrowIcon}
+              onClick={decIcons}
             />
-          )}
-
-          <FormControlLabel
-            control={<Switch checked={max} onChange={handleQuantChange} />}
-            label="Burn All?"
-            className={classes.toggle}
+            <Avatar className={classes.avatar}>
+              <AvatarIcons customProps={classes.icons} i={token?.avatarID} />
+            </Avatar>
+            <KeyboardArrowRightIcon
+              className={classes.arrowIcon}
+              onClick={incIcons}
+            />
+          </div>
+          <TextField
+            variant="outlined"
+            className={classes.titleInput}
+            label="Title"
+            name="title"
+            onChange={handleChange}
+            value={token?.title}
           />
-        </div>
-      </DialogContent>
-      <DialogActions>
-        <Button autoFocus color="secondary" onClick={props.handleClose}>
-          Cancel
-        </Button>
-        <Button color="secondary" onClick={_burnOrModify}>
-          Update
-        </Button>
-      </DialogActions>
-    </Dialog>
+          <TextField
+            className={classes.description}
+            id="outlined-multiline-static"
+            label="Description"
+            multiline
+            rows={4}
+            variant="outlined"
+            name="description"
+            onChange={handleChange}
+            value={token?.description}
+          />
+          <div className={classes.dollarSection}>
+            {props.token.quantity > 100000 ? null : (
+              <TextField
+                disabled={max}
+                variant="outlined"
+                className={classes.titleInput}
+                label="Burn"
+                name="burn"
+                type="number"
+                onChange={handleChange}
+                value={token?.burn}
+                error={new BigNumber(token?.burn).gt(token?.quantity)}
+                helperText={
+                  new BigNumber(token?.burn).gt(token?.quantity)
+                    ? "Invalid Quantity."
+                    : null
+                }
+              />
+            )}
+
+            <FormControlLabel
+              control={<Switch checked={max} onChange={handleQuantChange} />}
+              label="Burn All?"
+              className={classes.toggle}
+            />
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <Button autoFocus color="secondary" onClick={props.handleClose}>
+            Cancel
+          </Button>
+          <Button color="secondary" onClick={handleSubmit}>
+            Update
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <ConfirmationModal props={confirmModal} />
+    </>
   );
 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSnackbar } from "notistack";
 import { ethers } from "ethers";
 import { useRouteMatch } from "react-router-dom";
@@ -12,6 +12,7 @@ import { accountVar, subscriptionVar, signerVar } from "../../../cache";
 import { useQueryWithAccount } from "../../../hooks";
 import AvatarIcons from "../../../components/AvatarIcons";
 import { cardStyles } from "./styles";
+import ConfirmationModal from "../../../components/ConfirmationModal";
 
 export default function OwnedSubCard(props) {
   const { enqueueSnackbar } = useSnackbar();
@@ -23,9 +24,37 @@ export default function OwnedSubCard(props) {
 
   let { data } = useQueryWithAccount(GET_USER_NONCE);
   let [unsubscribe] = useMutation(UNSUBSCRIBE);
+  let [confirmModal, setConfirmModal] = useState({
+    open: false,
+    title: "",
+    description: "",
+    onSubmit: null,
+    onClose: null,
+  });
   let token = props.token;
 
+  function closeModal() {
+    setConfirmModal({
+      open: false,
+      title: "",
+      description: "",
+      onClose: null,
+      onSubmit: null,
+    });
+  }
+
+  function unsubscribeDialog() {
+    setConfirmModal({
+      open: true,
+      onClose: closeModal,
+      onSubmit: _unSub,
+      title: "Unsubscribe?",
+      description: `Are you sure you want to unsubscribe? You will lose all subscription perks as soon as the transaction processes.`,
+    });
+  }
+
   async function _unSub() {
+    closeModal();
     let subscriberData = {
       user: account,
       nonce: data?.user?.nonce,
@@ -119,10 +148,11 @@ export default function OwnedSubCard(props) {
         variant="contained"
         color="secondary"
         className={classes.content}
-        onClick={_unSub}
+        onClick={unsubscribeDialog}
       >
         Unsubscribe
       </Button>
+      <ConfirmationModal props={confirmModal} />
     </div>
   );
 }

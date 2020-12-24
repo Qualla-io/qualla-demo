@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSnackbar } from "notistack";
 import { useReactiveVar, useMutation } from "@apollo/client";
 import { ethers } from "ethers";
@@ -10,6 +10,7 @@ import { PERMIT, SUBSCRIBE, GET_USER_NONCE } from "../queries";
 import { daiVar, accountVar, subscriptionVar, signerVar } from "../../../cache";
 import { useQueryWithAccount } from "../../../hooks";
 import AvatarIcons from "../../../components/AvatarIcons";
+import ConfirmationModal from "../../../components/ConfirmationModal";
 
 export default function SubCard(props) {
   const { enqueueSnackbar } = useSnackbar();
@@ -17,6 +18,13 @@ export default function SubCard(props) {
   let dai = useReactiveVar(daiVar);
   let signer = useReactiveVar(signerVar);
   let subscriptionV1 = useReactiveVar(subscriptionVar);
+  let [confirmModal, setConfirmModal] = useState({
+    open: false,
+    title: "",
+    description: "",
+    onSubmit: null,
+    onClose: null,
+  });
 
   let { data } = useQueryWithAccount(GET_USER_NONCE);
 
@@ -26,6 +34,7 @@ export default function SubCard(props) {
   let [subscribe] = useMutation(SUBSCRIBE);
 
   async function _subscribe() {
+    closeModal();
     let subscriberData = {
       user: account,
       nonce: data?.user?.nonce,
@@ -81,7 +90,39 @@ export default function SubCard(props) {
       });
   }
 
+  function permitDialog() {
+    setConfirmModal({
+      open: true,
+      onClose: closeModal,
+      onSubmit: _permit,
+      title: "Permit Funds Transfer?",
+      description:
+        "You will next be asked to sign a message to confirm allowing the subscription smart contract to move funds on your behalf. Please sign to continue.",
+    });
+  }
+
+  function subscribeDialog() {
+    setConfirmModal({
+      open: true,
+      onClose: closeModal,
+      onSubmit: _subscribe,
+      title: "Subscribe?",
+      description: `Please confirm your subscription purchase by clicking "Confirm" below. You will then be asked ot sign the transaction and your account will be charged immediately.`,
+    });
+  }
+
+  function closeModal() {
+    setConfirmModal({
+      open: false,
+      title: "",
+      description: "",
+      onClose: null,
+      onSubmit: null,
+    });
+  }
+
   async function _permit() {
+    closeModal();
     // move this to graph at some point
     let nonce = await dai.nonces(account);
 
@@ -136,17 +177,19 @@ export default function SubCard(props) {
       signature
     );
 
-    await permit({ variables: { userID: account, signature, nonce } });
+    permit({
+      variables: { userID: account, signature, nonce },
+    }).then(subscribeDialog());
   }
 
   async function handleSub() {
     let allowance = await dai.allowance(account, subscriptionV1.address);
 
     if (!allowance.gt(0)) {
-      await _permit();
+      await permitDialog();
+    } else {
+      await subscribeDialog();
     }
-
-    await _subscribe();
   }
 
   return (
@@ -178,6 +221,7 @@ export default function SubCard(props) {
       >
         Subscribe
       </Button>
+      <ConfirmationModal props={confirmModal} />
     </div>
   );
 }

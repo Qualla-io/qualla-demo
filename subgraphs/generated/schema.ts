@@ -237,6 +237,23 @@ export class BaseToken extends Entity {
   set initialSupply(value: BigInt) {
     this.set("initialSupply", Value.fromBigInt(value));
   }
+
+  get ranInitialSupply(): string | null {
+    let value = this.get("ranInitialSupply");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set ranInitialSupply(value: string | null) {
+    if (value === null) {
+      this.unset("ranInitialSupply");
+    } else {
+      this.set("ranInitialSupply", Value.fromString(value as string));
+    }
+  }
 }
 
 export class SubscriptionToken extends Entity {

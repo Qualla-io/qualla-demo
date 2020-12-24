@@ -13,6 +13,7 @@ import { GET_USER_NONCE, MINT_ONE, MINT_BATCH } from "../queries";
 import { accountVar, signerVar, subscriptionVar } from "../../../cache";
 import { useQueryWithAccount } from "../../../hooks";
 import BigNumber from "bignumber.js";
+import ConfirmationModal from "../../../components/ConfirmationModal";
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -39,6 +40,13 @@ export default function MintTokens() {
   const classes = useStyles();
   const [mintOne] = useMutation(MINT_ONE);
   const [mintBatch] = useMutation(MINT_BATCH);
+  let [confirmModal, setConfirmModal] = useState({
+    open: false,
+    title: "",
+    description: "",
+    onSubmit: null,
+    onClose: null,
+  });
 
   function addToken() {
     setTokens([
@@ -61,7 +69,28 @@ export default function MintTokens() {
     setTokens(temp);
   }
 
+  function closeModal() {
+    setConfirmModal({
+      open: false,
+      title: "",
+      description: "",
+      onClose: null,
+      onSubmit: null,
+    });
+  }
+
+  function mintDialog() {
+    setConfirmModal({
+      open: true,
+      onClose: closeModal,
+      onSubmit: _onMint,
+      title: "Mint Tokens?",
+      description: `Please sign the following message to mint your subscription tokens. Note: Token value and period cannot be changed after minting. Quantity can only be decreased by burning unsold tokens.`,
+    });
+  }
+
   async function _onMint() {
+    closeModal();
     let userData = {
       user: account,
       nonce: data?.user?.nonce,
@@ -123,7 +152,6 @@ export default function MintTokens() {
       _title.push(tokens[i].title);
       _description.push(tokens[i].description);
       _avatar.push(tokens[i].avatar.toString());
-      
     }
 
     let signature = await signer._signTypedData(domain, creatorTypes, userData);
@@ -233,11 +261,12 @@ export default function MintTokens() {
         {/* To justify button right: */}
         {/* <div style={{ margin: "auto" }} /> */}
         {tokens.length > 0 ? (
-          <Button variant="contained" color="secondary" onClick={_onMint}>
+          <Button variant="contained" color="secondary" onClick={mintDialog}>
             Mint
           </Button>
         ) : null}
       </div>
+      <ConfirmationModal props={confirmModal} />
     </div>
   );
 }

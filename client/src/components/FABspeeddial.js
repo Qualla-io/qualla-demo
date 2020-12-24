@@ -49,7 +49,7 @@ export default function FABspeeddial() {
   async function _mint() {
     mint({ variables: { userID: account, amt: "100" } })
       .then((_data) => {
-        enqueueSnackbar(`Request Proccessing`, {
+        enqueueSnackbar(`haha money printer go BRRRRRRR`, {
           variant: "success",
         });
       })
