@@ -50,10 +50,10 @@ export default function MainSection(props) {
   // const { loading, error, data } = useQueryWithAccount(INIT_APP);
   // const [initUser] = useMutation(CREATE_USER);
 
-  useEffect(() => {
-    initWeb3();
-    // eslint-disable-next-line
-  }, []);
+  // useEffect(() => {
+  //   initWeb3();
+  //   // eslint-disable-next-line
+  // }, []);
 
   async function initWeb3() {
     try {

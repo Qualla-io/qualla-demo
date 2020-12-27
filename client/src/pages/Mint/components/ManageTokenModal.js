@@ -113,6 +113,24 @@ export default function ManageTokenModal(props) {
 
   function handleSubmit() {
     let burn = new BigNumber(token.burn);
+
+    if (burn.lt(0)) {
+      enqueueSnackbar(`Please enter valid quantity to burn`, {
+        variant: "warning",
+      });
+      return;
+    }
+
+    if (token.title === "" || token.description === "") {
+      enqueueSnackbar(
+        `Please make sure all fields are filled out before modifying`,
+        {
+          variant: "warning",
+        }
+      );
+      return;
+    }
+
     if (burn.gt(0)) {
       burnDialog();
     } else {

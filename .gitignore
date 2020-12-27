@@ -108,3 +108,5 @@ mongodata/
 .prettierrc
 
 .docker*
+
+graph-node/data/
