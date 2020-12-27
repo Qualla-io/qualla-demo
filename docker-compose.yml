@@ -11,8 +11,8 @@ services:
       - "./mongodata:/data/db"
     ports:
       - 27017:27017
-    networks:
-      - "docker_default"
+    # networks:
+    #   - "docker_default"
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: rabbitmq
@@ -28,8 +28,8 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
-    networks:
-      - "docker_default"
+    # networks:
+    #   - "docker_default"
   blockchain_user:
     build: ./server/src/BlockchainUser
     container_name: "blockchain_user"
@@ -39,8 +39,8 @@ services:
       - "4001:4001"
     depends_on:
       - rabbitmq
-    networks:
-      - "docker_default"
+    # networks:
+    #   - "docker_default"
   blockchain_basetoken:
     build: ./server/src/BlockchainBaseToken
     container_name: "blockchain_basetoken"
@@ -50,8 +50,8 @@ services:
       - "4002:4002"
     depends_on:
       - rabbitmq
-    networks:
-      - "docker_default"
+    # networks:
+    #   - "docker_default"
   blockchain_subtoken:
     build: ./server/src/BlockchainSubToken
     container_name: "blockchain_subtoken"
@@ -61,8 +61,8 @@ services:
       - "4003:4003"
     depends_on:
       - rabbitmq
-    networks:
-      - "docker_default"
+    # networks:
+    #   - "docker_default"
   local_data:
     build: ./server/src/LocalData
     container_name: "local_data"
@@ -70,8 +70,8 @@ services:
       - server/.env
     ports:
       - "4004:4004"
-    networks:
-      - "docker_default"
+    # networks:
+    #   - "docker_default"
     depends_on:
       - mongo
       - rabbitmq
@@ -82,8 +82,8 @@ services:
       - server/.env
     ports:
       - "4000:4000"
-    networks:
-      - "docker_default"
+    # networks:
+    #   - "docker_default"
     depends_on:
       - "blockchain_user"
       - "blockchain_basetoken"
@@ -104,9 +104,46 @@ services:
       - server/.env
     ports:
       - "5000:5000"
-    networks:
-      - "docker_default"
+    # networks:
+    #   - "docker_default"
+  graph-node:
+    container_name: "graph-node"
+    image: graphprotocol/graph-node
+    ports:
+      - '8000:8000'
+      - '8001:8001'
+      - '8020:8020'
+      - '8030:8030'
+      - '8040:8040'
+    depends_on:
+      - ipfs
+      - postgres
+    environment:
+      postgres_host: postgres
+      postgres_user: graph-node
+      postgres_pass: let-me-in
+      postgres_db: graph-node
+      ipfs: 'ipfs:5001'
+      ethereum: 'develop:http://host.docker.internal:8545'
+      RUST_LOG: info
+  ipfs:
+    container_name: "ipfs"
+    image: ipfs/go-ipfs:v0.4.23
+    ports:
+      - '5001:5001'
+    volumes:
+      - ./graph-node/data/ipfs:/data/ipfs
+  postgres:
+    container_name: "postgres"
+    image: postgres
+    ports:
+      - '5432:5432'
+    command: ["postgres", "-cshared_preload_libraries=pg_stat_statements"]
+    environment:
+      POSTGRES_USER: graph-node
+      POSTGRES_PASSWORD: let-me-in
+      POSTGRES_DB: graph-node
+    volumes:
+      - ./graph-node/data/postgres:/var/lib/postgresql/data
 
-networks:
-  docker_default:
-    external: true
+
