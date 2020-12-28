@@ -260,7 +260,7 @@ contract SubscriptionV1 is Context, ERC1155 {
         address creator = tokenIdToCreator[id];
         address paymentToken = tokenIdToPaymentToken[id];
         uint256 paymentValue = tokenIdToPaymentValue[id];
-        uint256 executedNonce = tokenId_ToExectuedNonce[id];
+        uint256 executedNonce = tokenId_ToExectuedNonce[id_];
 
         // only for demo purposes!
         if (executedNonce >= 4) {
@@ -302,7 +302,10 @@ contract SubscriptionV1 is Context, ERC1155 {
         }
 
         // add month in seconds
-        tokenId_ToNextWithdraw[id_] += 2592000;
+        // tokenId_ToNextWithdraw[id_] += 2592000;
+
+        // For demo purposes!
+        tokenId_ToNextWithdraw[id_] += 15;
     }
 
     // untested

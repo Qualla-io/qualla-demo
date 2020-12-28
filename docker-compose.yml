@@ -89,14 +89,11 @@ services:
       - "blockchain_basetoken"
       - "blockchain_subtoken"
       - "local_data"
-
-  # relayer:
-  #   build: ./server/src/relayer
-  #   container_name: "relayer"
-  #   env_file:
-  #     - server/.env
-  #   networks:
-  #     - "docker_default"
+  relayer:
+    build: ./server/src/Relayer
+    container_name: "relayer"
+    env_file:
+      - server/.env
   balance_subscriptions:
     build: ./server/src/BalanceSubscriptions
     container_name: "balance_subscriptions"
