@@ -5,16 +5,32 @@ import React, {
   useImperativeHandle,
 } from "react";
 import JoyRide, { ACTIONS, EVENTS, STATUS } from "react-joyride";
-import RepeatIcon from "@material-ui/icons/Repeat";
 
 const TOUR_STEPS = [
   {
-    target: ".tour-first",
-    content: "This is the first step in the tour",
+    placement: "center",
+    title: "Welcome!",
+    content: "Welcome to the Qualla Demo! Lets take a tour together!",
+    target: "body",
   },
   {
     target: ".MuiFab-primary",
-    content: "This is the second step in the tour",
+    content:
+      "This is where the action happens. If you get lost, you can restart the tour from here.",
+  },
+  {
+    target: ".MuiFab-primary",
+    content: `You can also mint yourself funds here. Go ahead to open the menu and click "Mint"`,
+  },
+  {
+    target: ".makeStyles-balanceDiv-9",
+    content:
+      "These are your funds for the demo. You need some to buy a subscription. It may take a minute or two for your funds to show after minting them.",
+  },
+  {
+    target: ".makeStyles-username-15",
+    content:
+      "This is your profile info. For now you can only change your usename",
   },
 ];
 
@@ -78,7 +94,6 @@ const Tour = forwardRef((props, ref) => {
   useImperativeHandle(ref, () => ({
     startTour() {
       dispatch({ type: "RESTART" });
-      console.log("restarting");
     },
   }));
 

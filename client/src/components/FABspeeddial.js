@@ -43,6 +43,7 @@ export default function FABspeeddial() {
     {
       icon: (
         <RepeatIcon
+          style={{ color: "#000" }}
           onClick={() => {
             tourRef.current.startTour();
           }}

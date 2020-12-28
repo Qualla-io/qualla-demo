@@ -6,7 +6,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import UserBalance from "./UserBalance";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
+  balanceDiv: {
     display: "flex",
     flexDirection: "column",
     zIndex: 1,
@@ -38,8 +38,8 @@ const useStyles = makeStyles((theme) => ({
 export default function MyBalance() {
   const classes = useStyles();
   return (
-    <div className={classes.root}>
-      <Typography gutterBottom variant="h6" className="tour-first">
+    <div className={classes.balanceDiv} >
+      <Typography gutterBottom variant="h6" >
         Balance:
       </Typography>
       <UserBalance />

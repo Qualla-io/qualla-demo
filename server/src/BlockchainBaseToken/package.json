@@ -20,7 +20,7 @@
     "apollo-fetch": "^0.7.0",
     "apollo-server": "^2.19.0",
     "bignumber.js": "^9.0.1",
-    "ethers": "5.0.18",
+    "ethers": "5.0.24",
     "nodemon": "^2.0.6"
   }
 }

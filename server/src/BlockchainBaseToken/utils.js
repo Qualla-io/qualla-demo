@@ -2,10 +2,11 @@ import { ethers } from "ethers";
 import Dai from "./abi/TestDai.json";
 import SubscriptionV1 from "./abi/SubscriptionV1.json";
 
-const privateKey = process.env.PRIVATE_KEY;
-const provider = new ethers.providers.JsonRpcProvider(process.env.NETWORK_URI);
-const account = new ethers.Wallet(new Buffer.from(privateKey, "hex"), provider);
-var dai = new ethers.Contract(process.env.DAI_CONTRACT, Dai.abi, provider);
+let privateKey = process.env.PRIVATE_KEY;
+let provider = new ethers.providers.JsonRpcProvider(process.env.NETWORK_URI);
+const account = new ethers.Wallet(privateKey, provider);
+let signer = new ethers.Wallet(privateKey);
+let dai = new ethers.Contract(process.env.DAI_CONTRACT, Dai.abi, provider);
 
 dai = dai.connect(account);
 
@@ -21,4 +22,5 @@ module.exports = {
   account,
   dai,
   subscriptionV1,
+  signer,
 };

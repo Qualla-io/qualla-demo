@@ -49,6 +49,9 @@ contract SubscriptionV1 is Context, ERC1155 {
     mapping(uint256 => address) public tokenIdToCreator;
     mapping(address => uint256) public userNonce;
 
+    // Just for demo purposes. Only allowing 5 executions before burning
+    mapping(uint256 => uint256) public tokenId_ToExectuedNonce;
+
     event NFTevent(uint256 id);
     event contractModified(address master, uint256 fee);
 
@@ -257,8 +260,15 @@ contract SubscriptionV1 is Context, ERC1155 {
         address creator = tokenIdToCreator[id];
         address paymentToken = tokenIdToPaymentToken[id];
         uint256 paymentValue = tokenIdToPaymentValue[id];
+        uint256 executedNonce = tokenId_ToExectuedNonce[id];
 
-        // require(ERC20(paymentToken).allowance(subscriber, address(this))>paymentValue, "Qualla/");
+        // only for demo purposes!
+        if (executedNonce >= 4) {
+            ERC1155._burn(subscriber, id_, 1);
+            ERC1155._mint(creator, id, 1, bytes(""));
+        } else {
+            tokenId_ToExectuedNonce[id]++;
+        }
 
         uint256 creatorCut = 100 - fee;
 

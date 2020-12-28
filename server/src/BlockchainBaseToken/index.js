@@ -5,7 +5,7 @@ import { BigNumber } from "bignumber.js";
 import amqp from "amqplib/callback_api";
 
 import { getBaseToken, getBaseTokens } from "./getBaseToken";
-import { subscriptionV1, dai } from "./utils";
+import { subscriptionV1, dai, account, signer } from "./utils";
 
 let _channel;
 let exchange = "direct_services";
@@ -22,6 +22,7 @@ const typeDefs = gql`
       baseTokenID: ID!
       signature: String!
     ): SubscriptionToken!
+    fakeSubscribe( baseTokenID: ID!): Boolean!
     mint(
       userID: ID!
       quantity: String!
@@ -84,6 +85,12 @@ const resolvers = {
     subscribe: async (_, { userID, baseTokenID, signature }) => {
       let _baseToken = await getBaseToken(baseTokenID.toLowerCase());
 
+      if (!_baseToken) {
+        throw new UserInputError("Invalid baseTokenID", {
+          invalidArgs: Object.keys(baseTokenID),
+        });
+      }
+
       signature = ethers.utils.splitSignature(signature);
 
       // validate userID and baseTokenID
@@ -104,10 +111,61 @@ const resolvers = {
       console.log(_baseToken.index);
 
       let _baseID = new BigNumber(_baseToken.id);
-
+      // This doesnt actually work accurately
       _subscriptionToken.id = _baseID.plus(_baseToken.index).plus(1).toFixed();
 
       return _subscriptionToken;
+    },
+    fakeSubscribe: async (_, { baseTokenID }) => {
+
+      let _baseToken = await getBaseToken(baseTokenID.toLowerCase());
+
+      if (!_baseToken) {
+        throw new UserInputError("Invalid baseTokenID", {
+          invalidArgs: Object.keys(baseTokenID),
+        });
+      }
+
+      let nonce = await subscriptionV1.userNonce(account.address);
+
+      let domain = {
+        name: "Qualla Subscription",
+        version: "1",
+        chainId: 31337,
+        verifyingContract: subscriptionV1.address,
+      };
+
+      let creatorTypes = {
+        User: [
+          { name: "user", type: "address" },
+          { name: "nonce", type: "uint256" },
+          { name: "action", type: "string" },
+        ],
+      };
+
+      let subscriberData = {
+        user: account.address,
+        nonce: nonce.toString(),
+        action: "subscribe",
+      };
+
+      let signature = await signer._signTypedData(
+        domain,
+        creatorTypes,
+        subscriberData
+      );
+
+      signature = ethers.utils.splitSignature(signature);
+
+      await subscriptionV1.buySubscription(
+        account.address,
+        baseTokenID,
+        signature.v,
+        signature.r,
+        signature.s
+      );
+
+      return true;
     },
     mint: async (
       _,
