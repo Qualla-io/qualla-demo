@@ -39,7 +39,7 @@ export default function MyBalance() {
   const classes = useStyles();
   return (
     <div className={classes.root}>
-      <Typography gutterBottom variant="h6">
+      <Typography gutterBottom variant="h6" className="tour-first">
         Balance:
       </Typography>
       <UserBalance />

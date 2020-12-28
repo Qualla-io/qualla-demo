@@ -9,7 +9,8 @@ import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Layout from "./containers/Layout";
 import { IconButton } from "@material-ui/core";
-import ClearIcon from '@material-ui/icons/Clear';
+import ClearIcon from "@material-ui/icons/Clear";
+import Tour from "./components/Tour";
 
 const font = "'Rubik', sans-serif";
 
@@ -62,12 +63,16 @@ export default function App() {
               horizontal: "center",
             }}
             action={(key) => (
-              <IconButton onClick={onClickDismiss(key)} style={{color: "#fff"}}>
-                <ClearIcon/>
+              <IconButton
+                onClick={onClickDismiss(key)}
+                style={{ color: "#fff" }}
+              >
+                <ClearIcon />
               </IconButton>
             )}
           >
             <CssBaseline />
+            {/* <Tour /> */}
             <Layout>
               <BaseRouter />
             </Layout>

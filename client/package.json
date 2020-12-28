@@ -19,6 +19,7 @@
     "notistack": "^1.0.1",
     "react": "16.11.0",
     "react-dom": "16.11.0",
+    "react-joyride": "^2.3.0",
     "react-redux": "^7.2.2",
     "react-remove-scroll-bar": "^2.1.1",
     "react-router-dom": "^5.2.0",
