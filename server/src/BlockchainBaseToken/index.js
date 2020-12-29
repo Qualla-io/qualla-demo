@@ -22,7 +22,7 @@ const typeDefs = gql`
       baseTokenID: ID!
       signature: String!
     ): SubscriptionToken!
-    fakeSubscribe( baseTokenID: ID!): Boolean!
+    fakeSubscribe(baseTokenID: ID!): Boolean!
     mint(
       userID: ID!
       quantity: String!
@@ -117,7 +117,6 @@ const resolvers = {
       return _subscriptionToken;
     },
     fakeSubscribe: async (_, { baseTokenID }) => {
-
       let _baseToken = await getBaseToken(baseTokenID.toLowerCase());
 
       if (!_baseToken) {
@@ -327,48 +326,51 @@ server.listen(4002).then(({ url }) => {
   console.log(`🚀 Server ready at ${url}`);
 });
 
-amqp.connect("amqp://root:example@rabbitmq", function (error0, connection) {
-  if (error0) {
-    throw error0;
-  }
-  connection.createChannel(function (error1, channel) {
-    if (error1) {
-      throw error1;
+amqp.connect(
+  "amqp://root:example@rabbitmq",
+  function (error0, connection) {
+    if (error0) {
+      throw error0;
     }
-
-    channel.assertExchange(exchange, "direct", {
-      durable: false,
-    });
-
-    channel.assertQueue(
-      "",
-      {
-        exclusive: true,
-      },
-      function (error2, q) {
-        if (error2) {
-          throw error2;
-        }
-        console.log(" [*] Waiting for logs. To exit press CTRL+C");
-
-        channel.bindQueue(q.queue, exchange, "BaseToken");
-
-        channel.consume(
-          q.queue,
-          function (msg) {
-            console.log(
-              " [x] %s: '%s'",
-              msg.fields.routingKey,
-              msg.content.toString()
-            );
-          },
-          {
-            noAck: true,
-          }
-        );
+    connection.createChannel(function (error1, channel) {
+      if (error1) {
+        throw error1;
       }
-    );
 
-    _channel = channel;
-  });
-});
+      channel.assertExchange(exchange, "direct", {
+        durable: false,
+      });
+
+      channel.assertQueue(
+        "",
+        {
+          exclusive: true,
+        },
+        function (error2, q) {
+          if (error2) {
+            throw error2;
+          }
+          console.log(" [*] Waiting for logs. To exit press CTRL+C");
+
+          channel.bindQueue(q.queue, exchange, "BaseToken");
+
+          channel.consume(
+            q.queue,
+            function (msg) {
+              console.log(
+                " [x] %s: '%s'",
+                msg.fields.routingKey,
+                msg.content.toString()
+              );
+            },
+            {
+              noAck: true,
+            }
+          );
+        }
+      );
+
+      _channel = channel;
+    });
+  }
+);

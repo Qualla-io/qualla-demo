@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
 
@@ -17,17 +17,13 @@ import {
   signerVar,
   subscriptionVar,
 } from "../cache";
-
+import ChainModal from "./ChainModal";
 import DaiContract from "../artifacts/contracts/TestDai.sol/TestDai.json";
 import SubscriptionContract from "../artifacts/contracts/SubscriptionV1.sol/SubscriptionV1.json";
 
 export default function Web3Dialog() {
-  // let account = useReactiveVar(accountVar);
-  // let signer = useReactiveVar(signerVar);
-  // let subscriptionV1 = useReactiveVar(subscriptionVar);
-  // let provider = useReactiveVar(providerVar);
-  // let dai = useReactiveVar(daiVar);
   let eth = useReactiveVar(ethVar);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     async function _init() {
@@ -67,8 +63,8 @@ export default function Web3Dialog() {
         initWeb3();
       });
 
-      eth.on("chainChanged", (accounts) => {
-        ethVar(null);
+      eth.on("chainChanged", (chainID) => {
+        // ethVar(null);
         initWeb3();
       });
 
@@ -88,6 +84,12 @@ export default function Web3Dialog() {
       // );
 
       providerVar(provider);
+      let _chainID = await (await provider.getNetwork()).chainId;
+
+      //change this for deployment
+      if (_chainID.toString() !== process.env.REACT_APP_CHAIN_ID) {
+        setOpen(true);
+      }
 
       const signer = provider.getSigner();
       signerVar(signer);
@@ -121,26 +123,30 @@ export default function Web3Dialog() {
   }
 
   return (
-    <Dialog open={!eth}>
-      <DialogTitle id="form-dialog-title">Welcome to Qualla!</DialogTitle>
-      <DialogContent dividers>
-        <Typography>
-          This demo requires connection to an Ethereum enabled wallet to sign
-          transactions. We reccomend the browser extension MetaMask for the best
-          user experience. To download MetaMask please choose the option below.
-          If you have an Ethereum wallet already, please click "Connect" below.
-        </Typography>
-      </DialogContent>
-      <DialogActions>
-        <Button
-          href="https://metamask.io/download.html"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Download MetaMask
-        </Button>
-        <Button onClick={initWeb3}>Connect Wallet</Button>
-      </DialogActions>
-    </Dialog>
+    <>
+      <Dialog open={!eth}>
+        <DialogTitle id="form-dialog-title">Welcome to Qualla!</DialogTitle>
+        <DialogContent dividers>
+          <Typography>
+            This demo requires connection to an Ethereum enabled wallet to sign
+            transactions. We reccomend the browser extension MetaMask for the
+            best user experience. To download MetaMask please choose the option
+            below. If you have an Ethereum wallet already, please click
+            "Connect" below.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            href="https://metamask.io/download.html"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Download MetaMask
+          </Button>
+          <Button onClick={initWeb3}>Connect Wallet</Button>
+        </DialogActions>
+      </Dialog>
+      <ChainModal open={open} />
+    </>
   );
 }

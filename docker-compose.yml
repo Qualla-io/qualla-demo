@@ -11,8 +11,6 @@ services:
       - "./mongodata:/data/db"
     ports:
       - 27017:27017
-    # networks:
-    #   - "docker_default"
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: rabbitmq
@@ -28,8 +26,7 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
-    # networks:
-    #   - "docker_default"
+    restart: on-failure
   blockchain_user:
     build: ./server/src/BlockchainUser
     container_name: "blockchain_user"
@@ -39,8 +36,7 @@ services:
       - "4001:4001"
     depends_on:
       - rabbitmq
-    # networks:
-    #   - "docker_default"
+    restart: on-failure
   blockchain_basetoken:
     build: ./server/src/BlockchainBaseToken
     container_name: "blockchain_basetoken"
@@ -50,8 +46,7 @@ services:
       - "4002:4002"
     depends_on:
       - rabbitmq
-    # networks:
-    #   - "docker_default"
+    restart: on-failure
   blockchain_subtoken:
     build: ./server/src/BlockchainSubToken
     container_name: "blockchain_subtoken"
@@ -61,8 +56,7 @@ services:
       - "4003:4003"
     depends_on:
       - rabbitmq
-    # networks:
-    #   - "docker_default"
+    restart: on-failure
   local_data:
     build: ./server/src/LocalData
     container_name: "local_data"
@@ -70,8 +64,7 @@ services:
       - server/.env
     ports:
       - "4004:4004"
-    # networks:
-    #   - "docker_default"
+    restart: on-failure
     depends_on:
       - mongo
       - rabbitmq
@@ -82,8 +75,7 @@ services:
       - server/.env
     ports:
       - "4000:4000"
-    # networks:
-    #   - "docker_default"
+    restart: always
     depends_on:
       - "blockchain_user"
       - "blockchain_basetoken"
@@ -101,8 +93,7 @@ services:
       - server/.env
     ports:
       - "5000:5000"
-    # networks:
-    #   - "docker_default"
+    restart: on-failure
   graph-node:
     container_name: "graph-node"
     image: graphprotocol/graph-node
