@@ -8,8 +8,9 @@ dataSources:
     name: SubscriptionV1
     network: {{network}}
     source:
-      address: {{address}}
+      address: '{{address}}'
       abi: SubscriptionV1
+      startBlock: {{blockstart}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
