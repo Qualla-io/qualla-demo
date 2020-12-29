@@ -1,0 +1,33 @@
+specVersion: 0.0.2
+description: Qualla Demo
+repository: https://github.com/ghardin1314/qualla-demo
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: SubscriptionV1
+    network: {{network}}
+    source:
+      address: {{address}}
+      abi: SubscriptionV1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - SubscriptionTokens
+      abis:
+        - name: SubscriptionV1
+          file: ../client/src/artifacts/contracts/SubscriptionV1.sol/SubscriptionV1.json
+        - name: ERC1155
+          file: ../client/src/artifacts/contracts/ERC1155.sol/ERC1155.json
+        - name: IERC1155
+          file: ../client/src/artifacts/@openzeppelin/contracts/token/ERC1155/IERC1155.sol/IERC1155.json
+      eventHandlers:
+        - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleTransferSingle
+        - event: TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
+          handler: handleTransferBatch
+        - event: NFTevent(uint256)
+          handler: handleNFTevent
+      file: ./src/mapping.ts
