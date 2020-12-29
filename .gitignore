@@ -110,3 +110,4 @@ mongodata/
 .docker*
 
 graph-node/data/
+secrets.*
