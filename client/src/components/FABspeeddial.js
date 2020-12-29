@@ -3,12 +3,12 @@ import { useSnackbar } from "notistack";
 import { makeStyles } from "@material-ui/core/styles";
 import Backdrop from "@material-ui/core/Backdrop";
 import SpeedDial from "@material-ui/lab/SpeedDial";
-import SpeedDialIcon from "@material-ui/lab/SpeedDialIcon";
 import SpeedDialAction from "@material-ui/lab/SpeedDialAction";
 import AttachMoneyIcon from "@material-ui/icons/AttachMoney";
 import ShareIcon from "@material-ui/icons/Share";
 import FeedbackIcon from "@material-ui/icons/Feedback";
 import RepeatIcon from "@material-ui/icons/Repeat";
+import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import DiscordBlackIcon from "../img/Discord-Logo-Black.svg";
 import { MINT } from "./queries";
 import { useMutation, useReactiveVar } from "@apollo/client";
@@ -90,7 +90,7 @@ export default function FABspeeddial() {
         color="secondary"
         ariaLabel="SpeedDial tooltip"
         className={classes.speedDial}
-        icon={<SpeedDialIcon />}
+        icon={<PriorityHighIcon />}
         onClose={handleClose}
         onOpen={handleOpen}
         open={open}

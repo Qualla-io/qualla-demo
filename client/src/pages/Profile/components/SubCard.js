@@ -170,13 +170,6 @@ export default function SubCard(props) {
 
     let signature = await signer._signTypedData(domain, permitTypes, message);
 
-    let verAdd = ethers.utils.verifyTypedData(
-      domain,
-      permitTypes,
-      message,
-      signature
-    );
-
     permit({
       variables: { userID: account, signature, nonce },
     }).then(subscribeDialog());

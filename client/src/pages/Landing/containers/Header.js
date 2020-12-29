@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 import Grid from "@material-ui/core/Grid";
 import { Typography, Link, TextField } from "@material-ui/core";
@@ -7,7 +7,7 @@ import AccountCircleRoundedIcon from "@material-ui/icons/AccountCircleRounded";
 
 import { useReactiveVar, useMutation } from "@apollo/client";
 import { accountVar } from "../../../cache";
-import { useQueryWithAccount } from "../../../hooks";
+import { useQueryWithAccountNetwork } from "../../../hooks";
 import HeaderCard from "../components/HeaderCard";
 
 import {GET_USER_HEADER, UPDATE_USERNAME} from "../queries"
@@ -44,7 +44,7 @@ export default function Header() {
   const [_username, setUsername] = useState(null)
   const classes = useStyles();
   let account = useReactiveVar(accountVar);
-  let {data} = useQueryWithAccount(GET_USER_HEADER)
+  let {data} = useQueryWithAccountNetwork(GET_USER_HEADER)
   let [updateUsername] = useMutation(UPDATE_USERNAME)
 
   const editName = () => {setEdit(!edit)};

@@ -1,7 +1,7 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Topbar from "../components/Topbar.js";
-import MainSection from "./MainSection.js";
+// import MainSection from "./MainSection.js";
 import Footer from "./Footer.js";
 import FABspeeddial from "../components/FABspeeddial.js";
 import MyBalance from "../components/MyBalance.js";
@@ -25,7 +25,9 @@ export default function Layout(props) {
       <Topbar />
       <Web3Modal />
       <MyBalance />
-      <MainSection>{props.children}</MainSection>
+      {/* <MainSection> */}
+        {props.children}
+        {/* </MainSection> */}
       <FABspeeddial />
       <Footer />
     </div>

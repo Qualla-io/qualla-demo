@@ -28,9 +28,35 @@ const TOUR_STEPS = [
       "These are your funds for the demo. You need some to buy a subscription. It may take a minute or two for your funds to show after minting them.",
   },
   {
-    target: ".makeStyles-username-15",
+    target: ".makeStyles-header-13",
     content:
-      "This is your profile info. For now you can only change your usename",
+      "This is your profile info. You can change your username and get a quick overview of your stats.",
+  },
+  {
+    target: ".subTokensDiv",
+    placement: "bottom",
+    content:
+      "This section shows your active subscription tokens that other people can buy. Click 'Manage Tokens' to mint new tokens or manage exsisting ones.",
+  },
+  // {
+  //   target: ".manageTokensBtn",
+  //   content: "Follow this to mint new tokens or manage exsisting ones.",
+  // },
+  // {
+  //   target: ".addSubButton",
+  //   content:
+  //     "Click here to add a subscriber. In this demo, a month lasts ~15 seconds so you should begin to see you balance rise as subscriptions roll in. After 5 'months' your subscriber will unsubscribe.",
+  // },
+  {
+    target: ".subbedToDiv",
+    content:
+      "This area will show the active subscription tokens you own. Click 'Find Creator' to go to an example creator profile and buy your first subscription.",
+  },
+  {
+    target: ".mintingDiv",
+    placement: "bottom-end",
+    content:
+      "Here you can mint new subscription tokens. Click 'Mint Another' and provide the title, avatar, description, and value of each token.",
   },
 ];
 
@@ -50,10 +76,12 @@ const reducer = (state = INITIAL_STATE, action) => {
     case "RESET":
       return { ...state, stepIndex: 0 };
     case "STOP":
+      localStorage.setItem("skipTour", true);
       return { ...state, run: false };
     case "NEXT_OR_PREV":
       return { ...state, ...action.payload };
     case "RESTART":
+      localStorage.setItem("skipTour", false);
       return {
         ...state,
         stepIndex: 0,
@@ -70,9 +98,9 @@ const Tour = forwardRef((props, ref) => {
   const [tourState, dispatch] = useReducer(reducer, INITIAL_STATE);
 
   useEffect(() => {
-    // if (localStorage.getItem("tour")) {
-    dispatch({ type: "START" });
-    // }
+    if (!localStorage.getItem("skipTour")) {
+      dispatch({ type: "START" });
+    }
   }, []);
 
   const callback = (data) => {
@@ -103,6 +131,7 @@ const Tour = forwardRef((props, ref) => {
         {...tourState}
         callback={callback}
         showSkipButton={true}
+        // showProgress={true}
         styles={{
           tooltipContainer: {
             textAlign: "left",

@@ -23,6 +23,7 @@ export default function CustomGridlist(props) {
     return () => {
       enableScroll();
     };
+    // eslint-disable-next-line
   }, []);
 
   const handleWheel = (e) => {
@@ -81,6 +82,7 @@ export default function CustomGridlist(props) {
       Object.defineProperty({}, "passive", {
         get: function () {
           supportsPassive = true;
+          return true;
         },
       })
     );

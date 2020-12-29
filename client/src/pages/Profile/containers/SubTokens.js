@@ -7,7 +7,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import SubCard from "../components/SubCard";
 import CustomGridlist from "../../../containers/CustomGridlist";
 
-import { Button, GridListTile, Typography } from "@material-ui/core";
+import { GridListTile } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
 export default function SubTokens() {
   const classes = useStyles();
   const { url } = useRouteMatch();
-  const { error, loading, data } = useQuery(GET_CREATOR_OVERVIEW, {
+  const { data } = useQuery(GET_CREATOR_OVERVIEW, {
     variables: { id: url.slice(1).toLowerCase() },
   });
 

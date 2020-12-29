@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 import { BrowserRouter as Router } from "react-router-dom";
 import BaseRouter from "./routes";
@@ -10,7 +10,7 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import Layout from "./containers/Layout";
 import { IconButton } from "@material-ui/core";
 import ClearIcon from "@material-ui/icons/Clear";
-import Tour from "./components/Tour";
+
 
 const font = "'Rubik', sans-serif";
 

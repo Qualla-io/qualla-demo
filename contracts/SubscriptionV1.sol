@@ -260,18 +260,19 @@ contract SubscriptionV1 is Context, ERC1155 {
         address creator = tokenIdToCreator[id];
         address paymentToken = tokenIdToPaymentToken[id];
         uint256 paymentValue = tokenIdToPaymentValue[id];
-        uint256 executedNonce = tokenId_ToExectuedNonce[id_];
+        
 
         // only for demo purposes!
+        uint256 executedNonce = tokenId_ToExectuedNonce[id_];
         if (executedNonce >= 4) {
             ERC1155._burn(subscriber, id_, 1);
             ERC1155._mint(creator, id, 1, bytes(""));
         } else {
-            tokenId_ToExectuedNonce[id]++;
+            tokenId_ToExectuedNonce[id_] += 1;
         }
+        // ------------------------------
 
         uint256 creatorCut = 100 - fee;
-
         // _transfer tokens
         try
             ERC20(paymentToken).transferFrom(

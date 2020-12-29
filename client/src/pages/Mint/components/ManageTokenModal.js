@@ -54,6 +54,7 @@ export default function ManageTokenModal(props) {
     let _token = { ...props.token };
     _token.burn = 0;
     setToken(_token);
+    // eslint-disable-next-line
   }, [props.open]);
 
   const handleQuantChange = () => {

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useSnackbar } from "notistack";
 import { ethers } from "ethers";
-import { useRouteMatch } from "react-router-dom";
+// import { useRouteMatch } from "react-router-dom";
 
 import { useReactiveVar, useMutation } from "@apollo/client";
 
@@ -20,7 +20,7 @@ export default function OwnedSubCard(props) {
   let account = useReactiveVar(accountVar);
   let signer = useReactiveVar(signerVar);
   let subscriptionV1 = useReactiveVar(subscriptionVar);
-  const { url } = useRouteMatch();
+  // const { url } = useRouteMatch();
 
   let { data } = useQueryWithAccount(GET_USER_NONCE);
   let [unsubscribe] = useMutation(UNSUBSCRIBE);

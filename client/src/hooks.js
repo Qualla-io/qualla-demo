@@ -1,12 +1,9 @@
-import React, { useEffect } from "react";
-import { accountVar, contractIDVar } from "./cache";
+import { useEffect } from "react";
+import { accountVar } from "./cache";
 import { useLazyQuery, useReactiveVar } from "@apollo/client";
 
 export function useQueryWithAccount(QUERY) {
   let account = useReactiveVar(accountVar);
-
-
-
 
   let [sendQuery, { loading, error, data }] = useLazyQuery(QUERY);
 
@@ -14,6 +11,7 @@ export function useQueryWithAccount(QUERY) {
     if (account) {
       sendQuery({ variables: { id: account } });
     }
+    // eslint-disable-next-line
   }, [account]);
 
   if (error) {
@@ -34,6 +32,7 @@ export function useQueryWithAccountNetwork(QUERY) {
     if (account) {
       sendQuery({ variables: { id: account } });
     }
+    // eslint-disable-next-line
   }, [account]);
 
   if (error) {

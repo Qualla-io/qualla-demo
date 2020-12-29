@@ -1,7 +1,7 @@
 import React from "react";
 
 import { makeStyles } from "@material-ui/core/styles";
-import { Button, GridListTile, Typography } from "@material-ui/core";
+import { GridListTile, Typography } from "@material-ui/core";
 
 import { GET_USER_BASETOKENS } from "../queries";
 import { useQueryWithAccountNetwork } from "../../../hooks";

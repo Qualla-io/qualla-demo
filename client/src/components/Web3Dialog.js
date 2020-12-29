@@ -2,16 +2,12 @@ import React, { useEffect } from "react";
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
 
-import { withStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
-import IconButton from "@material-ui/core/IconButton";
-import CloseIcon from "@material-ui/icons/Close";
 import Typography from "@material-ui/core/Typography";
-import { Link } from "react-router-dom";
 import { useReactiveVar } from "@apollo/client";
 import {
   accountVar,
@@ -25,27 +21,12 @@ import {
 import DaiContract from "../artifacts/contracts/TestDai.sol/TestDai.json";
 import SubscriptionContract from "../artifacts/contracts/SubscriptionV1.sol/SubscriptionV1.json";
 
-const providerOptions = {
-  // fortmatic: {
-  //   package: Fortmatic, // required
-  //   options: {
-  //     key: "FORTMATIC_KEY", // required
-  //   },
-  // },
-  // walletconnect: {
-  //   package: WalletConnectProvider, // required
-  //   options: {
-  //     infuraId: "INFURA_ID", // required
-  //   },
-  // },
-};
-
 export default function Web3Dialog() {
-  let account = useReactiveVar(accountVar);
-  let signer = useReactiveVar(signerVar);
-  let subscriptionV1 = useReactiveVar(subscriptionVar);
-  let provider = useReactiveVar(providerVar);
-  let dai = useReactiveVar(daiVar);
+  // let account = useReactiveVar(accountVar);
+  // let signer = useReactiveVar(signerVar);
+  // let subscriptionV1 = useReactiveVar(subscriptionVar);
+  // let provider = useReactiveVar(providerVar);
+  // let dai = useReactiveVar(daiVar);
   let eth = useReactiveVar(ethVar);
 
   useEffect(() => {
@@ -53,6 +34,7 @@ export default function Web3Dialog() {
       initWeb3();
     }
     _init();
+    // eslint-disable-next-line
   }, []);
 
   async function initWeb3() {
@@ -92,7 +74,7 @@ export default function Web3Dialog() {
 
       eth.on("disconnect", (error) => {
         ethVar(null);
-        console.log("disconnected")
+        console.log("disconnected");
         ethVar(null);
       });
 

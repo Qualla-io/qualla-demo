@@ -2,7 +2,6 @@ import React from "react";
 import { ethers } from "ethers";
 import { cardStyles } from "./styles";
 import { Avatar, Button, Typography } from "@material-ui/core";
-import AndroidIcon from "@material-ui/icons/Android";
 import AvatarIcons from "../../../components/AvatarIcons";
 import { Link } from "react-router-dom";
 

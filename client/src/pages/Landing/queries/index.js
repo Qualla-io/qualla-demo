@@ -70,12 +70,17 @@ export const GET_USER_SUBSCRIPTIONS = gql`
   }
 `;
 
-
 export const UPDATE_USERNAME = gql`
   mutation updateUsername($id: ID!, $username: String!) {
     username(id: $id, username: $username) {
       id
       username
     }
+  }
+`;
+
+export const ADD_SUB = gql`
+  mutation addSubscriber($baseTokenID: ID!) {
+    fakeSubscribe(baseTokenID: $baseTokenID)
   }
 `;

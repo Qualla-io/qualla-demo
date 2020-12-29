@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { ethers } from "ethers";
 import { cardStyles } from "./styles";
 
-import { BigNumber } from "bignumber.js";
-import { Avatar, Typography, Button, TextField } from "@material-ui/core";
-import AvatarIcons, { iconsLength } from "../../../components/AvatarIcons";
+// import { BigNumber } from "bignumber.js";
+import { Avatar, Typography, Button, } from "@material-ui/core";
+import AvatarIcons from "../../../components/AvatarIcons";
 import ManageTokenModal from "./ManageTokenModal";
 
 export default function ExsistingTokenCard(props) {

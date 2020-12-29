@@ -19,6 +19,9 @@ const useStyles = makeStyles((theme) => ({
   title: {
     marginTop: theme.spacing(6),
   },
+  mintingDiv: {
+    display: "flex",
+  },
   cardsDiv: {
     marginTop: theme.spacing(2),
     marginRight: -140,
@@ -236,10 +239,17 @@ export default function MintTokens() {
   }
 
   return (
-    <div>
-      <Typography variant="h5" className={classes.title}>
-        Mint Subscriptions:
-      </Typography>
+    <div className="mintingDiv">
+      <div>
+        <Typography variant="h5" className={classes.title}>
+          Mint Subscriptions:
+        </Typography>
+        {tokens.length > 0 ? (
+          <Button variant="contained" color="secondary" onClick={mintDialog}>
+            Mint
+          </Button>
+        ) : null}
+      </div>
       <div className={classes.cardsDiv}>
         <CustomGridlist name="MintingTokens">
           {tokens.map((token, i) => (
@@ -258,13 +268,11 @@ export default function MintTokens() {
         </CustomGridlist>
       </div>
       <div style={{ display: "flex" }}>
-        {/* To justify button right: */}
-        {/* <div style={{ margin: "auto" }} /> */}
-        {tokens.length > 0 ? (
+        {/* {tokens.length > 0 ? (
           <Button variant="contained" color="secondary" onClick={mintDialog}>
             Mint
           </Button>
-        ) : null}
+        ) : null} */}
       </div>
       <ConfirmationModal props={confirmModal} />
     </div>

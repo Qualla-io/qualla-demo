@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
-import { Link, Route, useParams, useRouteMatch } from "react-router-dom";
+import React, { useEffect } from "react";
+
+import {  useRouteMatch } from "react-router-dom";
 
 import Container from "@material-ui/core/Container";
 import HeroImage from "./components/HeroImage";
-import CreatorAvatar from "./components/CreatorAvatar";
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import SubTokens from "./containers/SubTokens";
@@ -50,6 +48,7 @@ export default function Subscriber() {
         fetchPolicy: "cache-and-network",
       });
     }
+    // eslint-disable-next-line
   }, [account]);
 
   useEffect(() => {

@@ -2,16 +2,15 @@ import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { BigNumber } from "bignumber.js";
 
-import Card from "@material-ui/core/Card";
 import Grid from "@material-ui/core/Grid";
 import Tooltip from "@material-ui/core/Tooltip";
 import { makeStyles } from "@material-ui/core/styles";
 
-import { useReactiveVar, gql } from "@apollo/client";
+// import { useReactiveVar } from "@apollo/client";
 import { GET_USER_OVERVIEW } from "../queries";
-import { accountVar, feeVar } from "../../../cache";
+// import { accountVar } from "../../../cache";
 import { useQueryWithAccount } from "../../../hooks";
-import { CardContent, Paper, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   content: {},
@@ -41,9 +40,9 @@ const useStyles = makeStyles((theme) => ({
 
 export default function HeaderCard() {
   const classes = useStyles();
-  let account = useReactiveVar(accountVar);
+  // let account = useReactiveVar(accountVar);
   let [value, setValue] = useState(0);
-  const { error, loading, data } = useQueryWithAccount(GET_USER_OVERVIEW);
+  const { data } = useQueryWithAccount(GET_USER_OVERVIEW);
 
   useEffect(() => {
     if (data?.user?.subscribers) {
