@@ -2,7 +2,7 @@ import React from "react";
 
 import { cardStyles } from "./styles";
 
-import { Avatar, Typography, Button } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import AddBoxIcon from "@material-ui/icons/AddBox";
 
 export default function AddTokenCard(props) {

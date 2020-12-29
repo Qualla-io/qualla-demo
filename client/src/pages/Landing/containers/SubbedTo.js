@@ -1,13 +1,15 @@
 import React from "react";
 
-import { Button, GridListTile, Typography } from "@material-ui/core";
-import GridList from "@material-ui/core/GridList";
+import {  GridListTile, Typography } from "@material-ui/core";
+
 import { makeStyles } from "@material-ui/core/styles";
 
-import { useReactiveVar } from "@apollo/client";
+// import { useReactiveVar } from "@apollo/client";
 import { GET_USER_SUBSCRIPTIONS } from "../queries";
-import { accountVar } from "../../../cache";
-import { useQueryWithAccount } from "../../../hooks";
+// import { accountVar } from "../../../cache";
+import {
+  useQueryWithAccountNetwork,
+} from "../../../hooks";
 import SubbedToCard from "../components/SubbedToCard";
 import BlankSubbedToCard from "../components/BlankSubbedToCard";
 import CustomGridlist from "../../../containers/CustomGridlist";
@@ -42,11 +44,11 @@ const useStyles = makeStyles((theme) => ({
 
 export default function SubbedTo() {
   const classes = useStyles();
-  let account = useReactiveVar(accountVar);
-  const { error, loading, data } = useQueryWithAccount(GET_USER_SUBSCRIPTIONS);
+  // let account = useReactiveVar(accountVar);
+  const { data } = useQueryWithAccountNetwork(GET_USER_SUBSCRIPTIONS);
 
   return (
-    <div className={classes.root}>
+    <div className={`${classes.root} subbedToDiv`}>
       <Typography variant="h4">
         <b>Subscribed To:</b>
       </Typography>

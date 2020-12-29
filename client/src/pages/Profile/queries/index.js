@@ -18,6 +18,33 @@ export const GET_CREATOR_OVERVIEW = gql`
   }
 `;
 
+export const GET_USER_SUBSCRIBED_TO = gql`
+  query getUserSubscibedTo($userID: ID!, $creatorID: ID!) {
+    userSubscribedTo(userID: $userID, creatorID: $creatorID) {
+      id
+      nonce
+      subscriptions {
+        id
+        owner {
+          id
+        }
+        creator {
+          id
+        }
+        baseToken {
+          id
+          quantity
+          paymentToken
+          paymentValue
+          title
+          avatarID
+          description
+        }
+      }
+    }
+  }
+`;
+
 export const GET_USER_NONCE = gql`
   query getUserNonce($id: ID!) {
     user(id: $id) {

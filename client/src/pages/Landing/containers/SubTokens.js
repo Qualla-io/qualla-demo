@@ -1,13 +1,11 @@
 import React from "react";
 
 import { Button, GridListTile, Typography } from "@material-ui/core";
-import GridList from "@material-ui/core/GridList";
 import { makeStyles } from "@material-ui/core/styles";
 
-import { useReactiveVar } from "@apollo/client";
+
 import { GET_USER_BASETOKENS } from "../queries";
-import { accountVar } from "../../../cache";
-import { useQueryWithAccount } from "../../../hooks";
+import { useQueryWithAccountNetwork } from "../../../hooks";
 import BaseTokenCard from "../components/BaseTokenCard";
 import BlankBaseTokenCard from "../components/BlankBaseTokenCard";
 import CustomGridlist from "../../../containers/CustomGridlist";
@@ -42,11 +40,10 @@ const useStyles = makeStyles((theme) => ({
 
 export default function SubTokens() {
   const classes = useStyles();
-  let account = useReactiveVar(accountVar);
-  const { error, loading, data } = useQueryWithAccount(GET_USER_BASETOKENS);
+  const { data } = useQueryWithAccountNetwork(GET_USER_BASETOKENS);
 
   return (
-    <div className={classes.root}>
+    <div className={`${classes.root} subTokensDiv`}>
       <Typography variant="h4">
         <b>Subscription Tokens:</b>
       </Typography>
@@ -70,7 +67,7 @@ export default function SubTokens() {
         to="/mint"
         variant="contained"
         color="secondary"
-        className={classes.btn}
+        className={`${classes.btn} manageTokensBtn`}
       >
         Manage Tokens
       </Button>

@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
 export default function Header() {
     const classes = useStyles();
     const { url } = useRouteMatch();
-  const { error, loading, data } = useQuery(GET_CREATOR_OVERVIEW, {
+  const { data } = useQuery(GET_CREATOR_OVERVIEW, {
     variables: { id: url.slice(1) },
   });
     return (

@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
-import { Link, Route, useParams, useRouteMatch } from "react-router-dom";
+import React, { useEffect } from "react";
+
+import {  useRouteMatch } from "react-router-dom";
 
 import Container from "@material-ui/core/Container";
 import HeroImage from "./components/HeroImage";
-import CreatorAvatar from "./components/CreatorAvatar";
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import SubTokens from "./containers/SubTokens";
-import Header from "./containers/Header"
+import Header from "./containers/Header";
 
-import { GET_USER_SUBTOKENS } from "./queries";
+import { GET_USER_SUBSCRIBED_TO } from "./queries";
 import OwnedTokens from "./containers/OwnedTokens";
-import { useQueryWithAccount } from "../../hooks";
+
+import { useLazyQuery, useReactiveVar } from "@apollo/client";
+import { accountVar } from "../../cache";
 
 const useStyles = makeStyles((theme) => ({
   heading: {
@@ -37,18 +37,19 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Subscriber() {
   const classes = useStyles();
-  const [found, setFound] = useState(false);
-  const { url, path } = useRouteMatch();
-  const { error, loading, data } = useQueryWithAccount(GET_USER_SUBTOKENS);
+  let account = useReactiveVar(accountVar);
+  const { url } = useRouteMatch();
+  const [sendSubscribedTo, { data }] = useLazyQuery(GET_USER_SUBSCRIBED_TO);
 
-  // This should really move to the backend and be a filter on the query
   useEffect(() => {
-    for (var i = 0; i < data?.user?.subscriptions?.length; i++) {
-      if (data?.user?.subscriptions[i]?.creator?.id === url.slice(1).toLowerCase()) {
-        setFound(true);
-      }
+    if (account) {
+      sendSubscribedTo({
+        variables: { userID: account, creatorID: url.slice(1).toLowerCase() },
+        fetchPolicy: "cache-and-network",
+      });
     }
-  }, [data]);
+    // eslint-disable-next-line
+  }, [account]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -58,13 +59,13 @@ export default function Subscriber() {
     <>
       <HeroImage />
       <Container>
-       <Header />
-        {found ? (
+        <Header />
+        {data?.userSubscribedTo?.subscriptions?.length > 0 ? (
           <>
             <Typography variant="h5" className={classes.tierTitle}>
               Your subscriptions:
             </Typography>
-            <OwnedTokens />
+            <OwnedTokens tokens={data?.userSubscribedTo.subscriptions} />
           </>
         ) : (
           <>

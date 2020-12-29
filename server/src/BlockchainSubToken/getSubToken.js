@@ -1,4 +1,5 @@
 import { createApolloFetch } from "apollo-fetch";
+import { gql } from "apollo-server";
 // import { gql } from "apollo-server";
 
 const fetch = createApolloFetch({
@@ -59,3 +60,5 @@ export async function getSubTokens() {
   });
   return res.data.subscriptionTokens;
 }
+
+

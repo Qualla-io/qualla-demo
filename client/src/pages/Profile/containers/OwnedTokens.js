@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from "react";
 
-import { useRouteMatch } from "react-router-dom";
-
 import { GridListTile } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-
-import { GET_USER_SUBTOKENS } from "../queries";
-import { useQueryWithAccount } from "../../../hooks";
 
 import OwnedSubCard from "../components/OwnedSubCard";
 import CustomGridlist from "../../../containers/CustomGridlist";
@@ -31,25 +26,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function OwnedTokens() {
+export default function OwnedTokens(props) {
   const classes = useStyles();
   const [tokens, setTokens] = useState([]);
-  const { error, loading, data } = useQueryWithAccount(GET_USER_SUBTOKENS);
-  const { url, path } = useRouteMatch();
 
-  // This should really move to the backend and be a filter on the query
   useEffect(() => {
-    let foundTokens = [];
-    for (var i = 0; i < data?.user?.subscriptions.length; i++) {
-      //   console.log(data?.user?.subscriptions[i]);
-      if (
-        data?.user?.subscriptions[i]?.creator?.id === url.slice(1).toLowerCase()
-      ) {
-        foundTokens.push(data?.user?.subscriptions[i]);
-      }
-    }
-    setTokens(foundTokens);
-  }, [data]);
+    setTokens(props.tokens);
+  }, [props.tokens]);
 
   return (
     <div>

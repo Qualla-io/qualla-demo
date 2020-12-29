@@ -1,16 +1,12 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { ethers } from "ethers";
 
 import Web3Modal from "web3modal";
 // import Fortmatic from "fortmatic";
 // import WalletConnectProvider from "@walletconnect/web3-provider";
-import {
-  useQuery,
-  gql,
-  useReactiveVar,
-  useLazyQuery,
-  useMutation,
-} from "@apollo/client";
+// import {
+//   useReactiveVar,
+// } from "@apollo/client";
 import {
   accountVar,
   providerVar,
@@ -18,114 +14,45 @@ import {
   daiVar,
   subscriptionVar,
   ethVar,
-  feeVar,
+
 } from "../cache";
 
-import { useQueryWithAccount } from "../hooks";
 
 import DaiContract from "../artifacts/contracts/TestDai.sol/TestDai.json";
 import SubscriptionContract from "../artifacts/contracts/SubscriptionV1.sol/SubscriptionV1.json";
 
-const INIT_APP = gql`
-  query InitApp($id: ID!) {
-    user(id: $id) {
-      id
-      nonce
-      baseTokens {
-        id
-      }
-      subscribers {
-        id
-      }
-      subscriptions {
-        id
-      }
-    }
-  }
-`;
+// const INIT_APP = gql`
+//   query InitApp($id: ID!) {
+//     user(id: $id) {
+//       id
+//       nonce
+//       baseTokens {
+//         id
+//       }
+//       subscribers {
+//         id
+//       }
+//       subscriptions {
+//         id
+//       }
+//     }
+//   }
+// `;
 
 export default function MainSection(props) {
-  let account = useReactiveVar(accountVar);
-  let signer = useReactiveVar(signerVar);
-  const { loading, error, data } = useQueryWithAccount(INIT_APP);
+  // let account = useReactiveVar(accountVar);
+  // let signer = useReactiveVar(signerVar);
+  // const { loading, error, data } = useQueryWithAccount(INIT_APP);
   // const [initUser] = useMutation(CREATE_USER);
 
-  useEffect(() => {
-    initWeb3();
-    // eslint-disable-next-line
-  }, []);
+  // useEffect(() => {
+  //   initWeb3();
+  //   // eslint-disable-next-line
+  // }, []);
 
-  async function initWeb3() {
-    try {
-      const providerOptions = {
-        // fortmatic: {
-        //   package: Fortmatic, // required
-        //   options: {
-        //     key: "FORTMATIC_KEY", // required
-        //   },
-        // },
-        // walletconnect: {
-        //   package: WalletConnectProvider, // required
-        //   options: {
-        //     infuraId: "INFURA_ID", // required
-        //   },
-        // },
-      };
+  // if (loading) return <h1>Loading...</h1>;
 
-      const web3Modal = new Web3Modal({
-        cacheProvider: false,
-        providerOptions,
-      });
-      const eth = await web3Modal.connect();
-
-      ethVar(eth);
-
-      // let web3 = await getWeb3();
-      // updateWeb3("eth", eth);
-
-      const provider = new ethers.providers.Web3Provider(eth);
-      // const provider = new ethers.providers.JsonRpcProvider(
-      //   "http://127.0.0.1:8545",
-      //   // {chaindId: 5777, name: "local"}
-      // );
-
-      providerVar(provider);
-
-      const signer = provider.getSigner();
-      signerVar(signer);
-
-      var Dai = new ethers.Contract(
-        process.env.REACT_APP_GRAPHQL_DAI_CONTRACT,
-        DaiContract.abi,
-        provider
-      );
-
-      Dai = Dai.connect(signer);
-      daiVar(Dai);
-
-      const account = await signer.getAddress();
-
-      accountVar(account);
-      var subscriptionV1 = new ethers.Contract(
-        process.env.REACT_APP_GRAPHQL_SUB_CONTRACT,
-        SubscriptionContract.abi,
-        signer
-      );
-
-      subscriptionV1 = subscriptionV1.connect(signer);
-      subscriptionVar(subscriptionV1);
-     
-    } catch (error) {
-      alert(
-        `Failed to load web3, accounts, or contract. Check console for details.`
-      );
-      console.error(error);
-    }
-  }
-
-  if (loading) return <h1>Loading...</h1>;
-
-  if (error) return `Error! ${error}`;
+  // if (error) return `Error! ${error}`;
 
   return (
     <>

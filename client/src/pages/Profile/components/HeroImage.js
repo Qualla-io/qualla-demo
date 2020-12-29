@@ -20,7 +20,7 @@ export default function HeroImage() {
 
   return (
     <div className={classes.heroRoot}>
-      <img src={heroimage} className={classes.img}></img>
+      <img src={heroimage} alt="" className={classes.img}></img>
     </div>
   );
 }

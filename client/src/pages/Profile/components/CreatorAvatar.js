@@ -3,7 +3,6 @@ import {makeStyles} from "@material-ui/core/styles";
 import Avatar from "@material-ui/core/Avatar";
 // import JWB from "../img/JWB.png";
 import FA18 from "../../../img/FA18.jpg"
-import { Typography } from "@material-ui/core";
 
 const avatarSize = "150px";
 

@@ -1,11 +1,11 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Topbar from "../components/Topbar.js";
-// import Balances from "../components/Balances.js";
-import MainSection from "./MainSection.js";
+// import MainSection from "./MainSection.js";
 import Footer from "./Footer.js";
 import FABspeeddial from "../components/FABspeeddial.js";
 import MyBalance from "../components/MyBalance.js";
+import Web3Modal from "../components/Web3Dialog.js";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -23,9 +23,11 @@ export default function Layout(props) {
   return (
     <div className={classes.root}>
       <Topbar />
+      <Web3Modal />
       <MyBalance />
-      {/* <Balances /> */}
-      <MainSection>{props.children}</MainSection>
+      {/* <MainSection> */}
+        {props.children}
+        {/* </MainSection> */}
       <FABspeeddial />
       <Footer />
     </div>

@@ -1,27 +1,60 @@
-import React from "react";
-
-import { cardStyles } from "./styles";
-import { Avatar, Button, Typography } from "@material-ui/core";
-import AndroidIcon from "@material-ui/icons/Android";
+import React, { useState } from "react";
+import { useSnackbar } from "notistack";
 import { ethers } from "ethers";
+// import { useRouteMatch } from "react-router-dom";
 
 import { useReactiveVar, useMutation } from "@apollo/client";
+
+import { Avatar, Button, Typography } from "@material-ui/core";
+
 import { UNSUBSCRIBE, GET_USER_NONCE } from "../queries";
 import { accountVar, subscriptionVar, signerVar } from "../../../cache";
 import { useQueryWithAccount } from "../../../hooks";
 import AvatarIcons from "../../../components/AvatarIcons";
+import { cardStyles } from "./styles";
+import ConfirmationModal from "../../../components/ConfirmationModal";
 
 export default function OwnedSubCard(props) {
+  const { enqueueSnackbar } = useSnackbar();
   const classes = cardStyles();
   let account = useReactiveVar(accountVar);
   let signer = useReactiveVar(signerVar);
   let subscriptionV1 = useReactiveVar(subscriptionVar);
+  // const { url } = useRouteMatch();
 
   let { data } = useQueryWithAccount(GET_USER_NONCE);
   let [unsubscribe] = useMutation(UNSUBSCRIBE);
+  let [confirmModal, setConfirmModal] = useState({
+    open: false,
+    title: "",
+    description: "",
+    onSubmit: null,
+    onClose: null,
+  });
   let token = props.token;
 
+  function closeModal() {
+    setConfirmModal({
+      open: false,
+      title: "",
+      description: "",
+      onClose: null,
+      onSubmit: null,
+    });
+  }
+
+  function unsubscribeDialog() {
+    setConfirmModal({
+      open: true,
+      onClose: closeModal,
+      onSubmit: _unSub,
+      title: "Unsubscribe?",
+      description: `Are you sure you want to unsubscribe? You will lose all subscription perks as soon as the transaction processes.`,
+    });
+  }
+
   async function _unSub() {
+    closeModal();
     let subscriberData = {
       user: account,
       nonce: data?.user?.nonce,
@@ -52,8 +85,8 @@ export default function OwnedSubCard(props) {
     unsubscribe({
       variables: { userID: account, tokenID: token?.id, signature },
       update(cache) {
-
         // update nonce and delete subtoken from cache
+
         cache.modify({
           id: cache.identify({
             id: account.toLowerCase(),
@@ -63,6 +96,7 @@ export default function OwnedSubCard(props) {
             nonce(cachedNonce) {
               return cachedNonce + 1;
             },
+            // Modify query
             subscriptions(exsistingSubscriptionRefs, { readField }) {
               return exsistingSubscriptionRefs.filter(
                 (subscriptionRef) =>
@@ -70,15 +104,20 @@ export default function OwnedSubCard(props) {
               );
             },
           },
-          broadcast: true,
+          broadcast: false,
         });
-
-        // TODO: update UI if the last subscription token is removed
-
       },
-    }).catch((err) => {
-      console.log(err);
-    });
+    })
+      .then((res) => {
+        enqueueSnackbar(`Unsubscribe successful`, {
+          variant: "success",
+        });
+      })
+      .catch((err) => {
+        enqueueSnackbar(`${err}`, {
+          variant: "error",
+        });
+      });
   }
 
   return (
@@ -109,10 +148,11 @@ export default function OwnedSubCard(props) {
         variant="contained"
         color="secondary"
         className={classes.content}
-        onClick={_unSub}
+        onClick={unsubscribeDialog}
       >
         Unsubscribe
       </Button>
+      <ConfirmationModal props={confirmModal} />
     </div>
   );
 }

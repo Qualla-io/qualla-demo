@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 
 export const GET_USER_HEADER = gql`
-  query gerUserOverview($id: ID!) {
+  query gerUserHeader($id: ID!) {
     user(id: $id) {
       id
       username
@@ -76,5 +76,11 @@ export const UPDATE_USERNAME = gql`
       id
       username
     }
+  }
+`;
+
+export const ADD_SUB = gql`
+  mutation addSubscriber($baseTokenID: ID!) {
+    fakeSubscribe(baseTokenID: $baseTokenID)
   }
 `;

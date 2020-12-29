@@ -3,7 +3,7 @@ import { buildFederatedSchema } from "@apollo/federation";
 import { ethers } from "ethers";
 import amqp from "amqplib/callback_api";
 
-import { getUser, getUsers } from "./getUsers";
+import { getUser, getUsers, getSubbedTo } from "./getUsers";
 import { dai } from "./utils";
 
 let _channel;
@@ -13,6 +13,7 @@ const typeDefs = gql`
   type Query {
     user(id: ID!): User
     users: [User!]
+    userSubscribedTo(userID: ID!, creatorID: ID!): User
   }
 
   type Mutation {
@@ -44,6 +45,9 @@ const resolvers = {
       return await getUser(id.toLowerCase());
     },
     users: async () => await getUsers(),
+    userSubscribedTo: async (_, { userID, creatorID }) => {
+      return await getSubbedTo(userID.toLowerCase(), creatorID.toLowerCase());
+    },
   },
   Mutation: {
     permit: async (_, { userID, signature, nonce }) => {
@@ -68,7 +72,7 @@ const resolvers = {
 
       return true;
     },
-    mintDai: async (_, {userID, amt})=> {
+    mintDai: async (_, { userID, amt }) => {
       const initBal = await dai.balanceOf(userID.toLowerCase());
       console.log(`Old balance: ${initBal}`);
 

@@ -1,10 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import App, {accountVar} from "./App";
-import {Provider} from "react-redux";
+import App from "./App";
 
-import {ApolloClient, InMemoryCache, ApolloProvider} from "@apollo/client";
-import {client} from "./cache";
+import { ApolloProvider } from "@apollo/client";
+import { client } from "./cache";
 
 // import * as serviceWorker from './serviceWorker';
 
@@ -16,7 +15,7 @@ if (!process.env.REACT_APP_GRAPHQL_ENDPOINT) {
 
 ReactDOM.render(
   <ApolloProvider client={client}>
-      <App />
+    <App />
   </ApolloProvider>,
   document.getElementById("root")
 );

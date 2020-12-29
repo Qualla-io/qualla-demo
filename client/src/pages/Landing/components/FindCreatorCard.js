@@ -2,7 +2,7 @@ import React from "react";
 
 import { makeStyles } from "@material-ui/core/styles";
 import { cardStyles } from "./styles";
-import { Avatar, Typography, Button } from "@material-ui/core";
+import {  Typography, Button } from "@material-ui/core";
 import LoyaltyIcon from "@material-ui/icons/Loyalty";
 import { Link } from "react-router-dom";
 

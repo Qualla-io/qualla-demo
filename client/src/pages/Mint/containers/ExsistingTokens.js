@@ -1,10 +1,10 @@
 import React from "react";
 
 import { makeStyles } from "@material-ui/core/styles";
-import { Button, GridListTile, Typography } from "@material-ui/core";
+import { GridListTile, Typography } from "@material-ui/core";
 
 import { GET_USER_BASETOKENS } from "../queries";
-import { useQueryWithAccount } from "../../../hooks";
+import { useQueryWithAccountNetwork } from "../../../hooks";
 import ExsistingTokenCard from "../components/ExsistingTokenCard";
 import CustomGridlist from "../../../containers/CustomGridlist";
 
@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ExsistingTokens() {
   const classes = useStyles();
-  let { data } = useQueryWithAccount(GET_USER_BASETOKENS);
+  let { data } = useQueryWithAccountNetwork(GET_USER_BASETOKENS);
   return (
     <div>
       <Typography variant="h5" className={classes.title}>

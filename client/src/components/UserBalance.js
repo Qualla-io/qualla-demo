@@ -18,7 +18,7 @@ export default function UserBalance(props) {
   const { enqueueSnackbar } = useSnackbar();
   let [balance, setBalance] = useState("0.0");
   let account = useReactiveVar(accountVar);
-  const { data, error, loading } = useSubscription(SUBSCRIBE_BALANCE, {
+  const { data } = useSubscription(SUBSCRIBE_BALANCE, {
     variables: { id: account },
   });
 
@@ -36,6 +36,7 @@ export default function UserBalance(props) {
     }
     setBalance(data?.daiBalance?.balance.toString());
     ref.current = data;
+    // eslint-disable-next-line
   }, [data]);
 
   return (

@@ -3,7 +3,7 @@ import { buildFederatedSchema } from "@apollo/federation";
 import { ethers } from "ethers";
 import amqp from "amqplib/callback_api";
 
-import { getSubToken, getSubTokens } from "./getSubToken";
+import { getSubToken, getSubTokens, getSubbedTo } from "./getSubToken";
 import { subscriptionV1 } from "./utils";
 
 let _channel;
@@ -42,6 +42,7 @@ const resolvers = {
       return await getSubToken(id.toLowerCase());
     },
     subscriptionTokens: async () => await getSubTokens(),
+    
   },
   Mutation: {
     unsubscribe: async (_, { userID, tokenID, signature }) => {
@@ -117,8 +118,6 @@ amqp.connect("amqp://root:example@rabbitmq", function (error0, connection) {
             noAck: true,
           }
         );
-
-        
       }
     );
 

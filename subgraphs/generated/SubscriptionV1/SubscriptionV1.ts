@@ -144,6 +144,28 @@ export class URI__Params {
   }
 }
 
+export class contractModified extends ethereum.Event {
+  get params(): contractModified__Params {
+    return new contractModified__Params(this);
+  }
+}
+
+export class contractModified__Params {
+  _event: contractModified;
+
+  constructor(event: contractModified) {
+    this._event = event;
+  }
+
+  get master(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get fee(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+}
+
 export class SubscriptionV1 extends ethereum.SmartContract {
   static bind(address: Address): SubscriptionV1 {
     return new SubscriptionV1("SubscriptionV1", address);
@@ -260,6 +282,21 @@ export class SubscriptionV1 extends ethereum.SmartContract {
 
   try_chainId(): ethereum.CallResult<BigInt> {
     let result = super.tryCall("chainId", "chainId():(uint256)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  fee(): BigInt {
+    let result = super.call("fee", "fee():(uint256)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_fee(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("fee", "fee():(uint256)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -944,6 +981,66 @@ export class SetApprovalForAllCall__Outputs {
   _call: SetApprovalForAllCall;
 
   constructor(call: SetApprovalForAllCall) {
+    this._call = call;
+  }
+}
+
+export class SetFeeCall extends ethereum.Call {
+  get inputs(): SetFeeCall__Inputs {
+    return new SetFeeCall__Inputs(this);
+  }
+
+  get outputs(): SetFeeCall__Outputs {
+    return new SetFeeCall__Outputs(this);
+  }
+}
+
+export class SetFeeCall__Inputs {
+  _call: SetFeeCall;
+
+  constructor(call: SetFeeCall) {
+    this._call = call;
+  }
+
+  get _fee(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class SetFeeCall__Outputs {
+  _call: SetFeeCall;
+
+  constructor(call: SetFeeCall) {
+    this._call = call;
+  }
+}
+
+export class SetMasterCall extends ethereum.Call {
+  get inputs(): SetMasterCall__Inputs {
+    return new SetMasterCall__Inputs(this);
+  }
+
+  get outputs(): SetMasterCall__Outputs {
+    return new SetMasterCall__Outputs(this);
+  }
+}
+
+export class SetMasterCall__Inputs {
+  _call: SetMasterCall;
+
+  constructor(call: SetMasterCall) {
+    this._call = call;
+  }
+
+  get _master(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class SetMasterCall__Outputs {
+  _call: SetMasterCall;
+
+  constructor(call: SetMasterCall) {
     this._call = call;
   }
 }

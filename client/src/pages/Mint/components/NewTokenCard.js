@@ -18,7 +18,6 @@ import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 export default function NewTokenCard(props) {
   const classes = cardStyles();
   const [max, setmax] = useState(false);
-  const [iconNum, setIconNum] = useState(0);
   const [period, setPeriod] = useState(2628000);
 
 
