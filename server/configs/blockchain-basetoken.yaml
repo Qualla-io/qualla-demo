@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: basetoken-depl
+  labels:
+    app: basetoken
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: basetoken
+  template:
+    metadata:
+      labels:
+        app: basetoken
+    spec:
+      containers:
+        - name: basetoken
+          image: qualla/blockchain-basetoken:latest
+          ports:
+            - containerPort: 4002
+          env:
+            - name: PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: server-secret
+                  key: PRIVATE_KEY
+            - name: PRIVATE_KEY2
+              valueFrom:
+                secretKeyRef:
+                  name: server-secret
+                  key: PRIVATE_KEY2
+            - name: ACCOUNT
+              valueFrom:
+                secretKeyRef:
+                  name: server-secret
+                  key: ACCOUNT
+            - name: RABBITMQ_DEFAULT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: server-secret
+                  key: RABBITMQ_DEFAULT_USER
+            - name: RABBITMQ_DEFAULT_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: server-secret
+                  key: RABBITMQ_DEFAULT_PASS
+            - name: NETWORK_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: server-configmap
+                  key: NETWORK_ID
+            - name: NETWORK_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: server-configmap
+                  key: NETWORK_URI
+            - name: GRAPH_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: server-configmap
+                  key: GRAPH_URI
+            - name: DAI_CONTRACT
+              valueFrom:
+                configMapKeyRef:
+                  name: server-configmap
+                  key: DAI_CONTRACT
+            - name: SUB_CONTRACT
+              valueFrom:
+                configMapKeyRef:
+                  name: server-configmap
+                  key: SUB_CONTRACT
+            - name: RABBITMQ_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: server-configmap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: basetoken-service
+spec:
+  selector:
+    app: basetoken
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 4002
+      targetPort: 4002
