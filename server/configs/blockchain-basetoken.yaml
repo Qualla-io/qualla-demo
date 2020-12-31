@@ -74,6 +74,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: server-configmap
+                  key: RABBITMQ_SERVER
 ---
 apiVersion: v1
 kind: Service
