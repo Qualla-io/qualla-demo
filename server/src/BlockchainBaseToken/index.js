@@ -206,8 +206,8 @@ const resolvers = {
 
       let msg = JSON.stringify(localData);
 
-      _channel.publish(exchange, "Local", Buffer.from(msg));
-      console.log(" [x] Sent %s: '%s'", "Local", msg);
+      // _channel.publish(exchange, "Local", Buffer.from(msg));
+      // console.log(" [x] Sent %s: '%s'", "Local", msg);
 
       return true;
     },
@@ -259,8 +259,8 @@ const resolvers = {
 
       let msg = JSON.stringify(localData);
 
-      _channel.publish(exchange, "Local", Buffer.from(msg));
-      console.log(" [x] Sent %s: '%s'", "Local", msg);
+      // _channel.publish(exchange, "Local", Buffer.from(msg));
+      // console.log(" [x] Sent %s: '%s'", "Local", msg);
 
       return true;
     },
@@ -300,8 +300,8 @@ const resolvers = {
 
       let msg = JSON.stringify(localData);
 
-      _channel.publish(exchange, "Local", Buffer.from(msg));
-      console.log(" [x] Sent %s: '%s'", "Local", msg);
+      // _channel.publish(exchange, "Local", Buffer.from(msg));
+      // console.log(" [x] Sent %s: '%s'", "Local", msg);
 
       return true;
     },
@@ -326,51 +326,51 @@ server.listen(4002).then(({ url }) => {
   console.log(`🚀 Server ready at ${url}`);
 });
 
-amqp.connect(
-  "amqp://root:example@rabbitmq",
-  function (error0, connection) {
-    if (error0) {
-      throw error0;
-    }
-    connection.createChannel(function (error1, channel) {
-      if (error1) {
-        throw error1;
-      }
+// amqp.connect(
+//   "amqp://root:example@rabbitmq",
+//   function (error0, connection) {
+//     if (error0) {
+//       throw error0;
+//     }
+//     connection.createChannel(function (error1, channel) {
+//       if (error1) {
+//         throw error1;
+//       }
 
-      channel.assertExchange(exchange, "direct", {
-        durable: false,
-      });
+//       channel.assertExchange(exchange, "direct", {
+//         durable: false,
+//       });
 
-      channel.assertQueue(
-        "",
-        {
-          exclusive: true,
-        },
-        function (error2, q) {
-          if (error2) {
-            throw error2;
-          }
-          console.log(" [*] Waiting for logs. To exit press CTRL+C");
+//       channel.assertQueue(
+//         "",
+//         {
+//           exclusive: true,
+//         },
+//         function (error2, q) {
+//           if (error2) {
+//             throw error2;
+//           }
+//           console.log(" [*] Waiting for logs. To exit press CTRL+C");
 
-          channel.bindQueue(q.queue, exchange, "BaseToken");
+//           channel.bindQueue(q.queue, exchange, "BaseToken");
 
-          channel.consume(
-            q.queue,
-            function (msg) {
-              console.log(
-                " [x] %s: '%s'",
-                msg.fields.routingKey,
-                msg.content.toString()
-              );
-            },
-            {
-              noAck: true,
-            }
-          );
-        }
-      );
+//           channel.consume(
+//             q.queue,
+//             function (msg) {
+//               console.log(
+//                 " [x] %s: '%s'",
+//                 msg.fields.routingKey,
+//                 msg.content.toString()
+//               );
+//             },
+//             {
+//               noAck: true,
+//             }
+//           );
+//         }
+//       );
 
-      _channel = channel;
-    });
-  }
-);
+//       _channel = channel;
+//     });
+//   }
+// );

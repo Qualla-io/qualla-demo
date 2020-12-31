@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gateway-configmap
+data:
+  USER_DATA: user-service
+  BASETOKEN_DATA: basetoken-service
+  SUBTOKEN_DATA: subtoken-service
+  LOCAL_DATA: local-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-depl
+  labels:
+    app: gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      containers:
+        - name: gateway
+          image: qualla/gateway:latest
+          ports:
+            - containerPort: 4004
+          env:
+            - name: USER_DATA
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-configmap
+                  key: USER_DATA
+            - name: BASETOKEN_DATA
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-configmap
+                  key: BASETOKEN_DATA
+            - name: SUBTOKEN_DATA
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-configmap
+                  key: SUBTOKEN_DATA
+            - name: LOCAL_DATA
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-configmap
+                  key: LOCAL_DATA
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-service
+spec:
+  selector:
+    app: gateway
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 4000
+      targetPort: 4000

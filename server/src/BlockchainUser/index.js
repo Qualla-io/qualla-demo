@@ -86,13 +86,13 @@ const resolvers = {
 
       return true;
     },
-    testPub: async (_, { msg }) => {
-      _channel.publish(exchange, "SubToken", Buffer.from(msg));
-      _channel.publish(exchange, "BaseToken", Buffer.from(msg));
-      console.log(" [x] Sent %s: '%s'", "SubToken", msg);
-      console.log(" [x] Sent %s: '%s'", "BaseToken", msg);
-      return true;
-    },
+    // testPub: async (_, { msg }) => {
+    //   _channel.publish(exchange, "SubToken", Buffer.from(msg));
+    //   _channel.publish(exchange, "BaseToken", Buffer.from(msg));
+    //   console.log(" [x] Sent %s: '%s'", "SubToken", msg);
+    //   console.log(" [x] Sent %s: '%s'", "BaseToken", msg);
+    //   return true;
+    // },
   },
   User: {
     __resolveReference(user) {
@@ -114,48 +114,51 @@ server.listen(4001).then(({ url }) => {
   console.log(`🚀 Server ready at ${url}`);
 });
 
-amqp.connect("amqp://root:example@rabbitmq", function (error0, connection) {
-  if (error0) {
-    throw error0;
-  }
-  connection.createChannel(function (error1, channel) {
-    if (error1) {
-      throw error1;
-    }
+// amqp.connect(
+//   `amqp://${process.env.RABBITMQ_DEFAULT_USER}:${process.env.RABBITMQ_DEFAULT_USER}@${process.env.RABBITMQ_SERVER}`,
+//   function (error0, connection) {
+//     if (error0) {
+//       throw error0;
+//     }
+//     connection.createChannel(function (error1, channel) {
+//       if (error1) {
+//         throw error1;
+//       }
 
-    channel.assertExchange(exchange, "direct", {
-      durable: false,
-    });
+//       channel.assertExchange(exchange, "direct", {
+//         durable: false,
+//       });
 
-    channel.assertQueue(
-      "",
-      {
-        exclusive: true,
-      },
-      function (error2, q) {
-        if (error2) {
-          throw error2;
-        }
-        console.log(" [*] Waiting for logs. To exit press CTRL+C");
+//       channel.assertQueue(
+//         "",
+//         {
+//           exclusive: true,
+//         },
+//         function (error2, q) {
+//           if (error2) {
+//             throw error2;
+//           }
+//           console.log(" [*] Waiting for logs. To exit press CTRL+C");
 
-        channel.bindQueue(q.queue, exchange, "BlockUser");
+//           channel.bindQueue(q.queue, exchange, "BlockUser");
 
-        channel.consume(
-          q.queue,
-          function (msg) {
-            console.log(
-              " [x] %s: '%s'",
-              msg.fields.routingKey,
-              msg.content.toString()
-            );
-          },
-          {
-            noAck: true,
-          }
-        );
-      }
-    );
+//           channel.consume(
+//             q.queue,
+//             function (msg) {
+//               console.log(
+//                 " [x] %s: '%s'",
+//                 msg.fields.routingKey,
+//                 msg.content.toString()
+//               );
+//             },
+//             {
+//               noAck: true,
+//             }
+//           );
+//         }
+//       );
 
-    _channel = channel;
-  });
-});
+//       _channel = channel;
+//     });
+//   }
+// );

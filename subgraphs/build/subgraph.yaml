@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: SubscriptionV1
-    network: rinkeby
+    network: develop
     source:
-      address: "0xF5b0d28F4A7563d7437Bc7De9c93c22150018Be6"
+      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3"
       abi: SubscriptionV1
-      startBlock: 7802418
+      startBlock: 0
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4

@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: local-data-configmap
+data:
+  MONGO_SERVER: mongodb-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: local-depl
+  labels:
+    app: local
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: local
+  template:
+    metadata:
+      labels:
+        app: local
+    spec:
+      containers:
+        - name: local
+          image: qualla/local-data:latest
+          ports:
+            - containerPort: 4004
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: server-secret
+                  key: MONGO_INITDB_ROOT_USERNAME
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: server-secret
+                  key: MONGO_INITDB_ROOT_PASSWORD
+            - name: MONGO_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: local-data-configmap
+                  key: MONGO_SERVER
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: local-service
+spec:
+  selector:
+    app: local
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 4004
+      targetPort: 4004
+      # nodePort: 30001
