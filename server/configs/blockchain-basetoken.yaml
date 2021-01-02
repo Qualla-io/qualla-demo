@@ -83,7 +83,6 @@ metadata:
 spec:
   selector:
     app: basetoken
-  type: LoadBalancer
   ports:
     - protocol: TCP
       port: 4002

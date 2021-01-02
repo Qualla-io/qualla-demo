@@ -21,6 +21,7 @@
     "nodemon": "^2.0.6",
     "ethers": "5.0.18",
     "amqplib": "^0.6.0",
-    "mongoose": "^5.10.13"
+    "mongoose": "^5.10.13",
+    "ts-nats": "^1.2.15"
   }
 }

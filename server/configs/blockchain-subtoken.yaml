@@ -83,7 +83,6 @@ metadata:
 spec:
   selector:
     app: subtoken
-  type: LoadBalancer
   ports:
     - protocol: TCP
       port: 4003

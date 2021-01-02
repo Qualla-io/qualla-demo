@@ -50,9 +50,7 @@ metadata:
 spec:
   selector:
     app: local
-  type: LoadBalancer
   ports:
     - protocol: TCP
       port: 4004
       targetPort: 4004
-      # nodePort: 30001

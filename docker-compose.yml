@@ -11,21 +11,6 @@ services:
       - "./mongodata:/data/db"
     ports:
       - 27017:27017
-  # rabbitmq:
-  #   image: rabbitmq:3-management-alpine
-  #   container_name: rabbitmq
-  #   restart: always
-  #   volumes:
-  #     - ./.docker/rabbitmq/etc/:/etc/rabbitmq/
-  #     - ./.docker/rabbitmq/data/:/var/lib/rabbitmq/
-  #     - ./.docker/rabbitmq/logs/:/var/log/rabbitmq/
-  #   environment:
-  #     RABBITMQ_DEFAULT_USER: root
-  #     RABBITMQ_DEFAULT_PASS: example
-  #   ports:
-  #     - 5672:5672
-  #     - 15672:15672
-  #   restart: on-failure
   blockchain_user:
     build: ./server/src/BlockchainUser
     container_name: "blockchain_user"
@@ -34,7 +19,7 @@ services:
     ports:
       - "4001:4001"
     depends_on:
-      - rabbitmq
+      - nats
     restart: on-failure
   blockchain_basetoken:
     build: ./server/src/BlockchainBaseToken
@@ -44,7 +29,7 @@ services:
     ports:
       - "4002:4002"
     depends_on:
-      - rabbitmq
+      - nats
     restart: on-failure
   blockchain_subtoken:
     build: ./server/src/BlockchainSubToken
@@ -54,7 +39,7 @@ services:
     ports:
       - "4003:4003"
     depends_on:
-      - rabbitmq
+      - nats
     restart: on-failure
   local_data:
     build: ./server/src/LocalData
@@ -66,7 +51,7 @@ services:
     restart: on-failure
     depends_on:
       - mongo
-      - rabbitmq
+      - nats
   gateway:
     build: ./server/src/gateway
     container_name: "gateway"
@@ -85,52 +70,23 @@ services:
   #   container_name: "relayer"
   #   env_file:
   #     - server/.env
-  # balance_subscriptions:
-  #   build: ./server/src/BalanceSubscriptions
-  #   container_name: "balance_subscriptions"
-  #   env_file:
-  #     - server/.env
-  #   ports:
-  #     - "5000:5000"
-  #   restart: on-failure
-  # graph-node:
-  #   container_name: "graph-node"
-  #   image: graphprotocol/graph-node
-  #   ports:
-  #     - '8000:8000'
-  #     - '8001:8001'
-  #     - '8020:8020'
-  #     - '8030:8030'
-  #     - '8040:8040'
-  #   depends_on:
-  #     - ipfs
-  #     - postgres
-  #   environment:
-  #     postgres_host: postgres
-  #     postgres_user: graph-node
-  #     postgres_pass: let-me-in
-  #     postgres_db: graph-node
-  #     ipfs: 'ipfs:5001'
-  #     ethereum: 'develop:http://host.docker.internal:8545'
-  #     RUST_LOG: info
-  # ipfs:
-  #   container_name: "ipfs"
-  #   image: ipfs/go-ipfs:v0.4.23
-  #   ports:
-  #     - '5001:5001'
-  #   volumes:
-  #     - ./graph-node/data/ipfs:/data/ipfs
-  # postgres:
-  #   container_name: "postgres"
-  #   image: postgres
-  #   ports:
-  #     - '5432:5432'
-  #   command: ["postgres", "-cshared_preload_libraries=pg_stat_statements"]
-  #   environment:
-  #     POSTGRES_USER: graph-node
-  #     POSTGRES_PASSWORD: let-me-in
-  #     POSTGRES_DB: graph-node
-  #   volumes:
-  #     - ./graph-node/data/postgres:/var/lib/postgresql/data
+  balance_subscriptions:
+    build: ./server/src/BalanceSubscriptions
+    container_name: "balance_subscriptions"
+    env_file:
+      - server/.env
+    ports:
+      - "5000:5000"
+    restart: on-failure
+  nats:
+    image: nats:latest
+    container_name: "nats"
+    ports:
+      - "8222:8222"
+      - "6222:6222"
+      - "4222:4222"
 
-
+networks:
+  default:
+    external:
+      name: local
