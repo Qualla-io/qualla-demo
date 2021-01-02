@@ -1,7 +1,7 @@
 import { ApolloServer, gql, UserInputError } from "apollo-server";
 import { buildFederatedSchema } from "@apollo/federation";
 import { ethers } from "ethers";
-import amqp from "amqplib/callback_api";
+import {connect, NatsConnectionOptions, Payload} from 'ts-nats';
 
 import { getUser, getUsers, getSubbedTo } from "./getUsers";
 import { dai } from "./utils";
