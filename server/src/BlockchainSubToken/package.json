@@ -20,6 +20,7 @@
     "apollo-server": "^2.19.0",
     "nodemon": "^2.0.6",
     "ethers": "5.0.18",
-    "amqplib": "^0.6.0"
+    "amqplib": "^0.6.0",
+    "ts-nats": "^1.2.15"
   }
 }

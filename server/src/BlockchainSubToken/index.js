@@ -1,13 +1,12 @@
 import { ApolloServer, gql, UserInputError } from "apollo-server";
 import { buildFederatedSchema } from "@apollo/federation";
 import { ethers } from "ethers";
-import amqp from "amqplib/callback_api";
+import { connect, NatsConnectionOptions, Payload } from "ts-nats";
 
-import { getSubToken, getSubTokens, getSubbedTo } from "./getSubToken";
+import { getSubToken, getSubTokens } from "./getSubToken";
 import { subscriptionV1 } from "./utils";
 
-let _channel;
-let exchange = "direct_services";
+let nc;
 
 const typeDefs = gql`
   type Query {
@@ -42,7 +41,6 @@ const resolvers = {
       return await getSubToken(id.toLowerCase());
     },
     subscriptionTokens: async () => await getSubTokens(),
-    
   },
   Mutation: {
     unsubscribe: async (_, { userID, tokenID, signature }) => {
@@ -79,48 +77,28 @@ server.listen(4003).then(({ url }) => {
   console.log(`🚀 Server ready at ${url}`);
 });
 
-amqp.connect("amqp://root:example@rabbitmq", function (error0, connection) {
-  if (error0) {
-    throw error0;
-  }
-  connection.createChannel(function (error1, channel) {
-    if (error1) {
-      throw error1;
-    }
-
-    channel.assertExchange(exchange, "direct", {
-      durable: false,
+async function natsConn() {
+  try {
+    nc = await connect({
+      servers: [`${process.env.NATS}:4222`],
+      payload: Payload.JSON,
     });
 
-    channel.assertQueue(
-      "",
-      {
-        exclusive: true,
-      },
-      function (error2, q) {
-        if (error2) {
-          throw error2;
+    nc.subscribe("chain.sub", (err, msg) => {
+      if (err) {
+      } else {
+        let data = msg.data;
+        switch (data.action) {
+          default:
+            console.log(data);
+            break;
         }
-        console.log(" [*] Waiting for logs. To exit press CTRL+C");
-
-        channel.bindQueue(q.queue, exchange, "SubToken");
-
-        channel.consume(
-          q.queue,
-          function (msg) {
-            console.log(
-              " [x] %s: '%s'",
-              msg.fields.routingKey,
-              msg.content.toString()
-            );
-          },
-          {
-            noAck: true,
-          }
-        );
       }
-    );
+    });
+  } catch {
+    console.log("NATS connection error");
+  }
+}
 
-    _channel = channel;
-  });
-});
+
+natsConn();

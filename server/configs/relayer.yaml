@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: relayer
+  labels:
+    app: relayer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: relayer
+  template:
+    metadata:
+      labels:
+        app: relayer
+    spec:
+      containers:
+        - name: relayer
+          image: qualla/relayer:latest
+          env:
+            - name: PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: server-secret
+                  key: PRIVATE_KEY
+            # - name: PRIVATE_KEY2
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: server-secret
+            #       key: PRIVATE_KEY2
+            # - name: ACCOUNT
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: server-secret
+            #       key: ACCOUNT
+            - name: NETWORK_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: server-configmap
+                  key: NETWORK_ID
+            - name: NETWORK_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: server-configmap
+                  key: NETWORK_URI
+            - name: GRAPH_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: server-configmap
+                  key: GRAPH_URI
+            - name: DAI_CONTRACT
+              valueFrom:
+                configMapKeyRef:
+                  name: server-configmap
+                  key: DAI_CONTRACT
+            - name: SUB_CONTRACT
+              valueFrom:
+                configMapKeyRef:
+                  name: server-configmap
+                  key: SUB_CONTRACT
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: relayer
+# spec:
+#   selector:
+#     app: relayer

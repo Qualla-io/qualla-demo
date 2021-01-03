@@ -2,10 +2,16 @@ const { ApolloServer } = require("apollo-server");
 const { ApolloGateway } = require("@apollo/gateway");
 
 const serviceList = [
-  { name: "BlockchainUser", url: "http://blockchain_user:4001" },
-  { name: "BlockchainBaseToken", url: "http://blockchain_basetoken:4002" },
-  { name: "BlockchainSubToken", url: "http://blockchain_subtoken:4003" },
-  {name: "Local", url: "http://local_data:4004"},
+  { name: "BlockchainUser", url: `http://${process.env.USER_DATA}:4001` },
+  {
+    name: "BlockchainBaseToken",
+    url: `http://${process.env.BASETOKEN_DATA}:4002`,
+  },
+  {
+    name: "BlockchainSubToken",
+    url: `http://${process.env.SUBTOKEN_DATA}:4003`,
+  },
+  { name: "Local", url: `http://${process.env.LOCAL_DATA}:4004` },
 ];
 
 const gateway = new ApolloGateway({

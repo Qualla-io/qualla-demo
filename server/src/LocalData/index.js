@@ -1,14 +1,13 @@
 import { ApolloServer, gql } from "apollo-server";
 import { buildFederatedSchema } from "@apollo/federation";
-import amqp from "amqplib/callback_api";
+import { connect, NatsConnectionOptions, Payload } from "ts-nats";
 
 import UserModel from "./models/user";
 import BaseTokenModel from "./models/baseToken";
 
 import mongoose from "mongoose";
 
-let _channel;
-let exchange = "direct_services";
+let nc;
 
 const typeDefs = gql`
   type Mutation {
@@ -141,7 +140,6 @@ async function handleModify(data) {
   // }
 
   for (var i = 0; i < data.title.length; i++) {
-
     let _baseToken = await BaseTokenModel.findById(data.txHash[i]).exec();
 
     // console.log(_baseToken);
@@ -160,60 +158,39 @@ server.listen(4004).then(({ url }) => {
   mongoose.set("useUnifiedTopology", true);
   mongoose.set("useNewUrlParser", true);
   //   mongoose.connect("mongodb://root:example@0.0.0.0:27017/local");
-  mongoose.connect("mongodb://root:example@mongo:27017");
+  mongoose.connect(
+    `mongodb://${process.env.MONGO_INITDB_ROOT_USERNAME}:${process.env.MONGO_INITDB_ROOT_PASSWORD}@${process.env.MONGO_SERVER}:27017`
+  );
   console.log(`🚀 Server ready at ${url}`);
 });
 
-amqp.connect("amqp://root:example@rabbitmq", function (error0, connection) {
-  if (error0) {
-    throw error0;
-  }
-  connection.createChannel(function (error1, channel) {
-    if (error1) {
-      throw error1;
-    }
-
-    channel.assertExchange(exchange, "direct", {
-      durable: false,
+async function natsConn() {
+  try {
+    nc = await connect({
+      servers: [`${process.env.NATS}:4222`],
+      payload: Payload.JSON,
     });
 
-    channel.assertQueue(
-      "",
-      {
-        exclusive: true,
-      },
-      function (error2, q) {
-        if (error2) {
-          throw error2;
+    nc.subscribe("local", (err, msg) => {
+      if (err) {
+      } else {
+        let data = msg.data;
+        switch (data.action) {
+          case "mint":
+            handleMint(data);
+            break;
+          case "modify":
+            handleModify(data);
+            break;
+          default:
+            console.log(data);
+            break;
         }
-        console.log(" [*] Waiting for logs. To exit press CTRL+C");
-
-        channel.bindQueue(q.queue, exchange, "Local");
-
-        channel.consume(
-          q.queue,
-          function (msg) {
-            let data = JSON.parse(msg.content.toString());
-
-            // Add try catch here
-            switch (data.action) {
-              case "mint":
-                handleMint(data);
-                break;
-              case "modify":
-                handleModify(data);
-                break;
-              default:
-                console.log(data);
-            }
-          },
-          {
-            noAck: true,
-          }
-        );
       }
-    );
+    });
+  } catch {
+    console.log("NATS connection error");
+  }
+}
 
-    _channel = channel;
-  });
-});
+natsConn();

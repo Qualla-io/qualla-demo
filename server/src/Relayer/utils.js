@@ -5,7 +5,6 @@ import SubscriptionV1 from "./abi/SubscriptionV1.json";
 let privateKey = process.env.PRIVATE_KEY;
 let provider = new ethers.providers.JsonRpcProvider(process.env.NETWORK_URI);
 const account = new ethers.Wallet(privateKey, provider);
-let signer = new ethers.Wallet(privateKey);
 let dai = new ethers.Contract(process.env.DAI_CONTRACT, Dai.abi, provider);
 
 dai = dai.connect(account);
@@ -22,5 +21,4 @@ module.exports = {
   account,
   dai,
   subscriptionV1,
-  signer,
 };

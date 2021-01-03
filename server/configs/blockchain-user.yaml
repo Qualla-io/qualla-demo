@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user
+  labels:
+    app: user
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user
+  template:
+    metadata:
+      labels:
+        app: user
+    spec:
+      containers:
+        - name: user
+          image: qualla/blockchain-user:latest
+          ports:
+            - containerPort: 4001
+          env:
+            - name: PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: server-secret
+                  key: PRIVATE_KEY
+            - name: ACCOUNT
+              valueFrom:
+                secretKeyRef:
+                  name: server-secret
+                  key: ACCOUNT
+            - name: NETWORK_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: server-configmap
+                  key: NETWORK_ID
+            - name: NETWORK_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: server-configmap
+                  key: NETWORK_URI
+            - name: GRAPH_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: server-configmap
+                  key: GRAPH_URI
+            - name: DAI_CONTRACT
+              valueFrom:
+                configMapKeyRef:
+                  name: server-configmap
+                  key: DAI_CONTRACT
+            - name: SUB_CONTRACT
+              valueFrom:
+                configMapKeyRef:
+                  name: server-configmap
+                  key: SUB_CONTRACT
+            - name: NATS
+              valueFrom:
+                configMapKeyRef:
+                  name: server-configmap
+                  key: NATS
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user
+spec:
+  selector:
+    app: user
+  ports:
+    - protocol: TCP
+      port: 4001
+      targetPort: 4001
