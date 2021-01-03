@@ -1,35 +1,38 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: basetoken
+  name: relayer
   labels:
-    app: basetoken
+    app: relayer
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: basetoken
+      app: relayer
   template:
     metadata:
       labels:
-        app: basetoken
+        app: relayer
     spec:
       containers:
-        - name: basetoken
-          image: qualla/blockchain-basetoken:latest
-          ports:
-            - containerPort: 4002
+        - name: relayer
+          image: qualla/relayer:latest
           env:
             - name: PRIVATE_KEY
               valueFrom:
                 secretKeyRef:
                   name: server-secret
                   key: PRIVATE_KEY
-            - name: ACCOUNT
-              valueFrom:
-                secretKeyRef:
-                  name: server-secret
-                  key: ACCOUNT
+            # - name: PRIVATE_KEY2
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: server-secret
+            #       key: PRIVATE_KEY2
+            # - name: ACCOUNT
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: server-secret
+            #       key: ACCOUNT
             - name: NETWORK_ID
               valueFrom:
                 configMapKeyRef:
@@ -55,20 +58,11 @@ spec:
                 configMapKeyRef:
                   name: server-configmap
                   key: SUB_CONTRACT
-            - name: NATS
-              valueFrom:
-                configMapKeyRef:
-                  name: server-configmap
-                  key: NATS
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: basetoken
-spec:
-  selector:
-    app: basetoken
-  ports:
-    - protocol: TCP
-      port: 4002
-      targetPort: 4002
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: relayer
+# spec:
+#   selector:
+#     app: relayer

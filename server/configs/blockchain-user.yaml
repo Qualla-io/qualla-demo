@@ -25,11 +25,6 @@ spec:
                 secretKeyRef:
                   name: server-secret
                   key: PRIVATE_KEY
-            - name: PRIVATE_KEY2
-              valueFrom:
-                secretKeyRef:
-                  name: server-secret
-                  key: PRIVATE_KEY2
             - name: ACCOUNT
               valueFrom:
                 secretKeyRef:
