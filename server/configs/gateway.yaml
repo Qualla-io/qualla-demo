@@ -3,15 +3,15 @@ kind: ConfigMap
 metadata:
   name: gateway-configmap
 data:
-  USER_DATA: user-service
-  BASETOKEN_DATA: basetoken-service
-  SUBTOKEN_DATA: subtoken-service
-  LOCAL_DATA: local-service
+  USER_DATA: user
+  BASETOKEN_DATA: basetoken
+  SUBTOKEN_DATA: subtoken
+  LOCAL_DATA: local
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gateway-depl
+  name: gateway
   labels:
     app: gateway
 spec:
@@ -54,7 +54,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: gateway-service
+  name: gateway
 spec:
   selector:
     app: gateway

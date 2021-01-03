@@ -8,4 +8,4 @@ data:
   GRAPH_URI: "http://host.docker.internal:8000/subgraphs/name/ghardin1314/qualla-demo"
   DAI_CONTRACT: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
   SUB_CONTRACT: "0x5fbdb2315678afecb367f032d93f642f64180aa3"
-  RABBITMQ_SERVER: rabbitmq-service
+  NATS: nats

@@ -3,12 +3,12 @@ kind: ConfigMap
 metadata:
   name: local-data-configmap
 data:
-  MONGO_SERVER: mongodb-service
+  MONGO_SERVER: mongodb
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: local-depl
+  name: local
   labels:
     app: local
 spec:
@@ -42,11 +42,16 @@ spec:
                 configMapKeyRef:
                   name: local-data-configmap
                   key: MONGO_SERVER
+            - name: NATS
+              valueFrom:
+                configMapKeyRef:
+                  name: server-configmap
+                  key: NATS
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: local-service
+  name: local
 spec:
   selector:
     app: local

@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: basetoken-depl
+  name: basetoken
   labels:
     app: basetoken
 spec:
@@ -35,16 +35,6 @@ spec:
                 secretKeyRef:
                   name: server-secret
                   key: ACCOUNT
-            - name: RABBITMQ_DEFAULT_USER
-              valueFrom:
-                secretKeyRef:
-                  name: server-secret
-                  key: RABBITMQ_DEFAULT_USER
-            - name: RABBITMQ_DEFAULT_PASS
-              valueFrom:
-                secretKeyRef:
-                  name: server-secret
-                  key: RABBITMQ_DEFAULT_PASS
             - name: NETWORK_ID
               valueFrom:
                 configMapKeyRef:
@@ -70,16 +60,16 @@ spec:
                 configMapKeyRef:
                   name: server-configmap
                   key: SUB_CONTRACT
-            - name: RABBITMQ_SERVER
+            - name: NATS
               valueFrom:
                 configMapKeyRef:
                   name: server-configmap
-                  key: RABBITMQ_SERVER
+                  key: NATS
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: basetoken-service
+  name: basetoken
 spec:
   selector:
     app: basetoken
