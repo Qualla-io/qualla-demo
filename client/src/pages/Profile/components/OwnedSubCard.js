@@ -64,7 +64,7 @@ export default function OwnedSubCard(props) {
     let domain = {
       name: "Qualla Subscription",
       version: "1",
-      chainId: 31337,
+      chainId: process.env.REACT_APP_CHAIN_ID,
       verifyingContract: subscriptionV1.address,
     };
 
