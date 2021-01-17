@@ -15,6 +15,7 @@ var subscriptionV1 = new ethers.Contract(
   SubscriptionV1.abi,
   provider
 );
+
 subscriptionV1 = subscriptionV1.connect(account);
 
 module.exports = {

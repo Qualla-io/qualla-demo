@@ -16,7 +16,10 @@ dataSources:
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - SubscriptionTokens
+        - User
+        - BaseToken
+        - SubscriptionToken
+        - NftToken
       abis:
         - name: SubscriptionV1
           file: client\src\artifacts\contracts\SubscriptionV1.sol\SubscriptionV1.json
@@ -32,3 +35,25 @@ dataSources:
         - event: NFTevent(uint256)
           handler: handleNFTevent
       file: SubscriptionV1\SubscriptionV1.wasm
+  - kind: ethereum/contract
+    name: Dai
+    network: develop
+    source:
+      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+      abi: TestDai
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - User
+      abis:
+        - name: TestDai
+          file: client\src\artifacts\contracts\TestDai.sol\TestDai.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleDaiApproval
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleDaiTransfer
+      file: Dai\Dai.wasm

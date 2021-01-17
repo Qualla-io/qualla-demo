@@ -6,6 +6,7 @@ import Footer from "./Footer.js";
 import FABspeeddial from "../components/FABspeeddial.js";
 import MyBalance from "../components/MyBalance.js";
 import Web3Modal from "../components/Web3Dialog.js";
+import SideDrawer from "../components/SideDrawer.js";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -15,6 +16,13 @@ const useStyles = makeStyles((theme) => ({
     "&::-webkit-scrollbar": {
       display: "none",
     },
+    main: {
+      display: "flex",
+      direction: "column",
+    },
+    grow: {
+      flexGrow: 1,
+    },
   },
 }));
 
@@ -22,14 +30,15 @@ export default function Layout(props) {
   const classes = useStyles();
   return (
     <div className={classes.root}>
-      <Topbar />
       <Web3Modal />
-      <MyBalance />
-      {/* <MainSection> */}
-        {props.children}
-        {/* </MainSection> */}
+      <SideDrawer>
+
+          {props.children}
+
+          <Footer />
+
+      </SideDrawer>
       <FABspeeddial />
-      <Footer />
     </div>
   );
 }

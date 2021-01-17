@@ -1,7 +1,7 @@
 import React from "react";
 import { Route, Switch } from "react-router-dom";
 
-import Dashboard from "./pages/Landing";
+import Dashboard from "./pages/Dashboard";
 import Mint from "./pages/Mint";
 import Profile from "./pages/Profile";
 

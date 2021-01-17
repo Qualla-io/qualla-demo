@@ -8,10 +8,10 @@ import SubbedTo from "./containers/SubbedTo";
 
 export default function Landing() {
   return (
-    <Container>
+    <>
       <Header />
-      <SubTokens />
-      <SubbedTo />
-    </Container>
+      {/* <SubTokens /> */}
+      {/* <SubbedTo /> */}
+    </>
   );
 }

@@ -4,6 +4,8 @@ type User @entity {
   subscriptions: [SubscriptionToken!] @derivedFrom(field: "owner")
   subscribers: [SubscriptionToken!] @derivedFrom(field: "creator")
   nonce: BigInt
+  approved: Boolean
+  balance: BigInt
 }
 
 type BaseToken @entity {

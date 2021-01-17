@@ -489,6 +489,29 @@ export class SubscriptionV1 extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
+  tokenId_ToExectuedNonce(param0: BigInt): BigInt {
+    let result = super.call(
+      "tokenId_ToExectuedNonce",
+      "tokenId_ToExectuedNonce(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(param0)]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_tokenId_ToExectuedNonce(param0: BigInt): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "tokenId_ToExectuedNonce",
+      "tokenId_ToExectuedNonce(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(param0)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
   tokenId_ToNextWithdraw(param0: BigInt): BigInt {
     let result = super.call(
       "tokenId_ToNextWithdraw",

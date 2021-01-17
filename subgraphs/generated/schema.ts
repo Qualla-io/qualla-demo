@@ -109,6 +109,32 @@ export class User extends Entity {
       this.set("nonce", Value.fromBigInt(value as BigInt));
     }
   }
+
+  get approved(): boolean {
+    let value = this.get("approved");
+    return value.toBoolean();
+  }
+
+  set approved(value: boolean) {
+    this.set("approved", Value.fromBoolean(value));
+  }
+
+  get balance(): BigInt | null {
+    let value = this.get("balance");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set balance(value: BigInt | null) {
+    if (value === null) {
+      this.unset("balance");
+    } else {
+      this.set("balance", Value.fromBigInt(value as BigInt));
+    }
+  }
 }
 
 export class BaseToken extends Entity {
@@ -236,23 +262,6 @@ export class BaseToken extends Entity {
 
   set initialSupply(value: BigInt) {
     this.set("initialSupply", Value.fromBigInt(value));
-  }
-
-  get ranInitialSupply(): string | null {
-    let value = this.get("ranInitialSupply");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set ranInitialSupply(value: string | null) {
-    if (value === null) {
-      this.unset("ranInitialSupply");
-    } else {
-      this.set("ranInitialSupply", Value.fromString(value as string));
-    }
   }
 }
 

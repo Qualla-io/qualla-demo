@@ -1,6 +1,7 @@
 import { ApolloServer, gql, UserInputError } from "apollo-server";
 import { buildFederatedSchema } from "@apollo/federation";
 import { ethers } from "ethers";
+import { BigNumber } from "bignumber.js";
 import { connect, NatsConnectionOptions, Payload } from "ts-nats";
 
 import { getUser, getUsers, getSubbedTo } from "./getUsers";
@@ -24,6 +25,8 @@ const typeDefs = gql`
   type User @key(fields: "id") {
     id: ID!
     nonce: Float!
+    approved: Boolean
+    balance: String
     baseTokens: [BaseToken!]
     subscriptions: [SubscriptionToken!]
     subscribers: [SubscriptionToken!]
@@ -51,17 +54,17 @@ const resolvers = {
   Mutation: {
     permit: async (_, { userID, signature, nonce }) => {
       // check if already permitted
+      let _user = await getUser(userID.toLowerCase());
+      if (_user.approved) {
+        return true;
+      }
 
       signature = ethers.utils.splitSignature(signature);
-
-      // console.log(signature);
-      console.log(process.env.SUB_CONTRACT);
-      console.log(userID);
 
       await dai.permit(
         userID,
         process.env.SUB_CONTRACT,
-        0,
+        nonce,
         0, // expiry
         true,
         signature.v,
@@ -72,10 +75,19 @@ const resolvers = {
       return true;
     },
     mintDai: async (_, { userID, amt }) => {
-      const initBal = await dai.balanceOf(userID.toLowerCase());
-      console.log(`Old balance: ${initBal}`);
+      let _user = await getUser(userID.toLowerCase());
+      let initBal;
+      if (_user.balance) {
+        initBal = _user.balance;
+      } else {
+        initBal = "0";
+      }
 
-      if (initBal < 3000000000000000000000) {
+      initBal = new BigNumber(initBal);
+
+      console.log(`Old balance: ${initBal.toFixed()}`);
+
+      if (initBal.lt(3000000000000000000000)) {
         await dai.mintTokens(userID.toLowerCase(), amt);
       } else {
         throw new UserInputError("Excessive funds, don't be greedy!", {

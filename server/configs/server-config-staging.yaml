@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: server-configmap
+data:
+  NETWORK_ID: "4"
+  NETWORK_URI: "https://rinkeby.infura.io/v3/ca89a35116f04ac4b88ae3fe1d2f8cff"
+  GRAPH_URI: "https://api.thegraph.com/subgraphs/name/ghardin1314/qualla-demo-v1"
+  DAI_CONTRACT: "0xb9225eff466b8C77c4589012598D3D7AAA97CD4C"
+  SUB_CONTRACT: "0xF5b0d28F4A7563d7437Bc7De9c93c22150018Be6"
+  NATS: nats

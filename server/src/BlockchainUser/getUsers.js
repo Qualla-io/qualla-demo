@@ -10,6 +10,8 @@ const GET_USER = `
     user(id: $id) {
       id
       nonce
+      approved
+      balance
       baseTokens {
         id
       }
