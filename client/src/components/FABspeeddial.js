@@ -8,7 +8,7 @@ import AttachMoneyIcon from "@material-ui/icons/AttachMoney";
 import ShareIcon from "@material-ui/icons/Share";
 import FeedbackIcon from "@material-ui/icons/Feedback";
 import RepeatIcon from "@material-ui/icons/Repeat";
-import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
+import PriorityHighIcon from "@material-ui/icons/PriorityHigh";
 import DiscordBlackIcon from "../img/Discord-Logo-Black.svg";
 // import { MINT } from "./queries";
 import { useMutation, useReactiveVar } from "@apollo/client";
@@ -20,7 +20,6 @@ const useStyles = makeStyles((theme) => ({
     zIndex: 1000,
   },
   speedDial: {
-    // backgroundColor: theme.palette.secondary.main,
     position: "fixed",
     bottom: theme.spacing(2),
     right: theme.spacing(2),
@@ -87,13 +86,13 @@ export default function FABspeeddial() {
       <Tour ref={tourRef}></Tour>
       <Backdrop open={open} className={classes.backdrop} />
       <SpeedDial
-        color="secondary"
         ariaLabel="SpeedDial tooltip"
         className={classes.speedDial}
         icon={<PriorityHighIcon />}
         onClose={handleClose}
         onOpen={handleOpen}
         open={open}
+        FabProps={{ style: { background: "#9C67B5" } }}
       >
         {actions.map((action) => (
           <SpeedDialAction

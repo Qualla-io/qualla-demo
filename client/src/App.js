@@ -18,6 +18,15 @@ const theme = createMuiTheme({
     background: {
       default: "#e0dede",
     },
+    secondary: {
+      main: "#be79df",
+    },
+    tertiary: {
+      main: "#18E3BE",
+    },
+    text: {
+      secondary: "#FFFFFF",
+    },
   },
   typography: {
     fontFamily: font,

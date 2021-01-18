@@ -10,6 +10,7 @@ import { useQueryWithAccountNetwork } from "../../../hooks";
 import HeaderCard from "../components/HeaderCard";
 
 import { GET_USER_OVERVIEW } from "../queries";
+import { Card, CardContent, Divider, Typography } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -17,6 +18,17 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     height: "100%",
     margin: 0,
+    display: "flex",
+  },
+  card: {
+    display: "flex",
+    flexDirection: "Column",
+    marginLeft: theme.spacing(3),
+    padding: theme.spacing(3),
+  },
+  line: {
+    borderLeft: "1px solid black",
+    height: "50%",
   },
 }));
 
@@ -37,23 +49,38 @@ export default function Header() {
     }
   }, [data]);
 
+  var cardData = [
+    { description: "Subscribers", value: data?.user?.subscribers?.length },
+    { description: "$Dai/Mo.", value: value },
+    { description: "Active Tiers", value: data?.user?.baseTokens?.length },
+  ];
+
   return (
-    <Grid container className={classes.header} spacing={10}>
-      <Grid item sm>
-        <HeaderCard
-          description="Subscribers"
-          value={data?.user?.subscribers?.length}
-        />
+    <Card className={classes.header}>
+      <Grid component={Grid} container item lg>
+        {cardData.map((item, index) => (
+          <>
+            <Grid item xs className={classes.card}>
+              <Typography>{item.description}</Typography>
+              <Typography variant="h4">
+                <b>{item.value}</b>
+              </Typography>
+            </Grid>
+            {index === cardData.length - 1 ? null : (
+              <Grid
+                item
+                style={{
+                  display: "flex",
+                  flexDirection: "Column",
+                  justifyContent: "center",
+                }}
+              >
+                <div className={classes.line} />
+              </Grid>
+            )}
+          </>
+        ))}
       </Grid>
-      <Grid item sm>
-        <HeaderCard description="$ Dai/Mo." value={value} />
-      </Grid>
-      <Grid item sm>
-        <HeaderCard
-          description="Active Tiers"
-          value={data?.user?.baseTokens?.length}
-        />
-      </Grid>
-    </Grid>
+    </Card>
   );
 }

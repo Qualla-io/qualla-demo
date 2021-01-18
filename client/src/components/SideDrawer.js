@@ -11,6 +11,9 @@ import ConfirmationNumberIcon from "@material-ui/icons/ConfirmationNumber";
 import SupervisorAccountIcon from "@material-ui/icons/SupervisorAccount";
 import PaletteIcon from "@material-ui/icons/Palette";
 import DashboardIcon from "@material-ui/icons/Dashboard";
+import AttachMoneyIcon from "@material-ui/icons/AttachMoney";
+import AccountBalanceIcon from "@material-ui/icons/AccountBalance";
+import SearchIcon from "@material-ui/icons/Search";
 import { Link } from "react-router-dom";
 import MyBalance from "./MyBalance";
 
@@ -21,6 +24,12 @@ const creatorList = [
   { text: "Tier Tokens", link: "mint", icon: <ConfirmationNumberIcon /> },
   { text: "Subscribers", link: "subscribers", icon: <SupervisorAccountIcon /> },
   { text: "NFTs", link: "nft", icon: <PaletteIcon /> },
+];
+
+const SubscriberList = [
+  { text: "Subscriptions", link: "subscriptions", icon: <AttachMoneyIcon /> },
+  { text: "Gallery", link: "gallery", icon: <AccountBalanceIcon /> },
+  { text: "Find Creators", link: "gallery", icon: <SearchIcon /> },
 ];
 
 const useStyles = makeStyles((theme) => ({
@@ -65,6 +74,9 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(4),
     backgroundColor: "#be79df",
   },
+  text: {
+    color: theme.palette.text.primary,
+  },
 }));
 
 export default function SideDrawer(props) {
@@ -88,7 +100,10 @@ export default function SideDrawer(props) {
               (item, index) => (
                 <ListItem button key={0} component={Link} to={`/${item.link}`}>
                   <ListItemIcon>{item.icon}</ListItemIcon>
-                  <ListItemText primary={item.text} />
+                  <ListItemText
+                    primary={item.text}
+                    classes={{ text: classes.text }}
+                  />
                 </ListItem>
               )
             )}
@@ -98,6 +113,22 @@ export default function SideDrawer(props) {
           </Typography>
           <List>
             {creatorList.map((item, index) => (
+              <ListItem
+                button
+                key={index}
+                component={Link}
+                to={`/${item.link}`}
+              >
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.text} />
+              </ListItem>
+            ))}
+          </List>
+          <Typography variant="subtitle1" className={classes.subtitle}>
+            Subscriber
+          </Typography>
+          <List>
+            {SubscriberList.map((item, index) => (
               <ListItem
                 button
                 key={index}
