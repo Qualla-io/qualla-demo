@@ -10,7 +10,7 @@ import FeedbackIcon from "@material-ui/icons/Feedback";
 import RepeatIcon from "@material-ui/icons/Repeat";
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import DiscordBlackIcon from "../img/Discord-Logo-Black.svg";
-import { MINT } from "./queries";
+// import { MINT } from "./queries";
 import { useMutation, useReactiveVar } from "@apollo/client";
 import { accountVar } from "../cache";
 import Tour from "./Tour";
@@ -31,15 +31,15 @@ const useStyles = makeStyles((theme) => ({
 export default function FABspeeddial() {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
-  let [mint] = useMutation(MINT);
+  // let [mint] = useMutation(MINT);
   let account = useReactiveVar(accountVar);
   const { enqueueSnackbar } = useSnackbar();
 
   const actions = [
-    {
-      icon: <AttachMoneyIcon onClick={_mint} style={{ color: "#000" }} />,
-      name: "Mint",
-    },
+    // {
+    //   icon: <AttachMoneyIcon onClick={_mint} style={{ color: "#000" }} />,
+    //   name: "Mint",
+    // },
     {
       icon: (
         <RepeatIcon
@@ -59,19 +59,19 @@ export default function FABspeeddial() {
     { icon: <ShareIcon style={{ color: "#000" }} />, name: "Share" },
   ];
 
-  async function _mint() {
-    mint({ variables: { userID: account, amt: "100" } })
-      .then((_data) => {
-        enqueueSnackbar(`haha money printer go BRRRRRRR`, {
-          variant: "success",
-        });
-      })
-      .catch((err) => {
-        enqueueSnackbar(`${err}`, {
-          variant: "error",
-        });
-      });
-  }
+  // async function _mint() {
+  //   mint({ variables: { userID: account, amt: "100" } })
+  //     .then((_data) => {
+  //       enqueueSnackbar(`haha money printer go BRRRRRRR`, {
+  //         variant: "success",
+  //       });
+  //     })
+  //     .catch((err) => {
+  //       enqueueSnackbar(`${err}`, {
+  //         variant: "error",
+  //       });
+  //     });
+  // }
 
   const handleOpen = () => {
     setOpen(true);

@@ -11,10 +11,14 @@ import Layout from "./containers/Layout";
 import { IconButton } from "@material-ui/core";
 import ClearIcon from "@material-ui/icons/Clear";
 
-
 const font = "'Rubik', sans-serif";
 
 const theme = createMuiTheme({
+  palette: {
+    background: {
+      default: "#e0dede",
+    },
+  },
   typography: {
     fontFamily: font,
     button: {

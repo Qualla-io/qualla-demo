@@ -38,11 +38,8 @@ const useStyles = makeStyles((theme) => ({
 export default function MyBalance() {
   const classes = useStyles();
   return (
-    <div className={classes.balanceDiv} >
-      <Typography gutterBottom variant="h6" >
-        Balance:
-      </Typography>
+    < >
       <UserBalance />
-    </div>
+    </>
   );
 }

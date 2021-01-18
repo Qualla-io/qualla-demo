@@ -1,27 +1,31 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
 import List from "@material-ui/core/List";
 import Typography from "@material-ui/core/Typography";
-import Divider from "@material-ui/core/Divider";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import InboxIcon from "@material-ui/icons/MoveToInbox";
-import MailIcon from "@material-ui/icons/Mail";
+import AccountBoxIcon from "@material-ui/icons/AccountBox";
+import ConfirmationNumberIcon from "@material-ui/icons/ConfirmationNumber";
+import SupervisorAccountIcon from "@material-ui/icons/SupervisorAccount";
+import PaletteIcon from "@material-ui/icons/Palette";
+import DashboardIcon from "@material-ui/icons/Dashboard";
+import { Link } from "react-router-dom";
+import MyBalance from "./MyBalance";
 
 const drawerWidth = 240;
+
+const creatorList = [
+  { text: "Profile", link: "profile", icon: <AccountBoxIcon /> },
+  { text: "Tier Tokens", link: "mint", icon: <ConfirmationNumberIcon /> },
+  { text: "Subscribers", link: "subscribers", icon: <SupervisorAccountIcon /> },
+  { text: "NFTs", link: "nft", icon: <PaletteIcon /> },
+];
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
-  },
-  appBar: {
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: drawerWidth,
   },
   drawer: {
     width: drawerWidth,
@@ -29,10 +33,37 @@ const useStyles = makeStyles((theme) => ({
   },
   drawerPaper: {
     width: drawerWidth,
+    backgroundColor: theme.palette.background.default,
+    borderRight: 0,
   },
   content: {
     flexGrow: 1,
     padding: theme.spacing(3),
+  },
+  title: {
+    textAlign: "center",
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+    backgroundColor: theme.palette.background.default,
+  },
+  section: {
+    // display: "flex",
+    flexGrow: 1,
+    borderTopRightRadius: 30,
+    backgroundColor: "#be79df",
+  },
+  subtitle: {
+    marginLeft: theme.spacing(3),
+    marginBottom: -theme.spacing(1),
+    // marginTop: theme.spacing(3),
+  },
+  grow: {
+    margin: "auto auto",
+  },
+  bottom: {
+    textAlign: "center",
+    paddingBottom: theme.spacing(4),
+    backgroundColor: "#be79df",
   },
 }));
 
@@ -48,29 +79,41 @@ export default function SideDrawer(props) {
         }}
         anchor="left"
       >
-        <Typography variant="h4">Qualla</Typography>
-        <Divider />
-        <List>
-          {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
-            <ListItem button key={text}>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItem>
-          ))}
-        </List>
-        <Divider />
-        <List>
-          {["All mail", "Trash", "Spam"].map((text, index) => (
-            <ListItem button key={text}>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItem>
-          ))}
-        </List>
+        <Typography variant="h4" className={classes.title}>
+          <b>Qualla</b>
+        </Typography>
+        <div className={classes.section}>
+          <List>
+            {[{ text: "Dashboard", link: "", icon: <DashboardIcon /> }].map(
+              (item, index) => (
+                <ListItem button key={0} component={Link} to={`/${item.link}`}>
+                  <ListItemIcon>{item.icon}</ListItemIcon>
+                  <ListItemText primary={item.text} />
+                </ListItem>
+              )
+            )}
+          </List>
+          <Typography variant="subtitle1" className={classes.subtitle}>
+            Creator
+          </Typography>
+          <List>
+            {creatorList.map((item, index) => (
+              <ListItem
+                button
+                key={index}
+                component={Link}
+                to={`/${item.link}`}
+              >
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.text} />
+              </ListItem>
+            ))}
+          </List>
+        </div>
+        <div className={classes.grow} />
+        <div className={classes.bottom}>
+          <MyBalance />
+        </div>
       </Drawer>
       <div className={classes.content}>{props.children}</div>
     </div>

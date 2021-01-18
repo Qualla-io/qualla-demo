@@ -16,6 +16,9 @@ export const GET_USER_OVERVIEW = gql`
       id
       username
       nonce
+      baseTokens {
+        id
+      }
       subscribers {
         id
         baseToken {
