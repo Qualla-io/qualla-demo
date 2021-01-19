@@ -33,3 +33,11 @@ type SubscriptionToken @entity {
 type NftToken @entity {
   id: ID!
 }
+
+type Transaction @entity {
+  id: ID! #`${event.transaction.hash.toHex()} - ${event.logIndex.toString()}`
+  from: User
+  to: User!
+  amount: BigInt!
+  timestamp: BigInt!
+}

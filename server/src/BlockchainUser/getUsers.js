@@ -6,7 +6,7 @@ const fetch = createApolloFetch({
 });
 
 const GET_USER = `
-  query GetUser($id: String!) {
+  query GetUser($id: ID!) {
     user(id: $id) {
       id
       nonce
@@ -48,6 +48,8 @@ const GET_USERS = `
     users {
       id
       nonce
+      approved
+      balance
       baseTokens {
         id
       }
@@ -94,6 +96,102 @@ export async function getSubbedTo(userID, creatorID) {
     query: GET_SUBBED_TO,
     variables: { userID, creatorID },
   });
-  console.log(res)
+  console.log(res);
   return res.data.user;
+}
+
+const GET_TRANSACTION = `
+query GetTransaction($id: String!) {
+  transaction(id: $id) {
+    id
+    to {
+      id
+    }
+    from {
+      id
+    }
+    amount
+    timestamp
+  }
+}
+`;
+
+export async function getTransaction(id) {
+  const res = await fetch({
+    query: GET_TRANSACTION,
+    variables: { id },
+  });
+  return res.data.transaction;
+}
+
+const GET_TRANSACTIONS = `
+query GetTransactionS{
+  transactions {
+    id
+    to {
+      id
+    }
+    from {
+      id
+    }
+    amount
+    timestamp
+  }
+}
+`;
+
+export async function getTransactions() {
+  const res = await fetch({
+    query: GET_TRANSACTIONS,
+  });
+  return res.data.transactions;
+}
+
+const GET_TRANSACTION_TO = `
+query GetTransactionTo($id: ID!) {
+  transactions(where: {to: $id}) {
+    id
+    to {
+      id
+    }
+    from {
+      id
+    }
+    amount
+    timestamp
+  }
+}
+`;
+
+export async function getUserTransactionsTo(id) {
+  const res = await fetch({
+    query: GET_TRANSACTION_TO,
+    variables: { id },
+  });
+  console.log(res);
+  return res.data.transactions;
+}
+
+const GET_TRANSACTION_FROM = `
+query GetTransactionFrom($id: String!) {
+  transactions(where: {from: $id}) {
+    id
+    to {
+      id
+    }
+    from {
+      id
+    }
+    amount
+    timestamp
+  }
+}
+`;
+
+export async function getUserTransactionsFrom(id) {
+  const res = await fetch({
+    query: GET_TRANSACTION_FROM,
+    variables: { id },
+  });
+  return res.data.transactions;
 }

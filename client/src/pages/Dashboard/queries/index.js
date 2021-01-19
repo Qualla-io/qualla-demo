@@ -73,6 +73,16 @@ export const GET_USER_SUBSCRIPTIONS = gql`
   }
 `;
 
+export const GET_TRANSACTIONS_TO = gql`
+  query getUserTransactionsTo($id: ID!) {
+    userTransactionsTo(id: $id) {
+      id
+      amount
+      timestamp
+    }
+  }
+`;
+
 export const UPDATE_USERNAME = gql`
   mutation updateUsername($id: ID!, $username: String!) {
     username(id: $id, username: $username) {

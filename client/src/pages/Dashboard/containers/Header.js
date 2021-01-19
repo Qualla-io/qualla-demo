@@ -50,9 +50,15 @@ export default function Header() {
   }, [data]);
 
   var cardData = [
-    { description: "Subscribers", value: data?.user?.subscribers?.length },
+    {
+      description: "Subscribers",
+      value: data?.user?.subscribers ? data?.user?.subscribers?.length : "--",
+    },
     { description: "$Dai/Mo.", value: value },
-    { description: "Active Tiers", value: data?.user?.baseTokens?.length },
+    {
+      description: "Active Tiers",
+      value: data?.user?.baseTokens ? data?.user?.baseTokens?.length : "--",
+    },
   ];
 
   return (

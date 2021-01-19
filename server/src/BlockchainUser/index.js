@@ -4,7 +4,15 @@ import { ethers } from "ethers";
 import { BigNumber } from "bignumber.js";
 import { connect, NatsConnectionOptions, Payload } from "ts-nats";
 
-import { getUser, getUsers, getSubbedTo } from "./getUsers";
+import {
+  getUser,
+  getUsers,
+  getSubbedTo,
+  getTransaction,
+  getTransactions,
+  getUserTransactionsTo,
+  getUserTransactionsFrom,
+} from "./getUsers";
 import { dai } from "./utils";
 
 let nc;
@@ -14,6 +22,10 @@ const typeDefs = gql`
     user(id: ID!): User
     users: [User!]
     userSubscribedTo(userID: ID!, creatorID: ID!): User
+    transaction(id: ID!): Transaction
+    transactions: [Transaction!]
+    userTransactionsTo(id: ID!): [Transaction!]
+    userTransactionsFrom(id: ID!): [Transaction!]
   }
 
   type Mutation {
@@ -30,6 +42,14 @@ const typeDefs = gql`
     baseTokens: [BaseToken!]
     subscriptions: [SubscriptionToken!]
     subscribers: [SubscriptionToken!]
+  }
+
+  type Transaction @key(fields: "id") {
+    id: ID!
+    amount: String!
+    to: User!
+    from: User
+    timestamp: Float!
   }
 
   extend type BaseToken @key(fields: "id") {
@@ -49,6 +69,16 @@ const resolvers = {
     users: async () => await getUsers(),
     userSubscribedTo: async (_, { userID, creatorID }) => {
       return await getSubbedTo(userID.toLowerCase(), creatorID.toLowerCase());
+    },
+    transaction: async (_, { id }) => {
+      return await getTransaction(id.toLowerCase());
+    },
+    transactions: async () => await getTransactions(),
+    userTransactionsTo: async (_, { id }) => {
+      return await getUserTransactionsTo(id.toLowerCase());
+    },
+    userTransactionsFrom: async (_, { id }) => {
+      return await getUserTransactionsFrom(id.toLowerCase());
     },
   },
   Mutation: {
@@ -108,6 +138,11 @@ const resolvers = {
   User: {
     __resolveReference(user) {
       return getUser(user.id);
+    },
+  },
+  Transaction: {
+    __resolveReference(transaction) {
+      return getTransaction(transaction.id);
     },
   },
 };
