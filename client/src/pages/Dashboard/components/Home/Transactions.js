@@ -17,7 +17,7 @@ import { ethers } from "ethers";
 import moment from "moment";
 import React, { useEffect } from "react";
 import { accountVar } from "../../../../cache";
-import {  useQueryWithAccountNetwork } from "../../../../hooks";
+import { useQueryWithAccountNetwork } from "../../../../hooks";
 import { GET_TRANSACTIONS_TO } from "../../queries";
 
 const useStyles = makeStyles((theme) => ({
@@ -75,7 +75,11 @@ export default function Transactions() {
             {data?.userTransactionsTo?.slice(0, 7).map((row, index) => (
               <TableRow>
                 <TableCell compoent="th" scope="row">
-                  {row.from ? "Test" : mintChip()}
+                  {row.from
+                    ? row.to === account
+                      ? incomeChip()
+                      : paymentChip()
+                    : mintChip()}
                 </TableCell>
                 <TableCell>
                   {row.from === null || row.to === account

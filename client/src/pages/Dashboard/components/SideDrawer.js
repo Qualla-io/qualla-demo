@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
 import List from "@material-ui/core/List";
@@ -16,6 +16,8 @@ import AccountBalanceIcon from "@material-ui/icons/AccountBalance";
 import SearchIcon from "@material-ui/icons/Search";
 import { Link } from "react-router-dom";
 import MyBalance from "../../../components/MyBalance";
+import { Hidden } from "@material-ui/core";
+import TopBar from "./TopBar";
 
 const drawerWidth = 240;
 
@@ -76,6 +78,9 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     borderTopRightRadius: 30,
     backgroundColor: "#be79df",
+    [theme.breakpoints.down("sm")]:{
+      borderTopRightRadius: 0,
+    }
   },
   subtitle: {
     marginLeft: theme.spacing(3),
@@ -97,72 +102,100 @@ const useStyles = makeStyles((theme) => ({
 
 export default function SideDrawer(props) {
   const classes = useStyles();
+  const [open, setOpen] = useState(false);
+
+  const drawer = (
+    <>
+      <Typography variant="h4" className={classes.title}>
+        <b>Qualla</b>
+      </Typography>
+      <div className={classes.section}>
+        <List>
+          {[{ text: "Dashboard", link: "", icon: <DashboardIcon /> }].map(
+            (item, index) => (
+              <ListItem button key={0} component={Link} to={`/${item.link}`}>
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText
+                  primary={item.text}
+                  classes={{ text: classes.text }}
+                />
+              </ListItem>
+            )
+          )}
+        </List>
+        <Typography variant="subtitle1" className={classes.subtitle}>
+          Creator
+        </Typography>
+        <List>
+          {creatorList.map((item, index) => (
+            <ListItem button key={index} component={Link} to={`/${item.link}`}>
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.text} />
+            </ListItem>
+          ))}
+        </List>
+        <Typography variant="subtitle1" className={classes.subtitle}>
+          Subscriber
+        </Typography>
+        <List>
+          {SubscriberList.map((item, index) => (
+            <ListItem button key={index} component={Link} to={`/${item.link}`}>
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.text} />
+            </ListItem>
+          ))}
+        </List>
+      </div>
+      <div className={classes.grow} />
+      <div className={classes.bottom}>
+        <MyBalance />
+      </div>
+    </>
+  );
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const openMenu = () => {
+    setOpen(true);
+  };
+
   return (
     <div className={classes.root}>
-      <Drawer
-        className={classes.drawer}
-        variant="permanent"
-        classes={{
-          paper: classes.drawerPaper,
-        }}
-        anchor="left"
-      >
-        <Typography variant="h4" className={classes.title}>
-          <b>Qualla</b>
-        </Typography>
-        <div className={classes.section}>
-          <List>
-            {[{ text: "Dashboard", link: "", icon: <DashboardIcon /> }].map(
-              (item, index) => (
-                <ListItem button key={0} component={Link} to={`/${item.link}`}>
-                  <ListItemIcon>{item.icon}</ListItemIcon>
-                  <ListItemText
-                    primary={item.text}
-                    classes={{ text: classes.text }}
-                  />
-                </ListItem>
-              )
-            )}
-          </List>
-          <Typography variant="subtitle1" className={classes.subtitle}>
-            Creator
-          </Typography>
-          <List>
-            {creatorList.map((item, index) => (
-              <ListItem
-                button
-                key={index}
-                component={Link}
-                to={`/${item.link}`}
-              >
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.text} />
-              </ListItem>
-            ))}
-          </List>
-          <Typography variant="subtitle1" className={classes.subtitle}>
-            Subscriber
-          </Typography>
-          <List>
-            {SubscriberList.map((item, index) => (
-              <ListItem
-                button
-                key={index}
-                component={Link}
-                to={`/${item.link}`}
-              >
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.text} />
-              </ListItem>
-            ))}
-          </List>
-        </div>
-        <div className={classes.grow} />
-        <div className={classes.bottom}>
-          <MyBalance />
-        </div>
-      </Drawer>
-      <div className={classes.content}>{props.children}</div>
+      <Hidden mdUp implementation="css">
+        <Drawer
+          variant="temporary"
+          anchor="left"
+          open={open}
+          onClose={handleClose}
+          ModalProps={{
+            keepMounted: true, // Better open performance on mobile.
+          }}
+          classes={{
+            paper: classes.drawerPaper,
+          }}
+          className={classes.drawer}
+        >
+          {drawer}
+        </Drawer>
+      </Hidden>
+      <Hidden smDown implementation="css">
+        <Drawer
+          className={classes.drawer}
+          variant="permanent"
+          classes={{
+            paper: classes.drawerPaper,
+          }}
+          anchor="left"
+        >
+          {drawer}
+        </Drawer>
+      </Hidden>
+      <div className={classes.content}>
+        <TopBar openMenu={openMenu} />
+        {props.children}
+      </div>
     </div>
   );
 }

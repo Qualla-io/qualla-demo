@@ -55,7 +55,7 @@ export default function IncomeCard() {
   return (
     <Grid component={Card} item>
       <CardHeader
-        title="Subscription Income"
+        title="Income"
         action={
           <FormControl variant="outlined">
             <InputLabel>Unit</InputLabel>
@@ -70,7 +70,7 @@ export default function IncomeCard() {
         <ResponsiveContainer width="100%" height={300}>
           <AreaChart
             data={chartData}
-            margin={{ top: 15, left: 20, right: 10, bottom: 5 }}
+            margin={{ top: 15, left: 5, right: 10, bottom: 5 }}
           >
             <defs>
               <linearGradient id="col" x1="0" y1="0" x2="0" y2="1">
@@ -89,7 +89,7 @@ export default function IncomeCard() {
             <XAxis dataKey="date" axisLine={false} />
             <YAxis
               axisLine={false}
-              label={{ value: "$ DAI", angle: -90, position: "left" }}
+              label={{ value: "$ DAI", angle: -90, position: "insideLeft" }}
               // unit=" $Dai"
             />
             <Area

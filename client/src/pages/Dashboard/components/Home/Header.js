@@ -58,12 +58,12 @@ export default function Header() {
   var cardData = [
     {
       description: "Subscribers",
-      value: data?.user?.subscribers ? data?.user?.subscribers?.length : "--",
+      value: data?.user?.subscribers ? data?.user?.subscribers?.length : "0",
     },
     { description: "$Dai/Mo.", value: value },
     {
       description: "Active Tiers",
-      value: data?.user?.baseTokens ? data?.user?.baseTokens?.length : "--",
+      value: data?.user?.baseTokens ? data?.user?.baseTokens?.length : "0",
     },
   ];
 
