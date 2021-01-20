@@ -7,9 +7,9 @@ import Tooltip from "@material-ui/core/Tooltip";
 import { makeStyles } from "@material-ui/core/styles";
 
 // import { useReactiveVar } from "@apollo/client";
-import { GET_USER_OVERVIEW } from "../queries";
+import { GET_USER_OVERVIEW } from "../../queries";
 // import { accountVar } from "../../../cache";
-import { useQueryWithAccount } from "../../../hooks";
+import { useQueryWithAccount } from "../../../../hooks";
 import { Typography } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({

@@ -5,30 +5,36 @@ import Grid from "@material-ui/core/Grid";
 import { makeStyles } from "@material-ui/core/styles";
 
 import { useReactiveVar } from "@apollo/client";
-import { accountVar } from "../../../cache";
-import { useQueryWithAccountNetwork } from "../../../hooks";
-import HeaderCard from "../components/HeaderCard";
+import { accountVar } from "../../../../cache";
+import { useQueryWithAccountNetwork } from "../../../../hooks";
 
-import { GET_USER_OVERVIEW } from "../queries";
-import { Card, CardContent, Divider, Typography } from "@material-ui/core";
+import { GET_USER_OVERVIEW } from "../../queries";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  Typography,
+} from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   header: {
-    marginTop: theme.spacing(6),
-    width: "100%",
-    height: "100%",
-    margin: 0,
-    display: "flex",
+    // marginTop: theme.spacing(6),
+    // width: "100%",
+    // height: "100%",
+    // margin: 0,
   },
   card: {
     display: "flex",
     flexDirection: "Column",
     marginLeft: theme.spacing(3),
-    padding: theme.spacing(3),
+    padding: theme.spacing(2),
   },
   line: {
     borderLeft: "1px solid black",
     height: "50%",
+  },
+  title: {
+    marginBottom: -theme.spacing(4),
   },
 }));
 
@@ -63,7 +69,8 @@ export default function Header() {
 
   return (
     <Card className={classes.header}>
-      <Grid component={Grid} container item lg>
+      {/* <CardHeader title="Overview" className={classes.title} /> */}
+      <Grid component={CardContent} container item lg>
         {cardData.map((item, index) => (
           <>
             <Grid item xs className={classes.card}>

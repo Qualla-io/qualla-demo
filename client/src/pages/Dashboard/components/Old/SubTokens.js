@@ -4,11 +4,11 @@ import { Button, GridListTile, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
 
-import { GET_USER_BASETOKENS } from "../queries";
-import { useQueryWithAccountNetwork } from "../../../hooks";
+import { GET_USER_BASETOKENS } from "../../queries";
+import { useQueryWithAccountNetwork } from "../../../../hooks";
 import BaseTokenCard from "../components/BaseTokenCard";
 import BlankBaseTokenCard from "../components/BlankBaseTokenCard";
-import CustomGridlist from "../../../containers/CustomGridlist";
+import CustomGridlist from "../../../../containers/CustomGridlist";
 import { Link } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({

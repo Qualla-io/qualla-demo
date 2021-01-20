@@ -5,14 +5,14 @@ import {  GridListTile, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
 // import { useReactiveVar } from "@apollo/client";
-import { GET_USER_SUBSCRIPTIONS } from "../queries";
+import { GET_USER_SUBSCRIPTIONS } from "../../queries";
 // import { accountVar } from "../../../cache";
 import {
   useQueryWithAccountNetwork,
-} from "../../../hooks";
+} from "../../../../hooks";
 import SubbedToCard from "../components/SubbedToCard";
 import BlankSubbedToCard from "../components/BlankSubbedToCard";
-import CustomGridlist from "../../../containers/CustomGridlist";
+import CustomGridlist from "../../../../containers/CustomGridlist";
 import FindCreatorCard from "../components/FindCreatorCard";
 
 const useStyles = makeStyles((theme) => ({

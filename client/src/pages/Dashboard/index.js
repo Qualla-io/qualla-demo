@@ -2,26 +2,20 @@ import React from "react";
 
 import { makeStyles } from "@material-ui/core/styles";
 
-import Header from "./containers/Header";
-import SubTokens from "./containers/SubTokens";
-import SubbedTo from "./containers/SubbedTo";
-import IncomeCard from "./components/IncomeCard";
-
-const useStyles = makeStyles((theme) => ({
-  main: {
-    display: "flex",
-    flexDirection: "Column",
-  },
-}));
+import Header from "./components/Home/Header";
+import IncomeCard from "./components/Home/IncomeCard";
+import { Route, Switch } from "react-router-dom";
+import DashboardHome from "./containers/DashboardHome";
+import SideDrawer from "./components/SideDrawer";
+import NotFound from "../../containers/NotFound";
 
 export default function Landing() {
-  const classes = useStyles();
   return (
-    <div className={classes.main}>
-      <Header />
-      <IncomeCard />
-      {/* <SubTokens /> */}
-      {/* <SubbedTo /> */}
-    </div>
+    <SideDrawer>
+      <Switch>
+        <Route path="/dashboard/" exact component={DashboardHome} />
+        <Route component={NotFound} />
+      </Switch>
+    </SideDrawer>
   );
 }

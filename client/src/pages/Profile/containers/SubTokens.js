@@ -5,7 +5,7 @@ import { useQuery } from "@apollo/client";
 import { GET_CREATOR_OVERVIEW } from "../queries";
 import { makeStyles } from "@material-ui/core/styles";
 import SubCard from "../components/SubCard";
-import CustomGridlist from "../../../containers/CustomGridlist";
+// import CustomGridlist from "../../../containers/CustomGridlist";
 
 import { GridListTile } from "@material-ui/core";
 
@@ -45,7 +45,7 @@ export default function SubTokens() {
 
   return (
     <div>
-      <div className={classes.cardsDiv}>
+      {/* <div className={classes.cardsDiv}>
         {data?.user?.baseTokens?.length > 0 ? (
           <CustomGridlist name="SubTokens">
             {data?.user?.baseTokens?.map((token, i) => (
@@ -56,10 +56,9 @@ export default function SubTokens() {
           </CustomGridlist>
         ) : (
           <div className={classes.blankCard}>
-            {/* <BlankBaseTokenCard /> */}
           </div>
         )}
-      </div>
+      </div> */}
     </div>
   );
 }

@@ -77,6 +77,12 @@ export const GET_TRANSACTIONS_TO = gql`
   query getUserTransactionsTo($id: ID!) {
     userTransactionsTo(id: $id) {
       id
+      to {
+        id
+      }
+      from {
+        id
+      }
       amount
       timestamp
     }

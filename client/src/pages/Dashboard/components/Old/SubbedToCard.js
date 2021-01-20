@@ -1,8 +1,8 @@
 import React from "react";
 import { ethers } from "ethers";
-import { cardStyles } from "./styles";
+import { cardStyles } from "../styles";
 import { Avatar, Button, Typography } from "@material-ui/core";
-import AvatarIcons from "../../../components/AvatarIcons";
+import AvatarIcons from "../../../../components/AvatarIcons";
 import { Link } from "react-router-dom";
 
 export default function SubbedToCard(props) {

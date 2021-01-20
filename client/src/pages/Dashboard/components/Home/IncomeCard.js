@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import moment from "moment";
 
-import { GET_TRANSACTIONS_TO } from "../queries";
+import { GET_TRANSACTIONS_TO } from "../../queries";
 
 import {
   Card,
@@ -13,15 +13,17 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  useTheme,
 } from "@material-ui/core";
-import { useQueryWithAccount } from "../../../hooks";
+import { useQueryWithAccountNetwork } from "../../../../hooks";
 import BigNumber from "bignumber.js";
 import { ethers } from "ethers";
 
 export default function IncomeCard() {
+  let theme = useTheme();
   let [dateUnit, setDateUnit] = useState("days");
   let [chartData, setChartData] = useState([]);
-  let { data } = useQueryWithAccount(GET_TRANSACTIONS_TO);
+  let { data } = useQueryWithAccountNetwork(GET_TRANSACTIONS_TO);
 
   useEffect(() => {
     setChartData([]);
@@ -66,16 +68,36 @@ export default function IncomeCard() {
       ></CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-          <AreaChart data={chartData}>
+          <AreaChart
+            data={chartData}
+            margin={{ top: 15, left: 20, right: 10, bottom: 5 }}
+          >
             <defs>
               <linearGradient id="col" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+                <stop
+                  offset="5%"
+                  stopColor={theme.palette.secondary.main}
+                  stopOpacity={0.8}
+                />
+                <stop
+                  offset="95%"
+                  stopColor={theme.palette.secondary.main}
+                  stopOpacity={0}
+                />
               </linearGradient>
             </defs>
             <XAxis dataKey="date" axisLine={false} />
-            <YAxis axisLine={false} />
-            <Area type="monotone" dataKey="value" fill="url(#col)" />
+            <YAxis
+              axisLine={false}
+              label={{ value: "$ DAI", angle: -90, position: "left" }}
+              // unit=" $Dai"
+            />
+            <Area
+              type="monotone"
+              dataKey="value"
+              stroke={theme.palette.secondary.main}
+              fill="url(#col)"
+            />
           </AreaChart>
         </ResponsiveContainer>
       </CardContent>

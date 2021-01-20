@@ -15,21 +15,37 @@ import AttachMoneyIcon from "@material-ui/icons/AttachMoney";
 import AccountBalanceIcon from "@material-ui/icons/AccountBalance";
 import SearchIcon from "@material-ui/icons/Search";
 import { Link } from "react-router-dom";
-import MyBalance from "./MyBalance";
+import MyBalance from "../../../components/MyBalance";
 
 const drawerWidth = 240;
 
 const creatorList = [
-  { text: "Profile", link: "profile", icon: <AccountBoxIcon /> },
-  { text: "Tier Tokens", link: "mint", icon: <ConfirmationNumberIcon /> },
-  { text: "Subscribers", link: "subscribers", icon: <SupervisorAccountIcon /> },
-  { text: "NFTs", link: "nft", icon: <PaletteIcon /> },
+  { text: "Profile", link: "dashboard/profile", icon: <AccountBoxIcon /> },
+  {
+    text: "Tier Tokens",
+    link: "dashboard/mint",
+    icon: <ConfirmationNumberIcon />,
+  },
+  {
+    text: "Subscribers",
+    link: "dashboard/subscribers",
+    icon: <SupervisorAccountIcon />,
+  },
+  { text: "NFTs", link: "dashboard/nft", icon: <PaletteIcon /> },
 ];
 
 const SubscriberList = [
-  { text: "Subscriptions", link: "subscriptions", icon: <AttachMoneyIcon /> },
-  { text: "Gallery", link: "gallery", icon: <AccountBalanceIcon /> },
-  { text: "Find Creators", link: "gallery", icon: <SearchIcon /> },
+  {
+    text: "Subscriptions",
+    link: "dashboard/subscriptions",
+    icon: <AttachMoneyIcon />,
+  },
+  { text: "Gallery", link: "dashboard/gallery", icon: <AccountBalanceIcon /> },
+  {
+    text: "Find Creators",
+    link: `${process.env.REACT_APP_CREATOR_ADDRESS}`,
+    icon: <SearchIcon />,
+  },
 ];
 
 const useStyles = makeStyles((theme) => ({

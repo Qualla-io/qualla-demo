@@ -4,11 +4,11 @@ import { ethers } from "ethers";
 import { useSnackbar } from "notistack";
 import { useMutation } from "@apollo/client";
 
-import { cardStyles } from "./styles";
+import { cardStyles } from "../styles";
 import { Avatar, Button, Typography } from "@material-ui/core";
-import AvatarIcons from "../../../components/AvatarIcons";
+import AvatarIcons from "../../../../components/AvatarIcons";
 
-import { ADD_SUB } from "../queries";
+import { ADD_SUB } from "../../queries";
 
 export default function BaseTokenCard(props) {
   const classes = cardStyles();

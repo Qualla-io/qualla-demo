@@ -4,7 +4,7 @@ import { GridListTile } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
 import OwnedSubCard from "../components/OwnedSubCard";
-import CustomGridlist from "../../../containers/CustomGridlist";
+// import CustomGridlist from "../../../containers/CustomGridlist";
 
 const useStyles = makeStyles((theme) => ({
   heading: {
@@ -36,7 +36,7 @@ export default function OwnedTokens(props) {
 
   return (
     <div>
-      <div className={classes.cardsDiv}>
+      {/* <div className={classes.cardsDiv}>
         {tokens.length > 0 ? (
           <CustomGridlist name="OwnedSubTokens">
             {tokens.map((token, i) => (
@@ -47,10 +47,9 @@ export default function OwnedTokens(props) {
           </CustomGridlist>
         ) : (
           <div className={classes.blankCard}>
-            {/* <BlankBaseTokenCard /> */}
           </div>
         )}
-      </div>
+      </div> */}
     </div>
   );
 }
