@@ -14,7 +14,7 @@
     "ethers": "5.0.24",
     "fortmatic": "^2.2.1",
     "graphql": "^15.4.0",
-    "immer": "^7.0.14",
+    "immer": "^8.0.1",
     "lodash.clonedeep": "^4.5.0",
     "notistack": "^1.0.1",
     "react": "16.11.0",
