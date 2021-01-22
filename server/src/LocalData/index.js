@@ -1,6 +1,7 @@
-import { ApolloServer, gql } from "apollo-server";
+import { ApolloServer, gql, UserInputError } from "apollo-server";
 import { buildFederatedSchema } from "@apollo/federation";
 import { connect, NatsConnectionOptions, Payload } from "ts-nats";
+import validator from "validator";
 
 import UserModel from "./models/user";
 import BaseTokenModel from "./models/baseToken";
@@ -11,12 +12,23 @@ let nc;
 
 const typeDefs = gql`
   type Mutation {
-    username(id: ID!, username: String): User
+    updateUser(
+      id: ID!
+      username: String
+      avatar: Float
+      coverPhoto: Float
+      url: String
+      description: String
+    ): User
   }
 
   extend type User @key(fields: "id") {
     id: ID! @external
     username: String
+    avatar: Float
+    coverPhoto: Float
+    url: String
+    description: String
   }
 
   extend type BaseToken @key(fields: "txHash") {
@@ -29,31 +41,77 @@ const typeDefs = gql`
 
 const resolvers = {
   Mutation: {
-    username: async (_, { id, username }) => {
-      console.log(id);
-      console.log(username);
-
+    updateUser: async (
+      _,
+      { id, username, avatar, coverPhoto, url, description }
+    ) => {
       let _user = await UserModel.findById(id.toLowerCase()).exec();
 
       if (_user === null) {
         _user = await UserModel.create({ _id: id.toLowerCase() });
       }
 
-      _user.username = username;
+      if (username) {
+        let _checkUsername = await UserModel.findOne({
+          username: username,
+        }).exec();
+        if (_checkUsername && _checkUsername.id !== id.toLowerCase()) {
+          throw new UserInputError("Username taken!", {
+            invalidArgs: Object.keys(username),
+          });
+        }
+      }
+
+      if (url) {
+        if (!validator.isBase64(url, { urlSafe: true })) {
+          throw new UserInputError("Invalid Url!", {
+            invalidArgs: Object.keys(url),
+          });
+        }
+
+        let _checkUrl = await UserModel.findOne({
+          url: url,
+        }).exec();
+        if (_checkUrl && _checkUrl.id !== id.toLowerCase()) {
+          throw new UserInputError("Url taken!", {
+            invalidArgs: Object.keys(url),
+          });
+        }
+      }
+
+      if (username) {
+        _user.username = username;
+      }
+      if (avatar) {
+        _user.avatar = avatar;
+      }
+      if (coverPhoto) {
+        _user.coverPhoto = coverPhoto;
+      }
+      if (url) {
+        _user.url = url;
+      }
+      if (description) {
+        _user.description = description;
+      }
+
       await _user.save();
 
       return _user.toJSON();
     },
   },
   User: {
-    username: async (user) => {
-      let _user = await UserModel.findById(user.id.toLowerCase());
-      if (_user) {
-        return _user.username;
-      } else {
-        return user.id.toLowerCase();
-      }
+    __resolveReference(user) {
+      return UserModel.findById(user.id.toLowerCase());
     },
+    // username: async (user) => {
+    //   let _user = await UserModel.findById(user.id.toLowerCase());
+    //   if (_user) {
+    //     return _user.username;
+    //   } else {
+    //     return user.id.toLowerCase();
+    //   }
+    // },
   },
   BaseToken: {
     title: async (baseToken) => {

@@ -5,6 +5,10 @@ var UserSchema = new Schema(
   {
     _id: { type: String },
     username: { type: String },
+    avatar: { type: Number },
+    coverPhoto: { type: Number },
+    url: { type: String },
+    description: { type: String },
   },
   {
     toObject: { virtuals: true },

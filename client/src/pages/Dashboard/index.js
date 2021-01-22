@@ -5,6 +5,7 @@ import DashboardHome from "./containers/DashboardHome";
 import SideDrawer from "./components/SideDrawer";
 import NotFound from "../../containers/NotFound";
 import TopBar from "./components/TopBar";
+import Profile from "./containers/Profile";
 
 export default function Landing() {
   return (
@@ -12,6 +13,7 @@ export default function Landing() {
       <SideDrawer>
         <Switch>
           <Route path="/dashboard/" exact component={DashboardHome} />
+          <Route path="/dashboard/profile" exact component={Profile} />
           <Route component={NotFound} />
         </Switch>
       </SideDrawer>

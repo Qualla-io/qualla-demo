@@ -12,7 +12,8 @@ import { accountVar } from "../cache";
 import { MINT, GET_BALANCE } from "./queries";
 
 import { makeStyles } from "@material-ui/core/styles";
-import { useQueryWithAccountNetwork } from "../hooks";
+import { useQueryWithAccountNetwork, useQueryWithAccount } from "../hooks";
+import BigNumber from "bignumber.js";
 
 const useStyles = makeStyles((theme) => ({
   main: {
@@ -30,9 +31,9 @@ const useStyles = makeStyles((theme) => ({
 
 export default function UserBalance(props) {
   const { enqueueSnackbar } = useSnackbar();
-  let [balance, setBalance] = useState("0.0");
+  // let [balance, setBalance] = useState("0.0");
   let account = useReactiveVar(accountVar);
-  let { data } = useQueryWithAccountNetwork(GET_BALANCE);
+  let { data } = useQueryWithAccount(GET_BALANCE);
   let [mint] = useMutation(MINT);
 
   const ref = useRef(null);
@@ -40,7 +41,28 @@ export default function UserBalance(props) {
   const classes = useStyles();
 
   async function _mint() {
-    mint({ variables: { userID: account, amt: "100" } })
+    mint({
+      variables: { userID: account, amt: "100" },
+      update(cache) {
+        cache.modify({
+          id: cache.identify({
+            id: account.toLowerCase(),
+            __typename: "User",
+          }),
+          fields: {
+            balance(cachedBal) {
+              console.log(
+                new BigNumber(cachedBal).plus("100000000000000000000").toFixed()
+              );
+              return new BigNumber(cachedBal)
+                .plus("100000000000000000000")
+                .toFixed();
+            },
+          },
+          // broadcast: false,
+        });
+      },
+    })
       .then((_data) => {
         enqueueSnackbar(`haha money printer go BRRRRRRR`, {
           variant: "success",
@@ -53,16 +75,16 @@ export default function UserBalance(props) {
       });
   }
 
-  useEffect(() => {
-    if (data && ref.current && data?.user?.balance.toString() !== balance) {
-      enqueueSnackbar(`Balance Updated`, {
-        variant: "success",
-      });
-    }
-    setBalance(data?.user?.balance?.toString());
-    ref.current = data;
-    // eslint-disable-next-line
-  }, [data]);
+  // useEffect(() => {
+  //   if (data && ref.current && data?.user?.balance.toString() !== balance) {
+  //     enqueueSnackbar(`Balance Updated`, {
+  //       variant: "success",
+  //     });
+  //   }
+  //   setBalance(data?.user?.balance?.toString());
+  //   ref.current = data;
+  //   // eslint-disable-next-line
+  // }, [data]);
 
   return (
     <div className={classes.main}>

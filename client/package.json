@@ -31,6 +31,7 @@
     "redux-devtools-extension": "^2.13.8",
     "redux-thunk": "^2.3.0",
     "subscriptions-transport-ws": "^0.9.18",
+    "validator-js": "^0.2.1",
     "web3": "1.2.2",
     "web3modal": "^1.9.1"
   },

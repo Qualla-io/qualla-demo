@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import moment from "moment";
 
-import { GET_TRANSACTIONS_TO } from "../../queries";
+import { GET_TRANSACTIONS_TO } from "./queries";
 
 import {
   Card,

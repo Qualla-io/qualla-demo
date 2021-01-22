@@ -8,7 +8,7 @@ import { useReactiveVar } from "@apollo/client";
 import { accountVar } from "../../../../cache";
 import { useQueryWithAccountNetwork } from "../../../../hooks";
 
-import { GET_USER_OVERVIEW } from "../../queries";
+import { GET_USER_OVERVIEW } from "./queries";
 import {
   Card,
   CardContent,
