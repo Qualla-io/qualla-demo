@@ -11,6 +11,10 @@ import mongoose from "mongoose";
 let nc;
 
 const typeDefs = gql`
+  type Query {
+    getUserFromUrl(url: String): User
+  }
+
   type Mutation {
     updateUser(
       id: ID!
@@ -40,6 +44,11 @@ const typeDefs = gql`
 `;
 
 const resolvers = {
+  Query: {
+    getUserFromUrl: async (_, { url }) => {
+      return await UserModel.findOne({ url: url }).exec();
+    },
+  },
   Mutation: {
     updateUser: async (
       _,
@@ -94,6 +103,7 @@ const resolvers = {
       if (description) {
         _user.description = description;
       }
+    
 
       await _user.save();
 

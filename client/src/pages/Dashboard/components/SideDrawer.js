@@ -25,7 +25,7 @@ const creatorList = [
   { text: "Profile", link: "dashboard/profile", icon: <AccountBoxIcon /> },
   {
     text: "Tier Tokens",
-    link: "dashboard/mint",
+    link: "dashboard/tiers",
     icon: <ConfirmationNumberIcon />,
   },
   {

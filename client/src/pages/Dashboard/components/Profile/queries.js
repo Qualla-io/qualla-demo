@@ -8,6 +8,7 @@ export const GET_USER_DETAILS = gql`
       avatar
       coverPhoto
       url
+      description
       baseTokens {
         id
       }

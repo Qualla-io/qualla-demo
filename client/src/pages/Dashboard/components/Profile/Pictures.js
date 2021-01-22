@@ -5,16 +5,16 @@ import {
   Grid,
   Typography,
   Avatar,
-  CardHeader
+  CardHeader,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
-import AvatarIcons, { iconsLength } from "../../../../components/AvatarIcons";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 import CoverPhoto, {
   coverPhotoLength,
 } from "../../../../components/CoverPhotos";
+import UserAvatars, { avatarLength } from "../../../../components/UserAvatars";
 
 const useStyles = makeStyles((theme) => ({
   avatarSelection: {
@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(1),
   },
   icons: {
-    fontSize: "4em",
+    fontSize: "3em",
   },
   newIcon: {
     fontSize: "8em",
@@ -59,7 +59,7 @@ export default function Pictures({ onPropsChange, userProps }) {
   const classes = useStyles();
 
   function incIcons() {
-    if (userProps?.avatar < iconsLength) {
+    if (userProps?.avatar < avatarLength) {
       onPropsChange("avatar", userProps.avatar + 1);
     } else {
       onPropsChange("avatar", 0);
@@ -70,7 +70,7 @@ export default function Pictures({ onPropsChange, userProps }) {
     if (userProps?.avatar > 0) {
       onPropsChange("avatar", userProps.avatar - 1);
     } else {
-      onPropsChange("avatar", iconsLength);
+      onPropsChange("avatar", avatarLength);
     }
   }
 
@@ -131,8 +131,8 @@ export default function Pictures({ onPropsChange, userProps }) {
                   onClick={decIcons}
                 />
                 <Avatar className={classes.avatar}>
-                  <AvatarIcons
-                    customProps={classes.icons}
+                  <UserAvatars
+                    // customProps={classes.icons}
                     i={userProps?.avatar}
                   />
                 </Avatar>

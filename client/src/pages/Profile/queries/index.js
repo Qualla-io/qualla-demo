@@ -1,5 +1,26 @@
 import { gql } from "@apollo/client";
 
+export const GET_PROFILE = gql`
+  query getUserFromUrl($url: String!) {
+    getUserFromUrl(url: $url) {
+      id
+      username
+      avatar
+      coverPhoto
+      description
+      baseTokens {
+        id
+        quantity
+        paymentToken
+        paymentValue
+        title
+        avatarID
+        description
+      }
+    }
+  }
+`;
+
 export const GET_CREATOR_OVERVIEW = gql`
   query getCreatorOvewview($id: ID!) {
     user(id: $id) {

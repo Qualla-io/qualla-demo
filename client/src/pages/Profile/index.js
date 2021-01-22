@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 
-import {  useRouteMatch } from "react-router-dom";
+import { useRouteMatch } from "react-router-dom";
 
 import Container from "@material-ui/core/Container";
 import HeroImage from "./components/HeroImage";
@@ -9,10 +9,10 @@ import { makeStyles } from "@material-ui/core/styles";
 import SubTokens from "./containers/SubTokens";
 import Header from "./containers/Header";
 
-import { GET_USER_SUBSCRIBED_TO } from "./queries";
+import { GET_PROFILE, GET_USER_SUBSCRIBED_TO } from "./queries";
 import OwnedTokens from "./containers/OwnedTokens";
 
-import { useLazyQuery, useReactiveVar } from "@apollo/client";
+import { useLazyQuery, useQuery, useReactiveVar } from "@apollo/client";
 import { accountVar } from "../../cache";
 
 const useStyles = makeStyles((theme) => ({
@@ -35,21 +35,29 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Subscriber() {
+export default function Profile() {
   const classes = useStyles();
   let account = useReactiveVar(accountVar);
   const { url } = useRouteMatch();
-  const [sendSubscribedTo, { data }] = useLazyQuery(GET_USER_SUBSCRIBED_TO);
+  let { data } = useQuery(GET_PROFILE, {
+    variables: { url: url.substring(1) },
+  });
+
+  // const [sendSubscribedTo, { data }] = useLazyQuery(GET_USER_SUBSCRIBED_TO);
+
+  // useEffect(() => {
+  //   if (account) {
+  //     sendSubscribedTo({
+  //       variables: { userID: account, creatorID: url.slice(1).toLowerCase() },
+  //       fetchPolicy: "cache-and-network",
+  //     });
+  //   }
+  //   // eslint-disable-next-line
+  // }, [account]);
 
   useEffect(() => {
-    if (account) {
-      sendSubscribedTo({
-        variables: { userID: account, creatorID: url.slice(1).toLowerCase() },
-        fetchPolicy: "cache-and-network",
-      });
-    }
-    // eslint-disable-next-line
-  }, [account]);
+    console.log(data);
+  }, [data]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -57,10 +65,10 @@ export default function Subscriber() {
 
   return (
     <>
-      <HeroImage />
+      <HeroImage userProps={data?.getUserFromUrl} />
       <Container>
-        <Header />
-        {data?.userSubscribedTo?.subscriptions?.length > 0 ? (
+        <Header userProps={data?.getUserFromUrl} />
+        {/* {data?.userSubscribedTo?.subscriptions?.length > 0 ? (
           <>
             <Typography variant="h5" className={classes.tierTitle}>
               Your subscriptions:
@@ -74,7 +82,7 @@ export default function Subscriber() {
             </Typography>
             <SubTokens />
           </>
-        )}
+        )} */}
       </Container>
     </>
   );

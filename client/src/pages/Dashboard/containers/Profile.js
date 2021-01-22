@@ -15,6 +15,7 @@ import { GET_USER_DETAILS, UPDATE_USER } from "../components/Profile/queries";
 import { accountVar } from "../../../cache";
 import { Link } from "react-router-dom";
 import CheckOff from "../components/Profile/CheckOff";
+import InfoCard from "../components/Profile/InfoCard";
 
 const useStyles = makeStyles((theme) => ({
   main: {
@@ -61,7 +62,14 @@ export default function Profile() {
   function _update() {
     const { username, avatar, url, coverPhoto, description } = userProps;
     update({
-      variables: { id: account, username, url, coverPhoto, avatar },
+      variables: {
+        id: account,
+        username,
+        url,
+        coverPhoto,
+        avatar,
+        description,
+      },
     })
       .then((res) => {
         enqueueSnackbar(`Update Successful`, {
@@ -85,7 +93,7 @@ export default function Profile() {
           className={classes.btn}
           component={Link}
           to={`/${url}`}
-          disabled={url===null}
+          disabled={url === null}
         >
           <Typography variant="h6">See Profile</Typography>
         </Button>
@@ -123,6 +131,11 @@ export default function Profile() {
         <Grid item>
           <CheckOff userProps={userProps} />
         </Grid>
+        <Hidden smDown>
+          <Grid item>
+            <InfoCard style={{ height: "100%" }} />
+          </Grid>
+        </Hidden>
       </Grid>
     </Grid>
   );

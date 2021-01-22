@@ -36,7 +36,7 @@ export default function CheckOff({ userProps }) {
     { title: "Pick a Username", checked: userProps.username },
     { title: "Set Your Url", checked: userProps.url },
     { title: "Describe Your Profile", checked: userProps.description },
-    { title: "Choose an Avatar", checked: userProps.avatar },
+    { title: "Choose an Avatar", checked: userProps.avatar !== null },
     { title: "Choose a Cover Photo", checked: userProps.coverPhoto !== null },
   ];
   return (

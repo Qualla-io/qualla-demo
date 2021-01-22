@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 import { useRouteMatch } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 
@@ -19,24 +19,20 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "center",
   },
-}))
+}));
 
-export default function Header() {
-    const classes = useStyles();
-    const { url } = useRouteMatch();
-  const { data } = useQuery(GET_CREATOR_OVERVIEW, {
-    variables: { id: url.slice(1) },
-  });
-    return (
-        <div>
-             <CreatorAvatar />
-        <Typography variant="h2" className={classes.heading}>
-          {data?.user?.username || "USERNAME"}
-        </Typography>
-        <Typography variant="subtitle1" className={classes.subtitle}>
-          A decentralized platorm for creators to take control
-        </Typography>
+export default function Header({ userProps }) {
+  const classes = useStyles();
 
-        </div>
-    )
+  return (
+    <div>
+      <CreatorAvatar userProps={userProps} />
+      <Typography variant="h2" className={classes.heading}>
+        {userProps?.username || "USERNAME"}
+      </Typography>
+      <Typography variant="subtitle1" className={classes.subtitle}>
+        {userProps?.description}
+      </Typography>
+    </div>
+  );
 }
