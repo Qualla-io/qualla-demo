@@ -13,6 +13,7 @@ export const GET_USER_BASETOKENS = gql`
   query getUserBaseTokens($id: ID!) {
     user(id: $id) {
       id
+      nonce
       baseTokens {
         id
         quantity
@@ -64,6 +65,28 @@ export const MINT_BATCH = gql`
       userID: $userID
       quantity: $quantity
       paymentValue: $paymentValue
+      signature: $signature
+      title: $title
+      description: $description
+      avatarID: $avatarID
+    )
+  }
+`;
+
+export const BURN_OR_MODIFY = gql`
+  mutation burnOrModify(
+    $baseTokenID: ID!
+    $baseTokenTxHash: String!
+    $quantity: String!
+    $signature: String!
+    $title: String!
+    $description: String!
+    $avatarID: String!
+  ) {
+    burnOrModify(
+      baseTokenID: $baseTokenID
+      baseTokenTxHash: $baseTokenTxHash
+      quantity: $quantity
       signature: $signature
       title: $title
       description: $description

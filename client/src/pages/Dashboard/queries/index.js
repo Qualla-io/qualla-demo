@@ -34,13 +34,17 @@ export const GET_USER_BASETOKENS = gql`
   query getUserBaseTokens($id: ID!) {
     user(id: $id) {
       id
+      nonce
       baseTokens {
         id
+        quantity
         paymentValue
         paymentToken
+        description
         title
         avatarID
-        description
+        initialSupply
+        txHash
         activeTokens {
           id
         }

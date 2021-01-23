@@ -103,7 +103,6 @@ const resolvers = {
       if (description) {
         _user.description = description;
       }
-    
 
       await _user.save();
 
@@ -210,7 +209,10 @@ async function handleModify(data) {
   for (var i = 0; i < data.title.length; i++) {
     let _baseToken = await BaseTokenModel.findById(data.txHash[i]).exec();
 
-    // console.log(_baseToken);
+    if (!_baseToken) {
+      _baseToken = new BaseTokenModel();
+      _baseToken._id = data.txHash[i];
+    }
 
     _baseToken.title = data.title[i];
     _baseToken.description = data.description[i];

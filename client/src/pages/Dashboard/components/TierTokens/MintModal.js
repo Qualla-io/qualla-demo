@@ -65,10 +65,6 @@ export default function MintModal({ open, setOpen }) {
     setOpen(false);
   }
 
-  useEffect(() => {
-    console.log(i);
-  }, [i]);
-
   function addToken() {
     setTokens([
       ...tokens,
@@ -208,19 +204,18 @@ export default function MintModal({ open, setOpen }) {
           avatarID: _avatar,
         },
         update(cache) {
-          // update basetoken to cache
-          //   cache.modify({
-          //     id: cache.identify({
-          //       id: account.toLowerCase(),
-          //       __typename: "User",
-          //     }),
-          //     fields: {
-          //       nonce(cachedNonce) {
-          //         return cachedNonce + 1;
-          //       },
-          //     },
-          //     broadcast: false,
-          //   });
+            cache.modify({
+              id: cache.identify({
+                id: account.toLowerCase(),
+                __typename: "User",
+              }),
+              fields: {
+                nonce(cachedNonce) {
+                  return cachedNonce + 1;
+                },
+              },
+              broadcast: false,
+            });
         },
       })
         .then((res) => {
@@ -245,25 +240,25 @@ export default function MintModal({ open, setOpen }) {
           avatarID: tokens[0].avatar.toString(),
         },
         update(cache) {
-          // update basetoken to cache
-          // cache.modify({
-          //   id: cache.identify({
-          //     id: account.toLowerCase(),
-          //     __typename: "User",
-          //   }),
-          //   fields: {
-          //     nonce(cachedNonce) {
-          //       return cachedNonce + 1;
-          //     },
-          //   },
-          //   broadcast: false,
-          // });
+          cache.modify({
+            id: cache.identify({
+              id: account.toLowerCase(),
+              __typename: "User",
+            }),
+            fields: {
+              nonce(cachedNonce) {
+                return cachedNonce + 1;
+              },
+            },
+            broadcast: false,
+          });
         },
       })
         .then((res) => {
           enqueueSnackbar(`Request proccessing, check back in a few minutes!`, {
             variant: "success",
           });
+          setOpen(false);
         })
         .catch((err) => {
           enqueueSnackbar(`${err}`, {
