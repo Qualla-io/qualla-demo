@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+
 import { makeStyles } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
 import List from "@material-ui/core/List";
@@ -14,7 +16,7 @@ import DashboardIcon from "@material-ui/icons/Dashboard";
 import AttachMoneyIcon from "@material-ui/icons/AttachMoney";
 import AccountBalanceIcon from "@material-ui/icons/AccountBalance";
 import SearchIcon from "@material-ui/icons/Search";
-import { Link } from "react-router-dom";
+
 import MyBalance from "../../../components/MyBalance";
 import { Hidden } from "@material-ui/core";
 import TopBar from "./TopBar";
@@ -78,9 +80,9 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     borderTopRightRadius: 30,
     backgroundColor: "#be79df",
-    [theme.breakpoints.down("sm")]:{
+    [theme.breakpoints.down("sm")]: {
       borderTopRightRadius: 0,
-    }
+    },
   },
   subtitle: {
     marginLeft: theme.spacing(3),
@@ -103,6 +105,8 @@ const useStyles = makeStyles((theme) => ({
 export default function SideDrawer(props) {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
+  const location = useLocation();
+
 
   const drawer = (
     <>
@@ -113,7 +117,13 @@ export default function SideDrawer(props) {
         <List>
           {[{ text: "Dashboard", link: "", icon: <DashboardIcon /> }].map(
             (item, index) => (
-              <ListItem button key={0} component={Link} to={`/${item.link}`}>
+              <ListItem
+                button
+                key={0}
+                component={Link}
+                to={`/${item.link}`}
+                selected={location.pathname === `/${item.link}`}
+              >
                 <ListItemIcon>{item.icon}</ListItemIcon>
                 <ListItemText
                   primary={item.text}
@@ -128,7 +138,13 @@ export default function SideDrawer(props) {
         </Typography>
         <List>
           {creatorList.map((item, index) => (
-            <ListItem button key={index} component={Link} to={`/${item.link}`}>
+            <ListItem
+              button
+              key={index}
+              component={Link}
+              to={`/${item.link}`}
+              selected={location.pathname === `/${item.link}`}
+            >
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItem>
@@ -139,7 +155,13 @@ export default function SideDrawer(props) {
         </Typography>
         <List>
           {SubscriberList.map((item, index) => (
-            <ListItem button key={index} component={Link} to={`/${item.link}`}>
+            <ListItem
+              button
+              key={index}
+              component={Link}
+              to={`/${item.link}`}
+              selected={location.pathname === `/${item.link}`}
+            >
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItem>

@@ -17,6 +17,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
+import AllInclusiveIcon from '@material-ui/icons/AllInclusive';
 import AvatarIcons, { iconsLength } from "../../../../components/AvatarIcons";
 
 import React, { useEffect, useState } from "react";
@@ -28,6 +29,7 @@ import { BURN_OR_MODIFY } from "../../../Mint/queries";
 import { GET_USER_NONCE } from "./queries";
 import { useQueryWithAccount } from "../../../../hooks";
 import { accountVar, signerVar, subscriptionVar } from "../../../../cache";
+import { ethers } from "ethers";
 
 const useStyles = makeStyles((theme) => ({
   edit: {
@@ -37,11 +39,31 @@ const useStyles = makeStyles((theme) => ({
     display: "inline-flex",
     alignItems: "center",
   },
+  itemDescription: {
+    display: "flex",
+    flexDirection: "Column",
+    // alignItems: "center",
+  },
+  itemContainer: {
+    marginTop: theme.spacing(1),
+  },
+  title: {
+    marginBottom: -theme.spacing(3),
+  },
+  numbers: {
+    paddingLeft: theme.spacing(3),
+  },
   typo: {
     width: 100,
   },
   titleField: {
     flexGrow: 1,
+  },
+  description: {
+    width: "100%",
+    // border: "1px solid grey",
+    borderRadius: 5,
+    padding: theme.spacing(1),
   },
   update: {
     width: "100%",
@@ -300,8 +322,55 @@ export default function TokenCard({ tokenProps, nonce }) {
   return (
     <>
       <Card>
-        <CardHeader title={tokenProps.title} />
-        <CardContent></CardContent>
+        <CardHeader
+          title={tokenProps.title}
+          subheader={`$ ${ethers.utils.formatEther(
+            tokenProps.paymentValue
+          )} Dai/Month`}
+          className={classes.title}
+        />
+        <CardContent>
+          <Grid container spacing={2} style={{ flexGrow: 1 }}>
+            <Grid item xs={12} className={classes.item}>
+              <div className={classes.avatarItem}>
+                <Avatar className={classes.avatar}>
+                  <AvatarIcons
+                    customProps={classes.icons}
+                    i={tokenProps.avatarID}
+                  />
+                </Avatar>
+              </div>
+            </Grid>
+            <Grid item xs={12} className={classes.itemDescription}>
+              <Typography variant="subtitle2" className={classes.ed}>
+                Description:
+              </Typography>
+              <Typography className={classes.description} variant="h6">
+                {tokenProps.description}
+              </Typography>
+            </Grid>
+          </Grid>
+          <Grid
+            item
+            container
+            spacing={2}
+            xs={12}
+            className={classes.itemContainer}
+          >
+            <Grid item xs={6} className={classes.itemDescription}>
+              <Typography>Active Subs</Typography>
+              <Typography variant="h4" className={classes.numbers}>
+                <b>{tokenProps.activeTokens.length}</b>
+              </Typography>
+            </Grid>
+            <Grid item xs={6} className={classes.itemDescription}>
+              <Typography>Quantity Remaining</Typography>
+              <Typography variant="h4" className={classes.numbers}>
+                <b>{ new BigNumber(tokenProps.quantity).gt(10000) ? <AllInclusiveIcon style={{fontSize: "2.125rem"}}/> : tokenProps.quantity}</b>
+              </Typography>
+            </Grid>
+          </Grid>
+        </CardContent>
         <CardActions>
           <Button
             className={classes.edit}

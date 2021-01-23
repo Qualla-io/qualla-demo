@@ -39,6 +39,8 @@ export default function CheckOff({ userProps }) {
     { title: "Choose an Avatar", checked: userProps.avatar !== null },
     { title: "Choose a Cover Photo", checked: userProps.coverPhoto !== null },
   ];
+
+  console.log(userProps);
   return (
     <Card>
       <CardHeader title="Checklist" className={classes.title} />
@@ -60,12 +62,12 @@ export default function CheckOff({ userProps }) {
               <ListItemText primary={item.title} />
             </ListItem>
           ))}
-          <ListItem button component={Link} to="/dashboard/mint">
+          <ListItem button component={Link} to="/dashboard/tiers">
             <ListItemAvatar>
               <Avatar
-                className={userProps.baseToken ? classes.done : classes.notDone}
+                className={userProps.baseTokens ? classes.done : classes.notDone}
               >
-                {userProps.baseToken ? (
+                {userProps.baseTokens ? (
                   <DoneIcon className={classes.icon} />
                 ) : (
                   <PriorityHighIcon className={classes.icon} />
@@ -74,7 +76,7 @@ export default function CheckOff({ userProps }) {
             </ListItemAvatar>
             <ListItemText
               primary="Mint Tier Tokens"
-              secondary={userProps.baseToken ? `Manage Tokens>` : `Mint Now >`}
+              secondary={userProps?.baseTokens ? `Manage Tokens>` : `Mint Now >`}
             />
           </ListItem>
         </List>

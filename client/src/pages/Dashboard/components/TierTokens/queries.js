@@ -24,6 +24,9 @@ export const GET_USER_BASETOKENS = gql`
         avatarID
         initialSupply
         txHash
+        activeTokens {
+          id
+        }
       }
     }
   }

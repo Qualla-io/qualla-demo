@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
     margin: "Auto",
   },
   user: {
-    width: 275,
+    maxWidth: 275,
 
   },
 }));
