@@ -46,12 +46,13 @@ export default function UserBalance(props) {
           }),
           fields: {
             balance(cachedBal) {
-              console.log(
-                new BigNumber(cachedBal).plus("100000000000000000000").toFixed()
-              );
-              return new BigNumber(cachedBal)
-                .plus("100000000000000000000")
-                .toFixed();
+              if (cachedBal) {
+                return new BigNumber(cachedBal)
+                  .plus("100000000000000000000")
+                  .toFixed();
+              } else {
+                return "100000000000000000000";
+              }
             },
           },
           // broadcast: false,
@@ -86,8 +87,8 @@ export default function UserBalance(props) {
       <Typography>
         $
         {data?.user?.balance
-          ? ethers.utils.formatEther(data.user.balance)
-          : "---"}{" "}
+          ? ethers.utils.formatEther(data?.user?.balance)
+          : "0"}{" "}
         Dai
       </Typography>
       <Button variant="contained" className={classes.btn} onClick={_mint}>

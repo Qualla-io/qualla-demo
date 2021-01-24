@@ -133,7 +133,7 @@ export default function Pictures({ onPropsChange, userProps }) {
                 <Avatar className={classes.avatar}>
                   <UserAvatars
                     // customProps={classes.icons}
-                    i={userProps?.avatar}
+                    i={userProps?.avatar ? userProps?.avatar : 0}
                   />
                 </Avatar>
                 <KeyboardArrowRightIcon
@@ -168,7 +168,7 @@ export default function Pictures({ onPropsChange, userProps }) {
               />
               <div className={classes.cover}>
                 <img
-                  src={CoverPhoto(userProps?.coverPhoto)}
+                  src={CoverPhoto(userProps?.coverPhoto ? userProps?.coverPhoto : 0 )}
                   alt=""
                   className={classes.img}
                 />

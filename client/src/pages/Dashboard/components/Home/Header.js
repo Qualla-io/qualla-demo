@@ -4,11 +4,11 @@ import Grid from "@material-ui/core/Grid";
 
 import { makeStyles } from "@material-ui/core/styles";
 
-
 import { useQueryWithAccountNetwork } from "../../../../hooks";
 
 import { GET_USER_OVERVIEW } from "./queries";
 import { Card, CardContent, Typography } from "@material-ui/core";
+import { ethers } from "ethers";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -53,7 +53,7 @@ export default function Header() {
       description: "Subscribers",
       value: data?.user?.subscribers ? data?.user?.subscribers?.length : "0",
     },
-    { description: "$Dai/Mo.", value: value },
+    { description: "$Dai/Mo.", value: ethers.utils.formatEther(value) },
     {
       description: "Active Tiers",
       value: data?.user?.baseTokens ? data?.user?.baseTokens?.length : "0",

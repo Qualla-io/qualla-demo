@@ -19,7 +19,7 @@ import InfoCard from "../components/Profile/InfoCard";
 
 const useStyles = makeStyles((theme) => ({
   main: {
-    flexGrow: 1,
+    // flexGrow: 1,
     marginTop: theme.spacing(2),
   },
   btn: {

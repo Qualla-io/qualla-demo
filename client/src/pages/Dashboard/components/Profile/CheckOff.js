@@ -40,7 +40,7 @@ export default function CheckOff({ userProps }) {
     { title: "Choose a Cover Photo", checked: userProps.coverPhoto !== null },
   ];
 
-  console.log(userProps);
+  console.log(userProps?.baseTokens);
   return (
     <Card>
       <CardHeader title="Checklist" className={classes.title} />
@@ -65,7 +65,11 @@ export default function CheckOff({ userProps }) {
           <ListItem button component={Link} to="/dashboard/tiers">
             <ListItemAvatar>
               <Avatar
-                className={userProps.baseTokens ? classes.done : classes.notDone}
+                className={
+                  userProps.baseTokens?.length > 0
+                    ? classes.done
+                    : classes.notDone
+                }
               >
                 {userProps.baseTokens ? (
                   <DoneIcon className={classes.icon} />
@@ -76,7 +80,11 @@ export default function CheckOff({ userProps }) {
             </ListItemAvatar>
             <ListItemText
               primary="Mint Tier Tokens"
-              secondary={userProps?.baseTokens ? `Manage Tokens>` : `Mint Now >`}
+              secondary={
+                userProps?.baseTokens?.length > 0
+                  ? `Manage Tokens >`
+                  : `Mint Now >`
+              }
             />
           </ListItem>
         </List>

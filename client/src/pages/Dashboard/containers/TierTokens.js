@@ -32,7 +32,7 @@ export default function TierTokens() {
             </Alert>
           </Grid>
         )}
-        {data?.user?.baseTokens.map((token, i) => (
+        {data?.user?.baseTokens?.map((token, i) => (
           <Grid item xs={12} lg={4} key={i}>
             <TokenCard tokenProps={token} nonce={data?.user?.nonce} />
           </Grid>

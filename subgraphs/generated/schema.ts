@@ -434,13 +434,21 @@ export class Transaction extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get from(): string {
+  get from(): string | null {
     let value = this.get("from");
-    return value.toString();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set from(value: string) {
-    this.set("from", Value.fromString(value));
+  set from(value: string | null) {
+    if (value === null) {
+      this.unset("from");
+    } else {
+      this.set("from", Value.fromString(value as string));
+    }
   }
 
   get to(): string {
