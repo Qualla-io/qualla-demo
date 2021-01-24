@@ -74,6 +74,7 @@ const GET_SUBBED_TO = `
   query GetSubbedTo($userID: ID!, $creatorID: String!) {
     user(id: $userID) {
       id
+      approved
       nonce
       subscriptions(where: {creator: $creatorID}) {
         id

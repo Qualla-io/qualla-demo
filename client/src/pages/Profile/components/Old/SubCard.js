@@ -6,11 +6,11 @@ import { ethers } from "ethers";
 import { cardStyles } from "./styles";
 import { Avatar, Button, Typography } from "@material-ui/core";
 
-import { PERMIT, SUBSCRIBE, GET_USER_NONCE } from "../queries";
-import { daiVar, accountVar, subscriptionVar, signerVar } from "../../../cache";
-import { useQueryWithAccount } from "../../../hooks";
-import AvatarIcons from "../../../components/AvatarIcons";
-import ConfirmationModal from "../../../components/ConfirmationModal";
+import { PERMIT, SUBSCRIBE, GET_USER_NONCE } from "../../queries";
+import { daiVar, accountVar, subscriptionVar, signerVar } from "../../../../cache";
+import { useQueryWithAccount } from "../../../../hooks";
+import AvatarIcons from "../../../../components/AvatarIcons";
+import ConfirmationModal from "../../../../components/ConfirmationModal";
 
 export default function SubCard(props) {
   const { enqueueSnackbar } = useSnackbar();

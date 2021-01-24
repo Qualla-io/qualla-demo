@@ -44,6 +44,7 @@ export const GET_USER_SUBSCRIBED_TO = gql`
     userSubscribedTo(userID: $userID, creatorID: $creatorID) {
       id
       nonce
+      approved
       subscriptions {
         id
         owner {

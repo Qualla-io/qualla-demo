@@ -5,7 +5,7 @@ import CoverPhoto from "../../../components/CoverPhotos";
 
 const useStyles = makeStyles((theme) => ({
   heroRoot: {
-    height: "45vh",
+
     width: "100%",
     overflow: "hidden",
     display: "block",

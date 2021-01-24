@@ -1,37 +1,52 @@
+import { Card, CardContent, Grid, makeStyles } from "@material-ui/core";
 import React, { useEffect } from "react";
-
 import { useRouteMatch } from "react-router-dom";
-
-import Container from "@material-ui/core/Container";
-import HeroImage from "./components/HeroImage";
-import { Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import SubTokens from "./containers/SubTokens";
-import Header from "./containers/Header";
-
-import { GET_PROFILE, GET_USER_SUBSCRIBED_TO } from "./queries";
-import OwnedTokens from "./containers/OwnedTokens";
-
 import { useLazyQuery, useQuery, useReactiveVar } from "@apollo/client";
+
+import TopBar from "./components/TopBar";
+import { GET_PROFILE, GET_USER_SUBSCRIBED_TO } from "./queries";
+import ProfileNotFound from "./components/ProfileNotFound";
+import Header from "./containers/Header";
+import UserBalance from "../../components/UserBalance";
+import BaseTokens from "./components/BaseTokens";
+import Footer from "../../containers/Footer";
+import { useQueryWithAccountNetwork } from "../../hooks";
 import { accountVar } from "../../cache";
 
 const useStyles = makeStyles((theme) => ({
-  heading: {
+  root: {
+    display: "flex",
+    flexDirection: "Column",
+    justify: "center",
+    alignItems: "center",
+  },
+  main: {
+    flexGrow: 1,
     marginTop: theme.spacing(2),
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
+    maxWidth: theme.breakpoints.values.lg,
+    justify: "center",
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
   },
-  subtitle: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
+  content: {
+    flexGrow: 1,
+    paddingLeft: theme.spacing(9),
+    paddingRight: theme.spacing(4),
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
   },
-  tierTitle: {
-    marginTop: theme.spacing(5),
+  balCard: {
+    position: "fixed",
+    bottom: theme.spacing(2),
+    left: theme.spacing(2),
+    zIndex: 1001,
+  },
+  balContent: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "center",
+  },
+  item: {
+    width: "100%",
   },
 }));
 
@@ -39,51 +54,53 @@ export default function Profile() {
   const classes = useStyles();
   let account = useReactiveVar(accountVar);
   const { url } = useRouteMatch();
-  let { data } = useQuery(GET_PROFILE, {
+  let { data, loading } = useQuery(GET_PROFILE, {
     variables: { url: url.substring(1) },
   });
 
-  // const [sendSubscribedTo, { data }] = useLazyQuery(GET_USER_SUBSCRIBED_TO);
-
-  // useEffect(() => {
-  //   if (account) {
-  //     sendSubscribedTo({
-  //       variables: { userID: account, creatorID: url.slice(1).toLowerCase() },
-  //       fetchPolicy: "cache-and-network",
-  //     });
-  //   }
-  //   // eslint-disable-next-line
-  // }, [account]);
+  let [sendQuery, { data: accountData }] = useLazyQuery(GET_USER_SUBSCRIBED_TO);
 
   useEffect(() => {
-    console.log(data);
-  }, [data]);
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+    if (account && data?.getUserFromUrl?.id) {
+      sendQuery({
+        variables: { userID: account, creatorID: data.getUserFromUrl.id },
+      });
+    }
+  }, [account, data]);
 
   return (
     <>
-      <HeroImage userProps={data?.getUserFromUrl} />
-      <Container>
-        <Header userProps={data?.getUserFromUrl} />
-        {/* {data?.userSubscribedTo?.subscriptions?.length > 0 ? (
-          <>
-            <Typography variant="h5" className={classes.tierTitle}>
-              Your subscriptions:
-            </Typography>
-            <OwnedTokens tokens={data?.userSubscribedTo.subscriptions} />
-          </>
+      <div className={classes.content}>
+        <TopBar />
+      </div>
+      <div className={classes.root}>
+        {!loading && data?.getUserFromUrl ? (
+          <Header userProps={data.getUserFromUrl} />
         ) : (
-          <>
-            <Typography variant="h5" className={classes.tierTitle}>
-              Buy a subscription token:
-            </Typography>
-            <SubTokens />
-          </>
-        )} */}
-      </Container>
+          <ProfileNotFound />
+        )}
+        <Grid
+          container
+          direction="column"
+          justify="center"
+          alignContent="center"
+          spacing={2}
+          className={classes.main}
+        >
+          <Grid item xs={12} className={classes.item}>
+            <BaseTokens
+              userProps={data?.getUserFromUrl}
+              accountProps={accountData?.userSubscribedTo}
+            />
+          </Grid>
+        </Grid>
+        <Footer />
+      </div>
+      <Card className={classes.balCard}>
+        <CardContent className={classes.balContent}>
+          <UserBalance />
+        </CardContent>
+      </Card>
     </>
   );
 }

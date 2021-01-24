@@ -7,12 +7,12 @@ import { useReactiveVar, useMutation } from "@apollo/client";
 
 import { Avatar, Button, Typography } from "@material-ui/core";
 
-import { UNSUBSCRIBE, GET_USER_NONCE } from "../queries";
-import { accountVar, subscriptionVar, signerVar } from "../../../cache";
-import { useQueryWithAccount } from "../../../hooks";
-import AvatarIcons from "../../../components/AvatarIcons";
+import { UNSUBSCRIBE, GET_USER_NONCE } from "../../queries";
+import { accountVar, subscriptionVar, signerVar } from "../../../../cache";
+import { useQueryWithAccount } from "../../../../hooks";
+import AvatarIcons from "../../../../components/AvatarIcons";
 import { cardStyles } from "./styles";
-import ConfirmationModal from "../../../components/ConfirmationModal";
+import ConfirmationModal from "../../../../components/ConfirmationModal";
 
 export default function OwnedSubCard(props) {
   const { enqueueSnackbar } = useSnackbar();

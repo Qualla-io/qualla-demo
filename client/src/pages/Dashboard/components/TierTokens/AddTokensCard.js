@@ -5,15 +5,17 @@ import React from "react";
 const useStyles = makeStyles((theme) => ({
   card: {
     cursor: "pointer",
-    height: "100%",
-    minHeight: 300,
+    // height: "100%",
+    height: 300,
+    // maxHeight: 417.2,
+    width: "100%",
   },
   content: {
     display: "flex",
     flexDirection: "Column",
     justifyContent: "center",
     alignItems: "center",
-    height: "100%"
+    height: "100%",
   },
 
   newIcon: {

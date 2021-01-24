@@ -17,7 +17,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
-import AllInclusiveIcon from '@material-ui/icons/AllInclusive';
+import AllInclusiveIcon from "@material-ui/icons/AllInclusive";
 import AvatarIcons, { iconsLength } from "../../../../components/AvatarIcons";
 
 import React, { useEffect, useState } from "react";
@@ -64,6 +64,8 @@ const useStyles = makeStyles((theme) => ({
     // border: "1px solid grey",
     borderRadius: 5,
     padding: theme.spacing(1),
+    height: 140,
+    overflow: "hidden",
   },
   update: {
     width: "100%",
@@ -366,7 +368,13 @@ export default function TokenCard({ tokenProps, nonce }) {
             <Grid item xs={6} className={classes.itemDescription}>
               <Typography>Quantity Remaining</Typography>
               <Typography variant="h4" className={classes.numbers}>
-                <b>{ new BigNumber(tokenProps.quantity).gt(10000) ? <AllInclusiveIcon style={{fontSize: "2.125rem"}}/> : tokenProps.quantity}</b>
+                <b>
+                  {new BigNumber(tokenProps.quantity).gt(10000) ? (
+                    <AllInclusiveIcon style={{ fontSize: "2.125rem" }} />
+                  ) : (
+                    tokenProps.quantity
+                  )}
+                </b>
               </Typography>
             </Grid>
           </Grid>

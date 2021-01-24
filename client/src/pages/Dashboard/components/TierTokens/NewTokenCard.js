@@ -169,7 +169,7 @@ export default function NewTokenCard({
         <TextField
           variant="outlined"
           name="title"
-          value={token.title}
+          value={token?.title}
           className={classes.titleField}
           onChange={handleChange}
         />
@@ -180,7 +180,7 @@ export default function NewTokenCard({
           <InputLabel>Dai</InputLabel>
           <OutlinedInput
             name="value"
-            value={token.value}
+            value={token?.value}
             labelWidth={25}
             className={classes.valueInput}
             onChange={handleChange}
@@ -223,7 +223,7 @@ export default function NewTokenCard({
           variant="outlined"
           name="description"
           onChange={handleChange}
-          value={token.description}
+          value={token?.description}
         />
       </Grid>
       <Grid item xs={12} className={classes.item}>
