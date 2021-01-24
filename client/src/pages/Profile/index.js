@@ -10,7 +10,6 @@ import Header from "./containers/Header";
 import UserBalance from "../../components/UserBalance";
 import BaseTokens from "./components/BaseTokens";
 import Footer from "../../containers/Footer";
-import { useQueryWithAccountNetwork } from "../../hooks";
 import { accountVar } from "../../cache";
 
 const useStyles = makeStyles((theme) => ({
@@ -52,13 +51,13 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Profile() {
   const classes = useStyles();
-  let account = useReactiveVar(accountVar);
+  const account = useReactiveVar(accountVar);
   const { url } = useRouteMatch();
-  let { data, loading } = useQuery(GET_PROFILE, {
+  const { data, loading } = useQuery(GET_PROFILE, {
     variables: { url: url.substring(1) },
   });
 
-  let [sendQuery, { data: accountData }] = useLazyQuery(GET_USER_SUBSCRIBED_TO);
+  const [sendQuery, { data: accountData }] = useLazyQuery(GET_USER_SUBSCRIBED_TO);
 
   useEffect(() => {
     if (account && data?.getUserFromUrl?.id) {
@@ -66,7 +65,7 @@ export default function Profile() {
         variables: { userID: account, creatorID: data.getUserFromUrl.id },
       });
     }
-  }, [account, data]);
+  }, [account, data, sendQuery]);
 
   return (
     <>

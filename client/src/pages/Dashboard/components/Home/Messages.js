@@ -24,7 +24,7 @@ export default function Messages() {
       <CardHeader title="Messages" className={classes.title} />
       <CardContent className={classes.content}>
         {defaultMessage.map((msg, index) => (
-          <Message title={msg.title} body={msg.body} />
+          <Message title={msg.title} body={msg.body} key={index} />
         ))}
       </CardContent>
     </Card>

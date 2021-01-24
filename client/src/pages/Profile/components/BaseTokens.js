@@ -47,7 +47,7 @@ export default function BaseTokens({ userProps, accountProps }) {
       </Typography>
       <Grid container justify="center" spacing={2} style={{ flexGrow: 1 }}>
         {baseTokens?.slice(0, 3).map((token, key) => (
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={4} key={key}>
             <BaseTokenCard tokenProps={token} accountProps={accountProps} />
           </Grid>
         ))}

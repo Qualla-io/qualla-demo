@@ -4,17 +4,11 @@ import Grid from "@material-ui/core/Grid";
 
 import { makeStyles } from "@material-ui/core/styles";
 
-import { useReactiveVar } from "@apollo/client";
-import { accountVar } from "../../../../cache";
+
 import { useQueryWithAccountNetwork } from "../../../../hooks";
 
 import { GET_USER_OVERVIEW } from "./queries";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  Typography,
-} from "@material-ui/core";
+import { Card, CardContent, Typography } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -41,7 +35,6 @@ const useStyles = makeStyles((theme) => ({
 export default function Header() {
   const classes = useStyles();
   let [value, setValue] = useState(0);
-  let account = useReactiveVar(accountVar);
   let { data } = useQueryWithAccountNetwork(GET_USER_OVERVIEW);
 
   useEffect(() => {
@@ -72,7 +65,7 @@ export default function Header() {
       {/* <CardHeader title="Overview" className={classes.title} /> */}
       <Grid component={CardContent} container item lg>
         {cardData.map((item, index) => (
-          <>
+          <React.Fragment key={index}>
             <Grid item xs className={classes.card}>
               <Typography>{item.description}</Typography>
               <Typography variant="h4">
@@ -91,7 +84,7 @@ export default function Header() {
                 <div className={classes.line} />
               </Grid>
             )}
-          </>
+          </React.Fragment>
         ))}
       </Grid>
     </Card>

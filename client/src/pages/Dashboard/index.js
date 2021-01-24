@@ -4,7 +4,6 @@ import { Route, Switch } from "react-router-dom";
 import DashboardHome from "./containers/DashboardHome";
 import SideDrawer from "./components/SideDrawer";
 import NotFound from "../../containers/NotFound";
-import TopBar from "./components/TopBar";
 import Profile from "./containers/Profile";
 import TierTokens from "./containers/TierTokens";
 

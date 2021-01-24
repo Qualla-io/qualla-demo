@@ -70,14 +70,14 @@ services:
   #   container_name: "relayer"
   #   env_file:
   #     - server/.env
-  balance_subscriptions:
-    build: ./server/src/BalanceSubscriptions
-    container_name: "balance_subscriptions"
-    env_file:
-      - server/.env
-    ports:
-      - "5000:5000"
-    restart: on-failure
+  # balance_subscriptions:
+  #   build: ./server/src/BalanceSubscriptions
+  #   container_name: "balance_subscriptions"
+  #   env_file:
+  #     - server/.env
+  #   ports:
+  #     - "5000:5000"
+  #   restart: on-failure
   nats:
     image: nats:latest
     container_name: "nats"

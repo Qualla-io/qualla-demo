@@ -35,7 +35,7 @@ export default function IncomeCard() {
         value: new BigNumber(0),
       });
     }
-    for (var i = 0; i < data?.userTransactionsTo?.length; i++) {
+    for (i = 0; i < data?.userTransactionsTo?.length; i++) {
       for (var j = 0; j < _chartData.length; j++) {
         if (data.userTransactionsTo[i].timestamp > _chartData[j].timestamp) {
           _chartData[j].value = _chartData[j].value.plus(

@@ -14,7 +14,7 @@ export const feeVar = makeVar(0);
 const wsLink = new WebSocketLink({
   uri: process.env.REACT_APP_GRAPHQL_SUB_ENDPOINT,
   options: {
-    reconnect: true,
+    reconnect: false,
   },
 });
 

@@ -12,7 +12,7 @@ import {
   Button,
   makeStyles,
 } from "@material-ui/core";
-import AvatarIcons, { iconsLength } from "../../../components/AvatarIcons";
+import AvatarIcons from "../../../components/AvatarIcons";
 import { useMutation, useReactiveVar } from "@apollo/client";
 import { PERMIT, SUBSCRIBE } from "../queries";
 import { accountVar, daiVar, signerVar, subscriptionVar } from "../../../cache";

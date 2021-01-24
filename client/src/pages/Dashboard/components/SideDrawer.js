@@ -17,9 +17,9 @@ import AttachMoneyIcon from "@material-ui/icons/AttachMoney";
 import AccountBalanceIcon from "@material-ui/icons/AccountBalance";
 import SearchIcon from "@material-ui/icons/Search";
 
-import MyBalance from "../../../components/MyBalance";
 import { Hidden } from "@material-ui/core";
 import TopBar from "./TopBar";
+import UserBalance from "../../../components/UserBalance";
 
 const drawerWidth = 240;
 
@@ -170,7 +170,7 @@ export default function SideDrawer(props) {
       </div>
       <div className={classes.grow} />
       <div className={classes.bottom}>
-        <MyBalance />
+        <UserBalance />
       </div>
     </>
   );

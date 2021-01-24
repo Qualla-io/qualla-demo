@@ -1,10 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import {
-  gql,
-  useReactiveVar,
-  useSubscription,
-  useMutation,
-} from "@apollo/client";
+import React from "react";
+import { useReactiveVar, useMutation } from "@apollo/client";
 import { Button, Typography } from "@material-ui/core";
 import { ethers } from "ethers";
 import { useSnackbar } from "notistack";
@@ -12,7 +7,7 @@ import { accountVar } from "../cache";
 import { MINT, GET_BALANCE } from "./queries";
 
 import { makeStyles } from "@material-ui/core/styles";
-import { useQueryWithAccountNetwork, useQueryWithAccount } from "../hooks";
+import { useQueryWithAccount } from "../hooks";
 import BigNumber from "bignumber.js";
 
 const useStyles = makeStyles((theme) => ({
@@ -36,7 +31,7 @@ export default function UserBalance(props) {
   let { data } = useQueryWithAccount(GET_BALANCE);
   let [mint] = useMutation(MINT);
 
-  const ref = useRef(null);
+  // const ref = useRef(null);
 
   const classes = useStyles();
 

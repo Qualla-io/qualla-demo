@@ -92,7 +92,9 @@ export default function NewTokenCard({
 }) {
   const classes = useStyles();
   const [max, setmax] = useState(false);
-  const [period, setPeriod] = useState(2628000);
+  const [period, 
+    // setPeriod
+  ] = useState(2628000);
 
   function incIcons() {
     if (token.avatar < iconsLength) {

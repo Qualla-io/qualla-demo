@@ -1,8 +1,5 @@
 import React from "react";
-import { useRouteMatch } from "react-router-dom";
-import { useQuery } from "@apollo/client";
 
-import { GET_CREATOR_OVERVIEW } from "../queries";
 import CreatorAvatar from "../components/CreatorAvatar";
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";

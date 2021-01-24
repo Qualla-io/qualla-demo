@@ -26,8 +26,6 @@ import { useSnackbar } from "notistack";
 import ConfirmationModal from "../../../../components/ConfirmationModal";
 import { useMutation, useReactiveVar } from "@apollo/client";
 import { BURN_OR_MODIFY } from "../../../Mint/queries";
-import { GET_USER_NONCE } from "./queries";
-import { useQueryWithAccount } from "../../../../hooks";
 import { accountVar, signerVar, subscriptionVar } from "../../../../cache";
 import { ethers } from "ethers";
 

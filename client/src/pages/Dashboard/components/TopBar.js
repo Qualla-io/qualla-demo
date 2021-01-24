@@ -1,11 +1,4 @@
-import {
-  AppBar,
-  Hidden,
-  IconButton,
-  makeStyles,
-  Toolbar,
-  Typography,
-} from "@material-ui/core";
+import { Hidden, IconButton, makeStyles, Typography } from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 import React from "react";
 import { useQueryWithAccount } from "../../../hooks";
@@ -18,14 +11,13 @@ const useStyles = makeStyles((theme) => ({
   },
   container: {
     display: "flex",
-    alignItems: "center"
+    alignItems: "center",
   },
   spacer: {
     margin: "Auto",
   },
   user: {
     maxWidth: 275,
-
   },
 }));
 

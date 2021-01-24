@@ -78,7 +78,7 @@ export default function Transactions() {
           </TableHead>
           <TableBody>
             {transactions.slice(0, 7).map((row, index) => (
-              <TableRow>
+              <TableRow key={index}>
                 <TableCell compoent="th" scope="row">
                   {row.from
                     ? row.to.id === account.toLowerCase()
