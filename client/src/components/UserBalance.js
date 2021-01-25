@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useReactiveVar, useMutation } from "@apollo/client";
 import { Button, Typography } from "@material-ui/core";
 import { ethers } from "ethers";
 import { useSnackbar } from "notistack";
-import { accountVar } from "../cache";
+import { accountVar, balVar } from "../cache";
 import { MINT, GET_BALANCE } from "./queries";
 
 import { makeStyles } from "@material-ui/core/styles";
@@ -28,10 +28,17 @@ export default function UserBalance(props) {
   const { enqueueSnackbar } = useSnackbar();
   // let [balance, setBalance] = useState("0.0");
   let account = useReactiveVar(accountVar);
+  let _balance = useReactiveVar(balVar);
   let { data } = useQueryWithAccount(GET_BALANCE);
   let [mint] = useMutation(MINT);
 
   // const ref = useRef(null);
+
+  useEffect(() => {
+    if (data?.user?.balance) {
+      balVar(data.user.balance);
+    }
+  }, [data]);
 
   const classes = useStyles();
 
@@ -46,13 +53,14 @@ export default function UserBalance(props) {
           }),
           fields: {
             balance(cachedBal) {
+              let bal;
               if (cachedBal) {
-                return new BigNumber(cachedBal)
-                  .plus("100000000000000000000")
-                  .toFixed();
+                bal = new BigNumber(cachedBal).plus("100000000000000000000");
               } else {
-                return "100000000000000000000";
+                bal = new BigNumber("100000000000000000000");
               }
+              balVar(bal.toFixed());
+              return bal.toFixed();
             },
           },
           // broadcast: false,

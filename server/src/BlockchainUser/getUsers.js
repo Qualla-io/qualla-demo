@@ -97,7 +97,7 @@ export async function getSubbedTo(userID, creatorID) {
     query: GET_SUBBED_TO,
     variables: { userID, creatorID },
   });
-  console.log(res);
+  console.log(res.data.user);
   return res.data.user;
 }
 

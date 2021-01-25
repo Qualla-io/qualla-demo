@@ -16,6 +16,7 @@ export const GET_PROFILE = gql`
         title
         avatarID
         description
+        initialSupply
       }
     }
   }
@@ -34,6 +35,7 @@ export const GET_CREATOR_OVERVIEW = gql`
         title
         avatarID
         description
+        initialSupply
       }
     }
   }
@@ -61,6 +63,7 @@ export const GET_USER_SUBSCRIBED_TO = gql`
           title
           avatarID
           description
+          initialSupply
         }
       }
     }
@@ -92,6 +95,7 @@ export const GET_USER_SUBTOKENS = gql`
           title
           avatarID
           description
+          initialSupply
         }
       }
     }

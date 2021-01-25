@@ -25,9 +25,31 @@ export default function Web3Dialog() {
   let eth = useReactiveVar(ethVar);
   const [open, setOpen] = useState(false);
 
+  const providerOptions = {
+    // fortmatic: {
+    //   package: Fortmatic, // required
+    //   options: {
+    //     key: "FORTMATIC_KEY", // required
+    //   },
+    // },
+    // walletconnect: {
+    //   package: WalletConnectProvider, // required
+    //   options: {
+    //     infuraId: "INFURA_ID", // required
+    //   },
+    // },
+  };
+
+  const web3Modal = new Web3Modal({
+    cacheProvider: true,
+    providerOptions,
+  });
+
   useEffect(() => {
     async function _init() {
-      initWeb3();
+      if (web3Modal.cachedProvider) {
+        initWeb3();
+      }
     }
     _init();
     // eslint-disable-next-line
@@ -35,26 +57,6 @@ export default function Web3Dialog() {
 
   async function initWeb3() {
     try {
-      const providerOptions = {
-        // fortmatic: {
-        //   package: Fortmatic, // required
-        //   options: {
-        //     key: "FORTMATIC_KEY", // required
-        //   },
-        // },
-        // walletconnect: {
-        //   package: WalletConnectProvider, // required
-        //   options: {
-        //     infuraId: "INFURA_ID", // required
-        //   },
-        // },
-      };
-
-      const web3Modal = new Web3Modal({
-        cacheProvider: false,
-        providerOptions,
-      });
-
       const eth = await web3Modal.connect();
       ethVar(eth);
 
@@ -68,10 +70,9 @@ export default function Web3Dialog() {
         initWeb3();
       });
 
-      eth.on("disconnect", (error) => {
+      eth.on("disconnect", async (error) => {
         ethVar(null);
-        console.log("disconnected");
-        ethVar(null);
+        await web3Modal.clearCachedProvider();
       });
 
       // let web3 = await getWeb3();
@@ -132,7 +133,7 @@ export default function Web3Dialog() {
             transactions. We reccomend the browser extension MetaMask for the
             best user experience. To download MetaMask please choose the option
             below. If you have an Ethereum wallet already, please click
-            "Connect" below.
+            "Connect" below. No funds are needed to use the demo.
           </Typography>
         </DialogContent>
         <DialogActions>

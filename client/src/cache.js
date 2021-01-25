@@ -10,6 +10,7 @@ export const daiVar = makeVar(null);
 export const subscriptionVar = makeVar(null);
 export const ethVar = makeVar(null);
 export const feeVar = makeVar(0);
+export const balVar = makeVar("0");
 
 const wsLink = new WebSocketLink({
   uri: process.env.REACT_APP_GRAPHQL_SUB_ENDPOINT,

@@ -274,11 +274,12 @@ contract SubscriptionV1 is Context, ERC1155 {
 
         uint256 creatorCut = 100 - fee;
         // _transfer tokens
+
         try
             ERC20(paymentToken).transferFrom(
                 subscriber,
-                creator,
-                paymentValue.mul(creatorCut).div(100)
+                master,
+                paymentValue.mul(fee).div(100)
             )
         returns (bool) {} catch {
             // if funds transfer fails, burn token
@@ -291,8 +292,8 @@ contract SubscriptionV1 is Context, ERC1155 {
         try
             ERC20(paymentToken).transferFrom(
                 subscriber,
-                master,
-                paymentValue.mul(fee).div(100)
+                creator,
+                paymentValue.mul(creatorCut).div(100)
             )
         returns (bool) {} catch {
             // if funds transfer fails, burn token

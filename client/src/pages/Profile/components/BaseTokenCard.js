@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { ethers } from "ethers";
 import { useSnackbar } from "notistack";
+import { useMutation, useReactiveVar } from "@apollo/client";
+import BigNumber from "bignumber.js";
 
 import {
   Card,
@@ -12,10 +14,17 @@ import {
   Button,
   makeStyles,
 } from "@material-ui/core";
+import AllInclusiveIcon from "@material-ui/icons/AllInclusive";
 import AvatarIcons from "../../../components/AvatarIcons";
-import { useMutation, useReactiveVar } from "@apollo/client";
+
 import { PERMIT, SUBSCRIBE } from "../queries";
-import { accountVar, daiVar, signerVar, subscriptionVar } from "../../../cache";
+import {
+  accountVar,
+  balVar,
+  daiVar,
+  signerVar,
+  subscriptionVar,
+} from "../../../cache";
 import ConfirmationModal from "../../../components/ConfirmationModal";
 
 const useStyles = makeStyles((theme) => ({
@@ -76,6 +85,12 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
     flexGrow: 1,
   },
+  divTest: {
+    display: "flex",
+    justify: "bottom",
+    alignItems: "bottom",
+    whiteSpace: "pre-wrap",
+  },
 }));
 
 export default function BaseTokenCard({ tokenProps, accountProps }) {
@@ -85,6 +100,7 @@ export default function BaseTokenCard({ tokenProps, accountProps }) {
   let dai = useReactiveVar(daiVar);
   let signer = useReactiveVar(signerVar);
   let subscriptionV1 = useReactiveVar(subscriptionVar);
+  let balance = useReactiveVar(balVar);
   const [subscribe] = useMutation(SUBSCRIBE);
   const [permit] = useMutation(PERMIT);
 
@@ -131,7 +147,7 @@ export default function BaseTokenCard({ tokenProps, accountProps }) {
     closeModal();
     let subscriberData = {
       user: account,
-      nonce: accountProps?.nonce,
+      nonce: accountProps?.nonce ? accountProps.nonce : 0,
       action: "subscribe",
     };
 
@@ -166,7 +182,11 @@ export default function BaseTokenCard({ tokenProps, accountProps }) {
           }),
           fields: {
             nonce(cachedNonce) {
-              return cachedNonce + 1;
+              if (cachedNonce) {
+                return cachedNonce + 1;
+              } else {
+                return 1;
+              }
             },
           },
         });
@@ -239,11 +259,19 @@ export default function BaseTokenCard({ tokenProps, accountProps }) {
   }
 
   function handleSubscribe() {
-    console.log(accountProps);
+    // Check for funds:
+    let _val = new BigNumber(tokenProps.paymentValue);
+
+    if (!balance || _val.gt(balance)) {
+      enqueueSnackbar(`Insufficient Funds! Please mint yourself some below`, {
+        variant: "warning",
+      });
+      return;
+    }
+
     if (accountProps?.approved) {
       subscribeDialog();
     } else {
-      console.log(accountProps);
       permitDialog();
     }
   }
@@ -264,13 +292,46 @@ export default function BaseTokenCard({ tokenProps, accountProps }) {
                 </Avatar>
               </div>
             </Grid>
-            <Grid item xs={12} className={classes.itemCenter}>
-              <Typography variant="h5" style={{ textAlign: "center" }}>
-                <b>${ethers.utils.formatEther(tokenProps.paymentValue)}</b>
-              </Typography>
-              <Typography variant="subtitle1" style={{ textAlign: "center" }}>
-                Dai/Month
-              </Typography>
+            <Grid item container direction="row" spacing={2} xs={12}>
+              <Grid item xs={6} className={classes.itemCenter}>
+                <Typography variant="h5" style={{ textAlign: "center" }}>
+                  <b>${ethers.utils.formatEther(tokenProps.paymentValue)}</b>
+                </Typography>
+                <Typography variant="subtitle1" style={{ textAlign: "center" }}>
+                  Dai/Month
+                </Typography>
+              </Grid>
+              <Grid item xs={6} className={classes.itemCenter}>
+                <div className={classes.divTest}>
+                  <Typography variant="h6" style={{ alignSelf: "flex-end" }}>
+                    {new BigNumber(tokenProps?.quantity).gt(10000) ? (
+                      <AllInclusiveIcon
+                        style={{ fontSize: "2.125rem", marginBottom: -10 }}
+                      />
+                    ) : (
+                      tokenProps?.quantity
+                    )}{" "}
+                  </Typography>
+                  <Typography
+                    variant="subtitle1"
+                    style={{ alignSelf: "flex-end" }}
+                  >
+                    of{"  "}
+                  </Typography>
+                  <Typography variant="h5" style={{ textAlign: "flex-end" }}>
+                    <b>
+                      {new BigNumber(tokenProps?.initialSupply).gt(10000) ? (
+                        <AllInclusiveIcon style={{ fontSize: "2.125rem", marginBottom: -10, }} />
+                      ) : (
+                        tokenProps?.initialSupply
+                      )}
+                    </b>{" "}
+                  </Typography>
+                </div>
+                <Typography variant="subtitle1" style={{ textAlign: "center" }}>
+                  remaining
+                </Typography>
+              </Grid>
             </Grid>
             <Grid item xs={12} className={classes.itemCenter}>
               <Button

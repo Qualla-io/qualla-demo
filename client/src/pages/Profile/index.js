@@ -11,6 +11,7 @@ import UserBalance from "../../components/UserBalance";
 import BaseTokens from "./components/BaseTokens";
 import Footer from "../../containers/Footer";
 import { accountVar } from "../../cache";
+import SubTokens from "./components/SubTokens";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -57,7 +58,9 @@ export default function Profile() {
     variables: { url: url.substring(1) },
   });
 
-  const [sendQuery, { data: accountData }] = useLazyQuery(GET_USER_SUBSCRIBED_TO);
+  const [sendQuery, { data: accountData }] = useLazyQuery(
+    GET_USER_SUBSCRIBED_TO
+  );
 
   useEffect(() => {
     if (account && data?.getUserFromUrl?.id) {
@@ -74,25 +77,37 @@ export default function Profile() {
       </div>
       <div className={classes.root}>
         {!loading && data?.getUserFromUrl ? (
-          <Header userProps={data.getUserFromUrl} />
+          <>
+            <Header userProps={data.getUserFromUrl} />
+            <Grid
+              container
+              direction="column"
+              justify="center"
+              alignContent="center"
+              spacing={2}
+              className={classes.main}
+            >
+              {accountData?.userSubscribedTo?.subscriptions?.length > 0 ? (
+                <Grid item xs={12} className={classes.item}>
+                  <SubTokens
+                    tokenProps={accountData?.userSubscribedTo?.subscriptions}
+                    accountProps={accountData?.userSubscribedTo}
+                  />
+                </Grid>
+              ) : null}
+
+              <Grid item xs={12} className={classes.item}>
+                <BaseTokens
+                  userProps={data?.getUserFromUrl}
+                  accountProps={accountData?.userSubscribedTo}
+                />
+              </Grid>
+            </Grid>
+          </>
         ) : (
           <ProfileNotFound />
         )}
-        <Grid
-          container
-          direction="column"
-          justify="center"
-          alignContent="center"
-          spacing={2}
-          className={classes.main}
-        >
-          <Grid item xs={12} className={classes.item}>
-            <BaseTokens
-              userProps={data?.getUserFromUrl}
-              accountProps={accountData?.userSubscribedTo}
-            />
-          </Grid>
-        </Grid>
+
         <Footer />
       </div>
       <Card className={classes.balCard}>

@@ -10,9 +10,16 @@ import React, { useState, useEffect } from "react";
 import BaseTokenCard from "./BaseTokenCard";
 
 const useStyles = makeStyles((theme) => ({
-  title: {
+  div: {
+    display: "flex",
+    flexDirection: "Row",
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: theme.spacing(2),
+  },
+  title: {
     textAlign: "center",
+    alignItems: "center",
   },
   collapse: {
     marginTop: theme.spacing(2),
@@ -22,6 +29,7 @@ const useStyles = makeStyles((theme) => ({
   collapseBtn: {
     backgroundColor: theme.palette.tertiary.main,
     marginRight: 0,
+    marginLeft: theme.spacing(2),
   },
 }));
 
@@ -29,6 +37,7 @@ export default function BaseTokens({ userProps, accountProps }) {
   const classes = useStyles();
   const [baseTokens, setBaseTokens] = useState([]);
   const [collapse, setCollapse] = useState(false);
+  const [collapseUpper, setCollapseUpper] = useState(true);
 
   useEffect(() => {
     if (userProps?.baseTokens) {
@@ -40,18 +49,45 @@ export default function BaseTokens({ userProps, accountProps }) {
     }
   }, [userProps]);
 
+  useEffect(() => {
+    if (accountProps?.subscriptions?.length > 0) {
+      setCollapseUpper(false);
+    }
+  }, [accountProps]);
+
   return (
     <>
-      <Typography variant="h4" className={classes.title}>
-        <b> Select a Tier:</b>
-      </Typography>
-      <Grid container justify="center" spacing={2} style={{ flexGrow: 1 }}>
-        {baseTokens?.slice(0, 3).map((token, key) => (
-          <Grid item xs={12} md={4} key={key}>
-            <BaseTokenCard tokenProps={token} accountProps={accountProps} />
-          </Grid>
-        ))}
-      </Grid>
+      <div className={classes.div}>
+        <Typography variant="h4" className={classes.title}>
+          <b>
+            {" "}
+            {accountProps?.subscriptions.length > 0
+              ? "Available Tiers:"
+              : "Select a Tier:"}
+          </b>
+        </Typography>
+        {!collapseUpper ? (
+          <Button
+            variant="contained"
+            className={classes.collapseBtn}
+            size="large"
+            onClick={() => {
+              setCollapseUpper(!collapseUpper);
+            }}
+          >
+            Show
+          </Button>
+        ) : null}
+      </div>
+      <Collapse in={collapseUpper} className={classes.collapse} unmountOnExit>
+        <Grid container justify="center" spacing={2} style={{ flexGrow: 1 }}>
+          {baseTokens?.slice(0, 3).map((token, key) => (
+            <Grid item xs={12} md={4} key={key}>
+              <BaseTokenCard tokenProps={token} accountProps={accountProps} />
+            </Grid>
+          ))}
+        </Grid>
+      </Collapse>
       {baseTokens?.length > 3 ? (
         <>
           <Collapse in={!collapse} className={classes.collapse} unmountOnExit>
