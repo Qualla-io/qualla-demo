@@ -40,6 +40,9 @@ contract QuallaBase is Context, ERC1155 {
     // // how to undo mask
     // id = ~(~id | NF_INDEX_MASK);
 
+    // // get index (should work for NFT and Subs)
+    // id & NF_INDEX_MASK
+
     constructor(string memory uri_, uint256 chainId_) ERC1155(uri_) {
         // register the supported interfaces to conform to ERC1155 via ERC165
         _registerInterface(_INTERFACE_ID_ERC1155);

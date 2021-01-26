@@ -34,7 +34,7 @@ contract QuallaSubscription is QuallaBase {
         bytes32 s
     ) public {
         // verify signature
-        QuallaBase._verifySignature(creator, "mint", v, r, s);
+        _verifySignature(creator, "mint", v, r, s);
 
         // TODO: Require paymentToken be ERC20
 
