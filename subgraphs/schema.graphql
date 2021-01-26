@@ -32,6 +32,9 @@ type SubscriptionToken @entity {
 
 type NftToken @entity {
   id: ID!
+  uri: String!
+  creator: User!
+  owner: User!
 }
 
 type Transaction @entity {

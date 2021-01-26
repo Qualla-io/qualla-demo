@@ -4,8 +4,6 @@ pragma solidity >=0.6.0 <0.8.0;
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./QuallaSubscription.sol";
 
-import "hardhat/console.sol";
-
 contract QuallaNFT is QuallaSubscription {
     using SafeMath for uint256;
 
@@ -16,6 +14,8 @@ contract QuallaNFT is QuallaSubscription {
     mapping(uint256 => string) baseNftToUri;
     mapping(uint256 => uint256) public test;
 
+
+    // Find gas limit for this
     function mintBatchNFT(
         address creator,
         uint256 amount,

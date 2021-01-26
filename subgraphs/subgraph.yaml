@@ -5,11 +5,11 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: SubscriptionV1
+    name: Qualla
     network: develop
     source:
       address: '0x5FbDB2315678afecb367f032d93F642f64180aa3'
-      abi: SubscriptionV1
+      abi: Qualla
       startBlock: 0
     mapping:
       kind: ethereum/events
@@ -21,8 +21,14 @@ dataSources:
         - SubscriptionToken
         - NftToken
       abis:
-        - name: SubscriptionV1
-          file: ../client/src/artifacts/contracts/SubscriptionV1.sol/SubscriptionV1.json
+        - name: Qualla
+          file: ../client/src/artifacts/contracts/Qualla.sol/Qualla.json
+        - name: QuallaNFT
+          file: ../client/src/artifacts/contracts/QuallaNFT.sol/QuallaNFT.json
+        - name: QuallaSubscription
+          file: ../client/src/artifacts/contracts/QuallaSubscription.sol/QuallaSubscription.json
+        - name: QuallaBase
+          file: ../client/src/artifacts/contracts/QuallaBase.sol/QuallaBase.json
         - name: ERC1155
           file: ../client/src/artifacts/contracts/ERC1155.sol/ERC1155.json
         - name: IERC1155
@@ -32,8 +38,6 @@ dataSources:
           handler: handleTransferSingle
         - event: TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
           handler: handleTransferBatch
-        - event: NFTevent(uint256)
-          handler: handleNFTevent
       file: ./src/qualla-mapping.ts
   - kind: ethereum/contract
     name: Dai

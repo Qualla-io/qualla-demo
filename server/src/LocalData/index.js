@@ -5,6 +5,7 @@ import validator from "validator";
 
 import UserModel from "./models/user";
 import BaseTokenModel from "./models/baseToken";
+import NFTModel from "./models/NFT"
 
 import mongoose from "mongoose";
 
@@ -41,6 +42,11 @@ const typeDefs = gql`
     description: String
     avatarID: Float
   }
+
+  extend type NFTtoken @key(fields: "id") {
+    
+  }
+
 `;
 
 const resolvers = {
