@@ -57,12 +57,12 @@ describe("Subscription Contract", function () {
     );
   });
 
-  context("With checking utils", async () => {
+  xcontext("With checking utils", async () => {
     xit("Should reject signature with wrong nonce", async () => {});
     xit("Should reject signature with wrong address", async () => {});
   });
 
-  context("With minting subscription", async () => {
+  xcontext("With minting subscription", async () => {
     it("Should mint new base subscription token", async () => {
       let data = abiCoder.encode(
         ["address[]", "uint256[]"],

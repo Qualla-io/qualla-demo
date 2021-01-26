@@ -55,7 +55,7 @@ contract SubscriptionV1 is Context, ERC1155 {
     event NFTevent(uint256 id);
     event contractModified(address master, uint256 fee);
 
-    constructor() ERC1155("URI") {
+    constructor(string memory uri_) ERC1155(uri_) {
         // register the supported interfaces to conform to ERC1155 via ERC165
         _registerInterface(_INTERFACE_ID_ERC1155);
 
@@ -76,6 +76,16 @@ contract SubscriptionV1 is Context, ERC1155 {
 
         master = msg.sender;
     }
+
+    // function supportsInterface(bytes4 interfaceID)
+    //     external
+    //     view
+    //     returns (bool)
+    // {
+    //     return
+    //         interfaceID == 0x01ffc9a7 || // ERC-165 support (i.e. `bytes4(keccak256('supportsInterface(bytes4)'))`).
+    //         interfaceID == 0x4e2312e0; // ERC-1155 `ERC1155TokenReceiver` support (i.e. `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)")) ^ bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))`).
+    // }
 
     function setFee(uint256 _fee) external {
         require(msg.sender == master, "FORBIDDEN");
@@ -260,7 +270,6 @@ contract SubscriptionV1 is Context, ERC1155 {
         address creator = tokenIdToCreator[id];
         address paymentToken = tokenIdToPaymentToken[id];
         uint256 paymentValue = tokenIdToPaymentValue[id];
-        
 
         // only for demo purposes!
         uint256 executedNonce = tokenId_ToExectuedNonce[id_];

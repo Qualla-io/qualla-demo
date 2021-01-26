@@ -66,7 +66,7 @@ export default function BaseTokens({ userProps, accountProps }) {
               : "Select a Tier:"}
           </b>
         </Typography>
-        {!collapseUpper ? (
+        {accountProps?.subscriptions.length > 0 ? (
           <Button
             variant="contained"
             className={classes.collapseBtn}
@@ -75,7 +75,7 @@ export default function BaseTokens({ userProps, accountProps }) {
               setCollapseUpper(!collapseUpper);
             }}
           >
-            Show
+            {!collapseUpper ? "Show" : "Hide"}
           </Button>
         ) : null}
       </div>

@@ -728,8 +728,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\ERC1155.sol": {
-      "lastModificationDate": 1608053101697,
-      "contentHash": "a3e95e505e342c427e10c68454a0e12d",
+      "lastModificationDate": 1611612053623,
+      "contentHash": "ff19c698e3cd88ff2b6eaf4f3917a9e0",
       "sourceName": "contracts/ERC1155.sol",
       "solcConfig": {
         "version": "0.7.3",
@@ -1050,8 +1050,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\SubscriptionV1.sol": {
-      "lastModificationDate": 1611507092156,
-      "contentHash": "d736b0c4216c87f29e88a3f5fc00d7ae",
+      "lastModificationDate": 1611607587494,
+      "contentHash": "ea66802f146c10954d18550cb78d071b",
       "sourceName": "contracts/SubscriptionV1.sol",
       "solcConfig": {
         "version": "0.7.3",
@@ -1264,6 +1264,119 @@
       ],
       "artifacts": [
         "TestDai"
+      ]
+    },
+    "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\QuallaBase.sol": {
+      "lastModificationDate": 1611619023313,
+      "contentHash": "b2f1308f6724b3432572710276178e4c",
+      "sourceName": "contracts/QuallaBase.sol",
+      "solcConfig": {
+        "version": "0.7.3",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/GSN/Context.sol",
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+        "./ERC1155.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "QuallaBase"
+      ]
+    },
+    "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\QuallaNFT.sol": {
+      "lastModificationDate": 1611618352601,
+      "contentHash": "b341d1dd93be15b7b8b05527f8150745",
+      "sourceName": "contracts/QuallaNFT.sol",
+      "solcConfig": {
+        "version": "0.7.3",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "./QuallaSubscription.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "QuallaNFT"
+      ]
+    },
+    "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\QuallaSubscription.sol": {
+      "lastModificationDate": 1611618343375,
+      "contentHash": "a2c2cb6d073a2411b3e9a9e6d2761ce2",
+      "sourceName": "contracts/QuallaSubscription.sol",
+      "solcConfig": {
+        "version": "0.7.3",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "./QuallaBase.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "QuallaSubscription"
       ]
     }
   }
