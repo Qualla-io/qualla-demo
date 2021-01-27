@@ -14,7 +14,7 @@ import {
 } from "../generated/schema";
 
 import { BigInt, store } from "@graphprotocol/graph-ts";
-import { log } from "@graphprotocol/graph-ts";
+
 
 export function handleNFTevent(event: NFTevent): void {
   let nftToken = new NftToken(event.params.id.toHex());
@@ -25,75 +25,65 @@ export function handleTransferBatch(event: TransferBatch): void {
   let contract = SubscriptionV1.bind(event.address);
   let _tokenIds = event.params.ids;
   let _values = event.params.values;
-  for (var i = 0; i < event.params.ids.length; i++) {
-    let _tokenId = _tokenIds[i];
-    let tokenId = _tokenId.toString();
-    let hexedID = _tokenId.toHex();
-    let value = _values[i];
-    // test to see if this is an NFT or not
 
-    let idTo = event.params.to.toHexString();
-    let idFrom = event.params.from.toHexString();
+  let idTo = event.params.to.toHexString();
+  let idFrom = event.params.from.toHexString();
 
-    if (
-      idTo == "0x0000000000000000000000000000000000000000" &&
-      idFrom != "0x0000000000000000000000000000000000000000"
-    ) {
-      // burn tokens
+  let userTo = User.load(idTo);
+  if (userTo == null) {
+    userTo = new User(idTo);
+  }
+  // This is lazy but works for now
+  userTo.nonce = contract.userNonce(event.params.to);
 
-      let user = User.load(idFrom);
-      user.nonce = contract.userNonce(event.params.from);
+  let userFrom = User.load(idFrom);
+  if (userFrom == null) {
+    userFrom = new User(idFrom);
+  }
+  userFrom.nonce = contract.userNonce(event.params.from);
 
-      if (hexedID[hexedID.length - 1] == "0") {
-        // Base Token
-        let baseToken = BaseToken.load(tokenId);
-        baseToken.quantity = baseToken.quantity.minus(value);
+  let hexedID;
 
-        if (user.id == baseToken.owner) {
-          baseToken.initialSupply = baseToken.initialSupply.minus(value);
-        }
+  if (
+    idTo != "0x0000000000000000000000000000000000000000" &&
+    idFrom == "0x0000000000000000000000000000000000000000"
+  ) {
+    // Minting tokens. All must be the same type (base, sub, nft)
+    hexedID = _tokenIds[0];
 
-        baseToken.save();
+    // Test for NFT
+    // Check this
+    if (hexedID.slice(-17) == "fffffffffffffffff") {
+      // NFT Token
+      let uri = contract.uri(_tokenIds[0]);
+      for (var i = 0; i < event.params.ids.length; i++) {
+        let _tokenId = _tokenIds[i];
+        let tokenId = _tokenId.toString();
+        hexedID = _tokenId.toHex();
 
-        if (baseToken.initialSupply == BigInt.fromI32(0)) {
-          // better way than to just delete?
-          store.remove("BaseToken", tokenId);
-        }
-      } else if (hexedID.slice(-17) == "fffffffffffffffff") {
-        // NFT Token
-      } else {
-        // Sub Token
+        let nft = new NftToken(tokenId);
+        nft.owner = userTo.id;
+        nft.creator = userTo.id;
+        nft.uri = uri;
+        nft.testID = hexedID;
 
-        // maybe a better way than just delete?
-        store.remove("SubscriptionToken", tokenId);
-        // let subToken = SubscriptionToken.load(tokenId);
-        // subToken.owner = null;
-        // subToken.baseToken = null;
-
-        // subToken.save();
+        nft.save();
       }
+    } else if (hexedID[hexedID.length - 1] == "0") {
+      // Base Token
+      for (var i = 0; i < event.params.ids.length; i++) {
+        let _tokenId = _tokenIds[i];
+        let tokenId = _tokenId.toString();
+        hexedID = _tokenId.toHex();
+        let value = _values[i];
 
-      user.save();
-    } else if (
-      idTo != "0x0000000000000000000000000000000000000000" &&
-      idFrom == "0x0000000000000000000000000000000000000000"
-    ) {
-      // mint tokens
-      let user = User.load(idTo);
-      if (user == null) {
-        user = new User(idTo);
-        user.nonce = BigInt.fromI32(1);
-      } else {
-        user.nonce = contract.userNonce(event.params.to);
-      }
-
-      if (hexedID[hexedID.length - 1] == "0") {
-        // Base Token
         let baseToken = BaseToken.load(tokenId);
+        // this must not be null when not found
         if (baseToken == null) {
           baseToken = new BaseToken(tokenId);
           baseToken.quantity = value;
-          baseToken.owner = user.id;
+          baseToken.initialSupply = value;
+          baseToken.owner = userTo.id;
           baseToken.testID = hexedID;
           baseToken.paymentValue = contract.tokenIdToPaymentValue(_tokenId);
           baseToken.paymentToken = contract
@@ -101,46 +91,93 @@ export function handleTransferBatch(event: TransferBatch): void {
             .toHexString();
           baseToken.txHash =
             event.transaction.hash.toHex() + "-" + i.toString();
-          baseToken.initialSupply = value;
-          baseToken.index = BigInt.fromI32(1);
+
+          // baseToken.index = BigInt.fromI32(1);
         } else {
           baseToken.quantity = baseToken.quantity.minus(value);
         }
 
         baseToken.save();
-      } else if (hexedID.slice(-17) == "fffffffffffffffff") {
-        // NFT Token
-      } else {
-        // Sub Token
+      }
+    } else {
+      // Sub Token
+      for (var i = 0; i < event.params.ids.length; i++) {
+        let _tokenId = _tokenIds[i];
+        let tokenId = _tokenId.toString();
+        hexedID = _tokenId.toHex();
         let subToken = new SubscriptionToken(tokenId);
         let baseToken = BaseToken.load(
           contract.getBaseIdFromToken(_tokenId).toString()
         );
         subToken.baseToken = baseToken.id;
-        subToken.owner = user.id;
+        subToken.owner = userTo.id;
         subToken.creator = baseToken.owner;
         subToken.nextWithdraw = contract.tokenId_ToNextWithdraw(_tokenId);
         subToken.testID = hexedID;
 
         subToken.save();
       }
+    }
+  } else if (
+    idTo != "0x0000000000000000000000000000000000000000" &&
+    idFrom == "0x0000000000000000000000000000000000000000"
+  ) {
+    // Burning tokens. All must be the same type (base, sub, nft) for now. May change in future.
+    hexedID = _tokenIds[0];
+    if (hexedID.slice(-17) == "fffffffffffffffff") {
+      // NFT Burning
+      for (var i = 0; i < event.params.ids.length; i++) {
+        let _tokenId = _tokenIds[i];
+        let tokenId = _tokenId.toString();
 
-      user.save();
+        // Maybe just set flag as burned instead of deleting?
+        store.remove("NftToken", tokenId);
+      }
+    } else if (hexedID[hexedID.length - 1] == "0") {
+      // Base Token Burning
+      for (var i = 0; i < event.params.ids.length; i++) {
+        let _tokenId = _tokenIds[i];
+        let tokenId = _tokenId.toString();
+        hexedID = _tokenId.toHex();
+        let value = _values[i];
+
+        let baseToken = BaseToken.load(tokenId);
+        baseToken.quantity = baseToken.quantity.minus(value);
+
+        baseToken.save();
+
+        if (
+          baseToken.quantity == BigInt.fromI32(0) &&
+          baseToken.activeTokens.length == 0
+        ) {
+          // User has burnt all tokens.
+          // better way than to just delete?
+          store.remove("BaseToken", tokenId);
+        }
+      }
     } else {
-      // transfer tokens
-      let userFrom = User.load(idFrom);
-      if (userFrom == null) {
-        userFrom = new User(idFrom);
-        userFrom.nonce = BigInt.fromI32(0); // check this
+      // Sub Token Burning
+      for (var i = 0; i < event.params.ids.length; i++) {
+        let _tokenId = _tokenIds[i];
+        let tokenId = _tokenId.toString();
+        // maybe a better way than just delete?
+        store.remove("SubscriptionToken", tokenId);
       }
+    }
+  } else {
+    // Transfer between people. Could be a collection of different tokens
+    for (var i = 0; i < event.params.ids.length; i++) {
+      let _tokenId = _tokenIds[i];
+      let tokenId = _tokenId.toString();
+      hexedID = _tokenId.toHex();
+      let value = _values[i];
+      if (hexedID.slice(-17) == "fffffffffffffffff") {
+        // NFT transfer
+        let nft = NftToken.load(tokenId);
+        nft.owner = userTo.id;
 
-      let userTo = User.load(idTo);
-      if (userTo == null) {
-        userTo = new User(idTo);
-        userTo.nonce = BigInt.fromI32(0); // check this
-      }
-
-      if (hexedID[hexedID.length - 1] == "0") {
+        nft.save();
+      } else if (hexedID[hexedID.length - 1] == "0") {
         // base token
         let baseToken = BaseToken.load(tokenId);
         if (baseToken.quantity == value) {
@@ -150,8 +187,6 @@ export function handleTransferBatch(event: TransferBatch): void {
           // How to handle partial transfer?
         }
         baseToken.save();
-      } else if (hexedID.slice(-17) == "fffffffffffffffff") {
-        // NFT Token
       } else {
         // sub token
         let subToken = SubscriptionToken.load(tokenId);
@@ -159,11 +194,10 @@ export function handleTransferBatch(event: TransferBatch): void {
 
         subToken.save();
       }
-
-      userFrom.save();
-      userTo.save();
     }
   }
+  userTo.save();
+  userFrom.save();
 }
 
 export function handleTransferSingle(event: TransferSingle): void {
@@ -192,7 +226,6 @@ export function handleTransferSingle(event: TransferSingle): void {
 
       // This doesn't seem to be working
       if (idFrom == baseToken.owner) {
-        
         baseToken.initialSupply = baseToken.initialSupply.minus(
           event.params.value
         );
@@ -247,11 +280,11 @@ export function handleTransferSingle(event: TransferSingle): void {
           .toHexString();
         baseToken.txHash = event.transaction.hash.toHex() + "-" + "0";
         baseToken.initialSupply = event.params.value;
-        baseToken.index = BigInt.fromI32(1);
+        // baseToken.index = BigInt.fromI32(1);
       } else {
         baseToken.quantity = baseToken.quantity.minus(event.params.value);
       }
-      
+
       baseToken.save();
     } else if (hexedID.slice(-17) == "fffffffffffffffff") {
       // NFT Token
@@ -261,7 +294,7 @@ export function handleTransferSingle(event: TransferSingle): void {
       let baseToken = BaseToken.load(
         contract.getBaseIdFromToken(event.params.id).toString()
       );
-      baseToken.index = baseToken.index.plus(BigInt.fromI32(1));
+      // baseToken.index = baseToken.index.plus(BigInt.fromI32(1));
       subToken.baseToken = baseToken.id;
       subToken.owner = user.id;
       subToken.creator = baseToken.owner;

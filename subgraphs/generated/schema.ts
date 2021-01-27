@@ -402,6 +402,50 @@ export class NftToken extends Entity {
   set id(value: string) {
     this.set("id", Value.fromString(value));
   }
+
+  get uri(): string {
+    let value = this.get("uri");
+    return value.toString();
+  }
+
+  set uri(value: string) {
+    this.set("uri", Value.fromString(value));
+  }
+
+  get creator(): string {
+    let value = this.get("creator");
+    return value.toString();
+  }
+
+  set creator(value: string) {
+    this.set("creator", Value.fromString(value));
+  }
+
+  get owner(): string {
+    let value = this.get("owner");
+    return value.toString();
+  }
+
+  set owner(value: string) {
+    this.set("owner", Value.fromString(value));
+  }
+
+  get testID(): string | null {
+    let value = this.get("testID");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set testID(value: string | null) {
+    if (value === null) {
+      this.unset("testID");
+    } else {
+      this.set("testID", Value.fromString(value as string));
+    }
+  }
 }
 
 export class Transaction extends Entity {
