@@ -17,7 +17,7 @@ type BaseToken @entity {
   activeTokens: [SubscriptionToken!] @derivedFrom(field: "baseToken")
   testID: String
   txHash: String!
-  index: BigInt!
+  # index: BigInt!
   initialSupply: BigInt!
 }
 
@@ -32,6 +32,10 @@ type SubscriptionToken @entity {
 
 type NftToken @entity {
   id: ID!
+  uri: String!
+  creator: User!
+  owner: User!
+  testID: String
 }
 
 type Transaction @entity {

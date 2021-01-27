@@ -1306,8 +1306,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\QuallaNFT.sol": {
-      "lastModificationDate": 1611695766294,
-      "contentHash": "dd3de8684ccc0cfccb8f6435e41071de",
+      "lastModificationDate": 1611721294171,
+      "contentHash": "9d7dbb71cbb6899d5421739700472310",
       "sourceName": "contracts/QuallaNFT.sol",
       "solcConfig": {
         "version": "0.7.3",

@@ -12,10 +12,8 @@ contract QuallaNFT is QuallaSubscription {
     {}
 
     mapping(uint256 => string) baseNftToUri;
-    mapping(uint256 => uint256) public test;
 
-
-    // Find gas limit for this
+    // Hits Gas limit at around amount = 420. Need to make this much more efficient 
     function mintBatchNFT(
         address creator,
         uint256 amount,
@@ -43,7 +41,6 @@ contract QuallaNFT is QuallaSubscription {
         for (uint256 i = 0; i < amount + 0; i++) {
             ids[i] = id | i;
             amounts[i] = 1;
-            test[i + 1] = id | i;
         }
 
         _mintBatch(msg.sender, ids, amounts, bytes(""));
