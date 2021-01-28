@@ -13,7 +13,7 @@ contract QuallaNFT is QuallaSubscription {
 
     struct nftStruct {
         string uriID;
-        uint256 mintTime;
+        uint256 mintStamp;
         uint256 baseToken;
         uint256 index;
         address creator;
@@ -39,7 +39,7 @@ contract QuallaNFT is QuallaSubscription {
     ) public {
         _verifySignature(creator, "nft", v, r, s);
         require(
-            tokenIdToCreator[baseTokenId] == creator,
+            baseTokens[baseTokenToIndex[baseTokenId]].creator == creator,
             "Qualla/Invalid Creator"
         );
 
@@ -58,7 +58,12 @@ contract QuallaNFT is QuallaSubscription {
         // baseNftToCreator[id] = creator;
 
         // Amounts = tokenIdToNextIndex is going to mint extra nfts for burnt sub tokens but thats ok.
-        _mint(creator, id, tokenIdToNextIndex[baseTokenId], bytes(""));
+        _mint(
+            creator,
+            id,
+            baseTokens[baseTokenToIndex[baseTokenId]].index,
+            bytes("")
+        );
 
         tokenNonce++;
     }
@@ -80,7 +85,7 @@ contract QuallaNFT is QuallaSubscription {
 
         for (uint256 i = 0; i < baseTokenId.length; i++) {
             require(
-                tokenIdToCreator[baseTokenId[i]] == creator,
+                baseTokens[baseTokenToIndex[baseTokenId[i]]].creator == creator,
                 "Qualla/Invalid Creator"
             );
 
@@ -101,7 +106,7 @@ contract QuallaNFT is QuallaSubscription {
             // baseNftToCreator[id] = creator;
 
             ids[i] = id;
-            amounts[i] = tokenIdToNextIndex[baseTokenId[i]];
+            amounts[i] = baseTokens[baseTokenToIndex[baseTokenId[i]]].index;
 
             tokenNonce++;
         }
@@ -125,6 +130,12 @@ contract QuallaNFT is QuallaSubscription {
             subTokenId & NONCE_MASK ==
                 nfts[idToStructIndex[nftTokenId]].baseToken,
             "Qualla/Invalid Redeem"
+        );
+        require(
+            //Subtoken must be minted before nft
+            subTokens[subTokenToIndex[subTokenId]].mintStamp <
+                nfts[idToStructIndex[nftTokenId]].mintStamp,
+            "Qualla/Invalid mintstamp"
         );
         require(
             redeemed[nftTokenId][subTokenId] == false,

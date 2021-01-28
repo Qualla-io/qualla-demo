@@ -1,6 +1,7 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity >=0.6.0 <0.8.0;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./QuallaBase.sol";
 
@@ -125,13 +126,13 @@ contract QuallaSubscription is QuallaBase {
         require(id & NF_INDEX_MASK == 0, "Qualla/Invalid-Subscription-Index");
 
         require(
-            ERC20(tokenIdToPaymentToken[id]).balanceOf(subscriber) >
+            IERC20(tokenIdToPaymentToken[id]).balanceOf(subscriber) >
                 tokenIdToPaymentValue[id],
             "Qualla/Insufficient-Balance"
         );
 
         require(
-            ERC20(tokenIdToPaymentToken[id]).allowance(
+            IERC20(tokenIdToPaymentToken[id]).allowance(
                 subscriber,
                 address(this)
             ) > tokenIdToPaymentValue[id],
@@ -167,16 +168,15 @@ contract QuallaSubscription is QuallaBase {
 
         _verifySignature(subscriber, "unsubscribe", v, r, s);
 
-        uint256 id = id_ & NONCE_MASK;
-        ERC1155._burn(subscriber, id_, 1);
-        ERC1155._mint(tokenIdToCreator[id], id, 1, bytes(""));
+        _burn(subscriber, id_, 1);
+        _mint(tokenIdToCreator[id_ & NONCE_MASK], id_ & NONCE_MASK, 1, bytes(""));
     }
 
     function executeSubscription(uint256 id_, address subscriber) public {
         require(id_ & TYPE_NF_BIT == 0, "Qualla/Wrong-Token-Type");
         require(id_ & NF_INDEX_MASK > 0, "Qualla/Invalid-Subscription-Index");
         require(
-            ERC1155._balances[id_][subscriber] == 1,
+            _balances[id_][subscriber] == 1,
             "Qualla/Invalid-Subscriber"
         );
         require(
@@ -193,8 +193,8 @@ contract QuallaSubscription is QuallaBase {
         // ------------------------------
         uint256 executedNonce = tokenId_ToExectuedNonce[id_];
         if (executedNonce >= 4) {
-            ERC1155._burn(subscriber, id_, 1);
-            ERC1155._mint(creator, id, 1, bytes(""));
+            _burn(subscriber, id_, 1);
+            _mint(creator, id, 1, bytes(""));
         } else {
             tokenId_ToExectuedNonce[id_] += 1;
         }
@@ -204,27 +204,27 @@ contract QuallaSubscription is QuallaBase {
 
         // burn token in not enough funds or allowance
         if (
-            ERC20(tokenIdToPaymentToken[id]).allowance(
+            IERC20(tokenIdToPaymentToken[id]).allowance(
                 subscriber,
                 address(this)
             ) <
             tokenIdToPaymentValue[id] ||
-            ERC20(tokenIdToPaymentToken[id]).balanceOf(subscriber) <
+            IERC20(tokenIdToPaymentToken[id]).balanceOf(subscriber) <
             tokenIdToPaymentValue[id]
         ) {
-            ERC1155._burn(subscriber, id_, 1);
-            ERC1155._mint(creator, id, 1, bytes(""));
+            _burn(subscriber, id_, 1);
+            _mint(creator, id, 1, bytes(""));
         }
 
         // _transfer tokens
 
-        ERC20(paymentToken).transferFrom(
+        IERC20(paymentToken).transferFrom(
             subscriber,
             master,
             paymentValue.mul(fee).div(100)
         );
 
-        ERC20(paymentToken).transferFrom(
+        IERC20(paymentToken).transferFrom(
             subscriber,
             creator,
             paymentValue.mul(creatorCut).div(100)
