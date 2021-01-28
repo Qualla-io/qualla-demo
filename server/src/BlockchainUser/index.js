@@ -42,6 +42,8 @@ const typeDefs = gql`
     baseTokens: [BaseToken!]
     subscriptions: [SubscriptionToken!]
     subscribers: [SubscriptionToken!]
+    ownedNFTs: [Nft!]
+    createdNFTs: [Nft!]
   }
 
   type Transaction @key(fields: "id") {
@@ -59,6 +61,11 @@ const typeDefs = gql`
   extend type SubscriptionToken @key(fields: "id") {
     id: ID! @external
   }
+
+  extend type Nft @key(fields: "id"){
+    id: ID! @external
+  }
+
 `;
 
 const resolvers = {

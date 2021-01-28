@@ -236,7 +236,7 @@ export default function NewTokenCard({
             onClick={decIcons}
           />
           <Avatar className={classes.avatar}>
-            <AvatarIcons customProps={classes.icons} i={token.avatar} />
+            <AvatarIcons customProps={classes.icons} i={token?.avatar} />
           </Avatar>
           <KeyboardArrowRightIcon
             className={classes.arrowIcon}
@@ -253,7 +253,7 @@ export default function NewTokenCard({
           label="Quantity"
           name="quantity"
           onChange={handleChange}
-          value={token.quantity}
+          value={token?.quantity}
         />
         <FormControlLabel
           control={<Switch checked={max} onChange={handleQuantChange} />}

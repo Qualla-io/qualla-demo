@@ -3,7 +3,7 @@ var Schema = mongoose.Schema;
 
 var NFTSchema = new Schema(
   {
-    _id: { type: String }, // transaction hash
+    _id: { type: String }, // uriID
     metadata: { type: String },
   },
   {

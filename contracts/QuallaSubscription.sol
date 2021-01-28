@@ -6,17 +6,23 @@ import "./QuallaBase.sol";
 
 contract QuallaSubscription is QuallaBase {
     using SafeMath for uint256;
+
     constructor(string memory uri_, uint256 chainId_)
         QuallaBase(uri_, chainId_)
     {}
 
     // Mappings
+
+    // BaseToken
     // This kinda blew up. Not sure if I should change to struct
     mapping(uint256 => uint256) public tokenIdToPaymentValue;
     mapping(uint256 => address) public tokenIdToPaymentToken;
-    mapping(uint256 => uint256) public tokenId_ToNextWithdraw;
     mapping(uint256 => uint256) public tokenIdToNextIndex;
     mapping(uint256 => address) public tokenIdToCreator;
+
+    // SubToken
+    mapping(uint256 => uint256) public tokenId_ToNextWithdraw;
+    mapping(uint256 => uint256) public tokenId_ToMintStamp;
 
     // Just for demo purposes. Only allowing 5 executions before burning
     mapping(uint256 => uint256) public tokenId_ToExectuedNonce;
@@ -138,8 +144,10 @@ contract QuallaSubscription is QuallaBase {
 
         uint256 id_ = id | index;
 
-        ERC1155._burn(tokenIdToCreator[id], id, 1);
-        ERC1155._mint(subscriber, id_, 1, bytes(""));
+        tokenId_ToMintStamp[id_] = block.timestamp;
+
+        _burn(tokenIdToCreator[id], id, 1);
+        _mint(subscriber, id_, 1, bytes(""));
 
         tokenIdToNextIndex[id]++;
 
@@ -229,43 +237,31 @@ contract QuallaSubscription is QuallaBase {
         tokenId_ToNextWithdraw[id_] += 15;
     }
 
-    // Utilitiy Functions
-    function getBaseIdFromToken(uint256 id_)
-        external
-        pure
-        returns (uint256 id)
-    {
-        require(id_ & TYPE_NF_BIT == 0, "Qualla/Wrong-Token-Type");
-        require(id_ & NF_INDEX_MASK > 0, "Qualla/Invalid-Subscription-Index");
-
-        return id_ & NONCE_MASK;
-    }
-
     // untested
-    function updateSubscriptionCreator(
-        address newCreator,
-        uint256 id,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external {
-        require(id & TYPE_NF_BIT == 0, "Qualla/Wrong-Token-Type");
-        require(id & NF_INDEX_MASK == 0, "Qualla/Invalid-Subscription-Index");
+    // function updateSubscriptionCreator(
+    //     address newCreator,
+    //     uint256 id,
+    //     uint8 v,
+    //     bytes32 r,
+    //     bytes32 s
+    // ) external {
+    //     require(id & TYPE_NF_BIT == 0, "Qualla/Wrong-Token-Type");
+    //     require(id & NF_INDEX_MASK == 0, "Qualla/Invalid-Subscription-Index");
 
-        address oldCreator = tokenIdToCreator[id];
+    //     address oldCreator = tokenIdToCreator[id];
 
-        _verifySignature(oldCreator, "update", v, r, s);
+    //     _verifySignature(oldCreator, "update", v, r, s);
 
-        ERC1155.safeTransferFrom(
-            oldCreator,
-            newCreator,
-            id,
-            ERC1155._balances[id][oldCreator],
-            bytes("")
-        );
+    //     ERC1155.safeTransferFrom(
+    //         oldCreator,
+    //         newCreator,
+    //         id,
+    //         ERC1155._balances[id][oldCreator],
+    //         bytes("")
+    //     );
 
-        tokenIdToCreator[id] = newCreator;
-    }
+    //     tokenIdToCreator[id] = newCreator;
+    // }
 
     // Internal Functions
     function _pushTokenData(

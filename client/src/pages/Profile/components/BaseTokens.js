@@ -87,40 +87,42 @@ export default function BaseTokens({ userProps, accountProps }) {
             </Grid>
           ))}
         </Grid>
-      </Collapse>
-      {baseTokens?.length > 3 ? (
-        <>
-          <Collapse in={!collapse} className={classes.collapse} unmountOnExit>
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <Button
-                variant="contained"
-                className={classes.collapseBtn}
-                size="large"
-                onClick={() => setCollapse(true)}
+
+        {baseTokens?.length > 3 ? (
+          <>
+            <Collapse in={!collapse} className={classes.collapse} unmountOnExit>
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <Button
+                  variant="contained"
+                  className={classes.collapseBtn}
+                  size="large"
+                  onClick={() => setCollapse(true)}
+                >
+                  See all {baseTokens.length} Tiers
+                </Button>
+                
+              </div>
+            </Collapse>
+            <Collapse in={collapse} className={classes.collapse} unmountOnExit>
+              <Grid
+                container
+                justify="center"
+                spacing={2}
+                style={{ flexGrow: 1 }}
               >
-                See all {baseTokens.length} Tiers
-              </Button>
-            </div>
-          </Collapse>
-          <Collapse in={collapse} className={classes.collapse} unmountOnExit>
-            <Grid
-              container
-              justify="center"
-              spacing={2}
-              style={{ flexGrow: 1 }}
-            >
-              {baseTokens?.slice(3, baseTokens.length).map((token, key) => (
-                <Grid item xs={12} md={4}>
-                  <BaseTokenCard
-                    tokenProps={token}
-                    accountProps={accountProps}
-                  />
-                </Grid>
-              ))}
-            </Grid>
-          </Collapse>
-        </>
-      ) : null}
+                {baseTokens?.slice(3, baseTokens.length).map((token, key) => (
+                  <Grid item xs={12} md={4}>
+                    <BaseTokenCard
+                      tokenProps={token}
+                      accountProps={accountProps}
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+            </Collapse>
+          </>
+        ) : null}
+      </Collapse>
     </>
   );
 }

@@ -2,10 +2,11 @@ import { ApolloServer, gql, UserInputError } from "apollo-server";
 import { buildFederatedSchema } from "@apollo/federation";
 import { ethers } from "ethers";
 import { BigNumber } from "bignumber.js";
+import { v4 as uuidv4 } from "uuid";
 import { connect, NatsConnectionOptions, Payload } from "ts-nats";
 
-import { getBaseToken, getBaseTokens } from "./getBaseToken";
-import { subscriptionV1, dai, account, signer } from "./utils";
+import { getBaseToken, getBaseTokens, getNFT, getNFTs } from "./getBaseToken";
+import { qualla, dai, account, signer } from "./utils";
 
 let nc;
 
@@ -13,14 +14,12 @@ const typeDefs = gql`
   type Query {
     baseToken(id: ID!): BaseToken
     baseTokens: [BaseToken!]
+    nft(id: ID!): Nft
+    nfts: [Nft!]
   }
 
   type Mutation {
-    subscribe(
-      userID: ID!
-      baseTokenID: ID!
-      signature: String!
-    ): SubscriptionToken!
+    subscribe(userID: ID!, baseTokenID: ID!, signature: String!): Boolean!
     fakeSubscribe(baseTokenID: ID!): Boolean!
     mint(
       userID: ID!
@@ -49,6 +48,12 @@ const typeDefs = gql`
       description: String!
       avatarID: String!
     ): Boolean!
+    mintNft(
+      userID: ID!
+      amount: Float!
+      signature: String!
+      metaData: String!
+    ): Boolean!
   }
 
   extend type User @key(fields: "id") {
@@ -71,6 +76,13 @@ const typeDefs = gql`
     id: ID! @external
     # baseToken: BaseToken! @external
   }
+
+  type Nft @key(fields: "id") {
+    id: ID!
+    creator: User!
+    owner: User!
+    uriID: String!
+  }
 `;
 
 const resolvers = {
@@ -79,6 +91,10 @@ const resolvers = {
       return await getBaseToken(id.toLowerCase());
     },
     baseTokens: async () => await getBaseTokens(),
+    nft: async (_, { id }) => {
+      return await getNFT(id.toLowerCase());
+    },
+    nfts: async () => await getNFTs(),
   },
   Mutation: {
     subscribe: async (_, { userID, baseTokenID, signature }) => {
@@ -92,9 +108,9 @@ const resolvers = {
 
       signature = ethers.utils.splitSignature(signature);
 
-      // validate userID and baseTokenID
+      // TODO: validate userID matches user recovered from signature
 
-      await subscriptionV1.buySubscription(
+      await qualla.buySubscription(
         userID,
         baseTokenID,
         signature.v,
@@ -102,18 +118,7 @@ const resolvers = {
         signature.s
       );
 
-      // How to get subscription token?
-
-      let _subscriptionToken = {};
-
-      console.log(_baseToken.id);
-      console.log(_baseToken.index);
-
-      let _baseID = new BigNumber(_baseToken.id);
-      // This doesnt actually work accurately
-      _subscriptionToken.id = _baseID.plus(_baseToken.index).plus(1).toFixed();
-
-      return _subscriptionToken;
+      return true;
     },
     fakeSubscribe: async (_, { baseTokenID }) => {
       let _baseToken = await getBaseToken(baseTokenID.toLowerCase());
@@ -124,13 +129,13 @@ const resolvers = {
         });
       }
 
-      let nonce = await subscriptionV1.userNonce(account.address);
+      let nonce = await qualla.userNonce(account.address);
 
       let domain = {
         name: "Qualla Subscription",
         version: "1",
         chainId: 31337,
-        verifyingContract: subscriptionV1.address,
+        verifyingContract: qualla.address,
       };
 
       let creatorTypes = {
@@ -155,7 +160,7 @@ const resolvers = {
 
       signature = ethers.utils.splitSignature(signature);
 
-      await subscriptionV1.buySubscription(
+      await qualla.buySubscription(
         account.address,
         baseTokenID,
         signature.v,
@@ -179,20 +184,14 @@ const resolvers = {
     ) => {
       signature = ethers.utils.splitSignature(signature);
 
-      let abiCoder = ethers.utils.defaultAbiCoder;
-
-      let data = abiCoder.encode(
-        ["address[]", "uint256[]"],
-        [[dai.address], [ethers.utils.parseEther(paymentValue).toString()]]
-      );
-
-      let res = await subscriptionV1.mintSubscription(
+      let res = await qualla.mintSubscription(
         userID,
         quantity,
+        dai.address,
+        ethers.utils.parseEther(paymentValue).toString(),
         signature.v,
         signature.r,
         signature.s,
-        data
       );
 
       let msg = {
@@ -222,8 +221,6 @@ const resolvers = {
     ) => {
       signature = ethers.utils.splitSignature(signature);
 
-      let abiCoder = ethers.utils.defaultAbiCoder;
-
       let _addresses = [];
       let _values = [];
 
@@ -232,18 +229,14 @@ const resolvers = {
         _values.push(ethers.utils.parseEther(paymentValue[i]).toString());
       }
 
-      let data = abiCoder.encode(
-        ["address[]", "uint256[]"],
-        [_addresses, _values]
-      );
-
-      let res = await subscriptionV1.mintBatchSubscription(
+      let res = await qualla.mintBatchSubscription(
         userID,
         quantity,
+        _addresses,
+        _values,
         signature.v,
         signature.r,
         signature.s,
-        data
       );
 
       let msg = {
@@ -276,7 +269,7 @@ const resolvers = {
       if (quantity.gt(0)) {
         signature = ethers.utils.splitSignature(signature);
 
-        await subscriptionV1.burnSubscription(
+        await qualla.burnSubscription(
           baseTokenID,
           quantity.toFixed(),
           signature.v,
@@ -298,10 +291,38 @@ const resolvers = {
 
       return true;
     },
+    mintNft: async (_, { userID, amount, signature, metadata }) => {
+      signature = ethers.utils.splitSignature(signature);
+
+      let uriID = uuidv4();
+
+      await qualla.mintBatchNFT(
+        userID.toLowerCase(),
+        amount,
+        uriID,
+        signature.v,
+        signature.r,
+        signature.s
+      );
+
+      let msg = {
+        action: "mintNFT",
+        uriID: uriID,
+        metadata: metadata,
+      };
+
+      nc.publish("local", msg);
+      console.log(" [x] Sent %s: '%s'", "local", msg);
+    },
   },
   BaseToken: {
     __resolveReference(baseToken) {
       return getBaseToken(baseToken.id.toLowerCase());
+    },
+  },
+  Nft: {
+    __resolveReference(nft) {
+      return getNFT(nft.id.toLowerCase());
     },
   },
 };

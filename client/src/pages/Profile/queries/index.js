@@ -110,13 +110,7 @@ export const PERMIT = gql`
 
 export const SUBSCRIBE = gql`
   mutation subscribe($userID: ID!, $baseTokenID: ID!, $signature: String!) {
-    subscribe(
-      userID: $userID
-      baseTokenID: $baseTokenID
-      signature: $signature
-    ) {
-      id
-    }
+    subscribe(userID: $userID, baseTokenID: $baseTokenID, signature: $signature)
   }
 `;
 

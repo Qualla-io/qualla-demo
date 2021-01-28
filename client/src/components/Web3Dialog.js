@@ -19,7 +19,7 @@ import {
 } from "../cache";
 import ChainModal from "./ChainModal";
 import DaiContract from "../artifacts/contracts/TestDai.sol/TestDai.json";
-import SubscriptionContract from "../artifacts/contracts/SubscriptionV1.sol/SubscriptionV1.json";
+import Qualla from "../artifacts/contracts/Qualla.sol/Qualla.json";
 
 export default function Web3Dialog() {
   let eth = useReactiveVar(ethVar);
@@ -109,7 +109,7 @@ export default function Web3Dialog() {
       accountVar(account);
       var subscriptionV1 = new ethers.Contract(
         process.env.REACT_APP_GRAPHQL_SUB_CONTRACT,
-        SubscriptionContract.abi,
+        Qualla.abi,
         signer
       );
 

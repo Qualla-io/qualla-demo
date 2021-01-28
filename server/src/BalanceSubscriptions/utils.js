@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import Dai from "./abi/TestDai.json";
-import SubscriptionV1 from "./abi/SubscriptionV1.json";
+import Qualla from "./abi/Qualla.json";
 
 const privateKey = process.env.PRIVATE_KEY;
 const provider = new ethers.providers.JsonRpcProvider(process.env.NETWORK_URI);
@@ -9,16 +9,16 @@ var dai = new ethers.Contract(process.env.DAI_CONTRACT, Dai.abi, provider);
 
 dai = dai.connect(account);
 
-var subscriptionV1 = new ethers.Contract(
+var qualla = new ethers.Contract(
   process.env.SUB_CONTRACT,
-  SubscriptionV1.abi,
+  Qualla.abi,
   provider
 );
-subscriptionV1 = subscriptionV1.connect(account);
+qualla = qualla.connect(account);
 
 module.exports = {
   provider,
   account,
   dai,
-  subscriptionV1,
+  qualla,
 };

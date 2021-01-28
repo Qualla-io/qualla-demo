@@ -5,7 +5,7 @@ import BigNumber from "bignumber.js";
 
 import { accountVar, signerVar, subscriptionVar } from "../../../../cache";
 import ConfirmationModal from "../../../../components/ConfirmationModal";
-import { useQueryWithAccountNetwork } from "../../../../hooks";
+import { useQueryWithAccount } from "../../../../hooks";
 import NewTokenCard from "./NewTokenCard";
 import { GET_USER_NONCE, MINT_BATCH, MINT_ONE } from "./queries";
 
@@ -45,7 +45,7 @@ export default function MintModal({ open, setOpen }) {
   let account = useReactiveVar(accountVar);
   let signer = useReactiveVar(signerVar);
   let subscriptionV1 = useReactiveVar(subscriptionVar);
-  let { data } = useQueryWithAccountNetwork(GET_USER_NONCE);
+  let { data } = useQueryWithAccount(GET_USER_NONCE);
   const [tokens, setTokens] = useState([
     { title: "", value: "0", description: "", quantity: "0", avatar: 0 },
   ]);
@@ -204,18 +204,18 @@ export default function MintModal({ open, setOpen }) {
           avatarID: _avatar,
         },
         update(cache) {
-            cache.modify({
-              id: cache.identify({
-                id: account.toLowerCase(),
-                __typename: "User",
-              }),
-              fields: {
-                nonce(cachedNonce) {
-                  return cachedNonce + 1;
-                },
+          cache.modify({
+            id: cache.identify({
+              id: account.toLowerCase(),
+              __typename: "User",
+            }),
+            fields: {
+              nonce(cachedNonce) {
+                return cachedNonce + 1;
               },
-              broadcast: false,
-            });
+            },
+            broadcast: false,
+          });
         },
       })
         .then((res) => {
@@ -270,6 +270,8 @@ export default function MintModal({ open, setOpen }) {
     setTokens([
       { title: "", value: "0", description: "", quantity: "0", avatar: 0 },
     ]);
+
+    handleClose();
   }
 
   return (

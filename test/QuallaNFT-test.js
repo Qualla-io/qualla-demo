@@ -1,5 +1,6 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const { shouldThrow } = require("./utils");
 
 describe("Qualla NFT Contract", function () {
   let chainId = 31337;
@@ -14,7 +15,7 @@ describe("Qualla NFT Contract", function () {
   let _walletCharlie;
 
   beforeEach(async () => {
-    let QuallaNFT = await ethers.getContractFactory("QuallaNFT");
+    let QuallaNFT = await ethers.getContractFactory("Qualla");
     quallaNFT = await QuallaNFT.deploy("URI_TEST", chainId);
 
     let TestDai = await ethers.getContractFactory("TestDai");
@@ -50,7 +51,7 @@ describe("Qualla NFT Contract", function () {
   });
 
   context("With minting NFTs", async () => {
-    it("should mint batch of NFTs", async () => {
+    xit("should mint batch of NFTs", async () => {
       const data = {
         user: charlie.address,
         nonce: 0,
@@ -81,6 +82,194 @@ describe("Qualla NFT Contract", function () {
       );
 
       expect(res.toString()).to.equal("TEST");
+    });
+    it("Should mint NFT to subscribers of baseToken", async () => {
+      let data = {
+        user: charlie.address,
+        nonce: 0,
+        action: "mint",
+      };
+
+      let signature = await _walletCharlie._signTypedData(domain, types, data);
+
+      signature = ethers.utils.splitSignature(signature);
+
+      await quallaNFT.mintSubscription(
+        charlie.address,
+        10,
+        testDai.address,
+        10,
+        signature.v,
+        signature.r,
+        signature.s
+      );
+
+      for (var i = 0; i < 5; i++) {
+        data = {
+          user: bob.address,
+          nonce: i,
+          action: "subscribe",
+        };
+
+        signature = await _walletBob._signTypedData(domain, types, data);
+
+        signature = ethers.utils.splitSignature(signature);
+
+        await quallaNFT.buySubscription(
+          bob.address,
+          "340282366920938463463374607431768211456",
+          signature.v,
+          signature.r,
+          signature.s
+        );
+      }
+
+      data = {
+        user: charlie.address,
+        nonce: 1,
+        action: "nft",
+      };
+
+      signature = await _walletCharlie._signTypedData(domain, types, data);
+
+      signature = ethers.utils.splitSignature(signature);
+
+      await quallaNFT.mintNFTtoSubscribers(
+        charlie.address,
+        "340282366920938463463374607431768211456",
+        "TEST",
+        signature.v,
+        signature.r,
+        signature.s
+      );
+
+      let baseNFT =
+        "57896044618658097711785492504343953927315557066662158946655541218820101242880"; // NFT id #1
+
+      let bal = await quallaNFT.balanceOf(charlie.address, baseNFT);
+
+      expect(bal.toString()).to.equal("6");
+
+      let res = await quallaNFT.nfts(0);
+
+      expect(res.creator.toString()).to.equal(charlie.address);
+
+      expect(res.index.toString()).to.equal("1");
+    });
+
+    it("Should redeem NFT to subtoken holder", async () => {
+      let data = {
+        user: charlie.address,
+        nonce: 0,
+        action: "mint",
+      };
+
+      let signature = await _walletCharlie._signTypedData(domain, types, data);
+
+      signature = ethers.utils.splitSignature(signature);
+
+      await quallaNFT.mintSubscription(
+        charlie.address,
+        10,
+        testDai.address,
+        10,
+        signature.v,
+        signature.r,
+        signature.s
+      );
+
+      for (var i = 0; i < 5; i++) {
+        data = {
+          user: bob.address,
+          nonce: i,
+          action: "subscribe",
+        };
+
+        signature = await _walletBob._signTypedData(domain, types, data);
+
+        signature = ethers.utils.splitSignature(signature);
+
+        await quallaNFT.buySubscription(
+          bob.address,
+          "340282366920938463463374607431768211456",
+          signature.v,
+          signature.r,
+          signature.s
+        );
+      }
+
+      data = {
+        user: charlie.address,
+        nonce: 1,
+        action: "nft",
+      };
+
+      signature = await _walletCharlie._signTypedData(domain, types, data);
+
+      signature = ethers.utils.splitSignature(signature);
+
+      await quallaNFT.mintNFTtoSubscribers(
+        charlie.address,
+        "340282366920938463463374607431768211456",
+        "TEST",
+        signature.v,
+        signature.r,
+        signature.s
+      );
+
+      let baseNFT =
+        "57896044618658097711785492504343953927315557066662158946655541218820101242880"; // NFT id #1
+
+      let subToken = "340282366920938463463374607431768211457";
+
+      data = {
+        user: bob.address,
+        nonce: 5,
+        action: "redeem",
+      };
+
+      signature = await _walletBob._signTypedData(domain, types, data);
+
+      signature = ethers.utils.splitSignature(signature);
+
+      await quallaNFT.claimNFT(
+        bob.address,
+        subToken,
+        baseNFT,
+        signature.v,
+        signature.r,
+        signature.s
+      );
+
+      let bal = await quallaNFT.balanceOf(
+        bob.address,
+        "57896044618658097711785492504343953927315557066662158946655541218820101242881"
+      );
+
+      expect(bal.toString()).to.equal("1");
+
+      // Test that you cant redeem twice
+      data = {
+        user: bob.address,
+        nonce: 6,
+        action: "redeem",
+      };
+
+      signature = await _walletBob._signTypedData(domain, types, data);
+
+      signature = ethers.utils.splitSignature(signature);
+
+      await shouldThrow(
+        quallaNFT.claimNFT(
+          bob.address,
+          subToken,
+          baseNFT,
+          signature.v,
+          signature.r,
+          signature.s
+        )
+      );
+
     });
   });
 });

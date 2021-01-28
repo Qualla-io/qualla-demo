@@ -1,6 +1,6 @@
 import { Grid, makeStyles } from "@material-ui/core";
 import React, { useState } from "react";
-import { useQueryWithAccountNetwork } from "../../../hooks";
+import { useQueryWithAccount, useQueryWithAccountNetwork } from "../../../hooks";
 import AddTokensCard from "../components/TierTokens/AddTokensCard";
 import TokenCard from "../components/TierTokens/TokenCard";
 import { GET_USER_BASETOKENS } from "../queries";
@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function TierTokens() {
   const classes = useStyles();
-  const { data } = useQueryWithAccountNetwork(GET_USER_BASETOKENS);
+  const { data } = useQueryWithAccount(GET_USER_BASETOKENS);
   const [modalOpen, setModalOpen] = useState(false);
 
 

@@ -20,7 +20,6 @@ const GET_BASETOKEN = `
       }
       txHash
       initialSupply
-      index
     }
   }
 `;
@@ -52,7 +51,6 @@ const GET_BASETOKENS = `
       }
       txHash
       initialSupply
-      index
     }
   }
 `;
@@ -64,5 +62,51 @@ export async function getBaseTokens() {
   return res.data.baseTokens;
 }
 
+const GET_NFT = `
+  query GetNfts($id: ID!) {
+    nftToken(id: $id){
+      id
+      uriID
+      creator{
+        id
+      }
+      owner {
+        id
+      }
+    }
+  }
+`;
 
+export async function getNFT(id) {
+  const res = await fetch({
+    query: GET_NFT,
+    variables: { id },
+  });
+  if (res.data.nftToken) {
+    return res.data.nftToken;
+  } else {
+    return null;
+  }
+}
 
+const GET_NFTS = `
+  query GetNfts {
+    nftTokens{
+      id
+      uriID
+      creator{
+        id
+      }
+      owner {
+        id
+      }
+    }
+  }
+`;
+
+export async function getNFTs() {
+  const res = await fetch({
+    query: GET_NFTS,
+  });
+  return res.data.nftTokens;
+}

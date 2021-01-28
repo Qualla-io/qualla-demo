@@ -7,7 +7,7 @@ async function main() {
 
   // We get the contract to deploy
   let Qualla = await ethers.getContractFactory("Qualla");
-  let qualla = await Qualla.deploy("URI_TEST", chainId);
+  let qualla = await Qualla.deploy("http://localhost:4000/graphql?query={nftMetadata{uriID}}", chainId);
 
   await qualla.deployed();
 

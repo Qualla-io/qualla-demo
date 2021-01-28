@@ -6,16 +6,16 @@
 const hre = require("hardhat");
 
 async function main() {
-  let alice, bob, charlie;
 
-  [alice, bob, charlie] = await ethers.getSigners();
+  let chainId = 31337;
 
-  let SubscriptionV1 = await ethers.getContractFactory("SubscriptionV1");
-  subscriptionV1 = await SubscriptionV1.deploy();
+  let Qualla = await ethers.getContractFactory("Qualla");
+  let qualla = await Qualla.deploy("http://localhost:4000/graphql?query={nftMetadata{uriID}}", chainId);
 
-  await subscriptionV1.deployed();
 
-  console.log("subscription deployed to:", subscriptionV1.address);
+  await qualla.deployed();
+
+  console.log("Qualla deployed to:", qualla.address);
 
   let TestDai = await ethers.getContractFactory("TestDai");
   testDai = await TestDai.deploy(31337);

@@ -728,8 +728,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\ERC1155.sol": {
-      "lastModificationDate": 1611632692960,
-      "contentHash": "7b75317c61b5f5d001314f813025d0d8",
+      "lastModificationDate": 1611781195867,
+      "contentHash": "ff19c698e3cd88ff2b6eaf4f3917a9e0",
       "sourceName": "contracts/ERC1155.sol",
       "solcConfig": {
         "version": "0.7.3",
@@ -1049,46 +1049,6 @@
         "IERC165"
       ]
     },
-    "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\SubscriptionV1.sol": {
-      "lastModificationDate": 1611607587494,
-      "contentHash": "ea66802f146c10954d18550cb78d071b",
-      "sourceName": "contracts/SubscriptionV1.sol",
-      "solcConfig": {
-        "version": "0.7.3",
-        "settings": {
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "@openzeppelin/contracts/GSN/Context.sol",
-        "@openzeppelin/contracts/math/SafeMath.sol",
-        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
-        "./ERC1155.sol",
-        "hardhat/console.sol"
-      ],
-      "versionPragmas": [
-        ">=0.6.0 <0.8.0"
-      ],
-      "artifacts": [
-        "SubscriptionV1"
-      ]
-    },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\ERC20.sol": {
       "lastModificationDate": 1608086246272,
       "contentHash": "1d93743f6ca9d2ecf9b3c26718faf610",
@@ -1128,8 +1088,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\node_modules\\hardhat\\console.sol": {
-      "lastModificationDate": 1608086250178,
-      "contentHash": "c20b2460755f312099ccd61427237ded",
+      "lastModificationDate": 1611803394060,
+      "contentHash": "cc4777addd464ea56fa35b1c45df0591",
       "sourceName": "hardhat/console.sol",
       "solcConfig": {
         "version": "0.7.3",
@@ -1155,7 +1115,7 @@
       },
       "imports": [],
       "versionPragmas": [
-        ">=0.4.22 <0.8.0"
+        ">=0.4.22 <0.9.0"
       ],
       "artifacts": [
         "console"
@@ -1306,8 +1266,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\QuallaNFT.sol": {
-      "lastModificationDate": 1611721294171,
-      "contentHash": "9d7dbb71cbb6899d5421739700472310",
+      "lastModificationDate": 1611805447308,
+      "contentHash": "648097bdc5b4a9cbb2f76ed2f5fd59d1",
       "sourceName": "contracts/QuallaNFT.sol",
       "solcConfig": {
         "version": "0.7.3",
@@ -1343,8 +1303,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\QuallaSubscription.sol": {
-      "lastModificationDate": 1611627601791,
-      "contentHash": "bd63a44b75aec27c181d70976f2868eb",
+      "lastModificationDate": 1611804897532,
+      "contentHash": "888012fe5bfe24b1f7f1359ef0c6a8f8",
       "sourceName": "contracts/QuallaSubscription.sol",
       "solcConfig": {
         "version": "0.7.3",

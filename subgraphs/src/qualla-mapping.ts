@@ -51,7 +51,7 @@ export function handleTransferBatch(event: TransferBatch): void {
         let nft = new NftToken(tokenId);
         nft.owner = userTo.id;
         nft.creator = userTo.id;
-        nft.uri = uri;
+        nft.uriID = uri;
         nft.testID = hexedID;
 
         nft.save();
@@ -221,7 +221,7 @@ export function handleTransferSingle(event: TransferSingle): void {
       let nft = new NftToken(tokenId);
       nft.owner = userTo.id;
       nft.creator = userTo.id;
-      nft.uri = contract.uri(event.params.id);
+      nft.uriID = contract.uri(event.params.id);
       nft.testID = hexedID;
 
       nft.save();

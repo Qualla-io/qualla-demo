@@ -246,15 +246,6 @@ export class BaseToken extends Entity {
     this.set("txHash", Value.fromString(value));
   }
 
-  get index(): BigInt {
-    let value = this.get("index");
-    return value.toBigInt();
-  }
-
-  set index(value: BigInt) {
-    this.set("index", Value.fromBigInt(value));
-  }
-
   get initialSupply(): BigInt {
     let value = this.get("initialSupply");
     return value.toBigInt();
@@ -403,13 +394,13 @@ export class NftToken extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get uri(): string {
-    let value = this.get("uri");
+  get uriID(): string {
+    let value = this.get("uriID");
     return value.toString();
   }
 
-  set uri(value: string) {
-    this.set("uri", Value.fromString(value));
+  set uriID(value: string) {
+    this.set("uriID", Value.fromString(value));
   }
 
   get creator(): string {

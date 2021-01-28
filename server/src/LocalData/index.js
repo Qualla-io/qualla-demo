@@ -5,15 +5,17 @@ import validator from "validator";
 
 import UserModel from "./models/user";
 import BaseTokenModel from "./models/baseToken";
-import NFTModel from "./models/NFT"
+import NFTModel from "./models/NFT";
 
 import mongoose from "mongoose";
+import NFT from "./models/NFT";
 
 let nc;
 
 const typeDefs = gql`
   type Query {
     getUserFromUrl(url: String): User
+    nftMetadata(uriID: String): String
   }
 
   type Mutation {
@@ -43,16 +45,25 @@ const typeDefs = gql`
     avatarID: Float
   }
 
-  extend type NFTtoken @key(fields: "id") {
-    
+  extend type Nft @key(fields: "id") {
+    id: ID! @external
+    uriID: String! @external
+    metadata: String @requires(fields: "uriID")
   }
-
 `;
 
 const resolvers = {
   Query: {
     getUserFromUrl: async (_, { url }) => {
       return await UserModel.findOne({ url: url }).exec();
+    },
+    nftMetada: async (_, { uriID }) => {
+      let _nft = await NFTModel.findById(uriID);
+      if (_nft) {
+        return _nft.metadata;
+      } else {
+        return null;
+      }
     },
   },
   Mutation: {
@@ -163,6 +174,17 @@ const resolvers = {
       }
     },
   },
+  Nft: {
+    metadata: async (nftInstance) => {
+      let _nft = await NFTModel.findById(nftInstance.uriID);
+
+      if (_nft) {
+        return _nft.metadata;
+      } else {
+        return null;
+      }
+    },
+  },
 };
 
 const server = new ApolloServer({
@@ -177,7 +199,6 @@ const server = new ApolloServer({
 // Save local data from events
 // Probably move this to another file
 
-// test this
 async function handleMint(data) {
   // data structure:
   // {
@@ -230,6 +251,14 @@ async function handleModify(data) {
   }
 }
 
+async function handleNft(data) {
+  let _nft = new NFTModel();
+  _nft._id = data.uriID;
+  _nft.metadata = data.metadata;
+
+  await _nft.save();
+}
+
 server.listen(4004).then(({ url }) => {
   mongoose.set("useUnifiedTopology", true);
   mongoose.set("useNewUrlParser", true);
@@ -251,12 +280,18 @@ async function natsConn() {
       if (err) {
       } else {
         let data = msg.data;
+
+        console.log(" [x] Recieved %s: '%s'", "local", msg);
+
         switch (data.action) {
           case "mint":
             handleMint(data);
             break;
           case "modify":
             handleModify(data);
+            break;
+          case "mintNFT":
+            handleNft(data);
             break;
           default:
             console.log(data);

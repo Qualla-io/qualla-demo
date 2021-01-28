@@ -379,25 +379,6 @@ export class Qualla extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
 
-  test(param0: BigInt): BigInt {
-    let result = super.call("test", "test(uint256):(uint256)", [
-      ethereum.Value.fromUnsignedBigInt(param0)
-    ]);
-
-    return result[0].toBigInt();
-  }
-
-  try_test(param0: BigInt): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("test", "test(uint256):(uint256)", [
-      ethereum.Value.fromUnsignedBigInt(param0)
-    ]);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
   tokenIdToCreator(param0: BigInt): Address {
     let result = super.call(
       "tokenIdToCreator",
@@ -551,16 +532,35 @@ export class Qualla extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  uri(id: BigInt): string {
+  uri(param0: BigInt): string {
     let result = super.call("uri", "uri(uint256):(string)", [
+      ethereum.Value.fromUnsignedBigInt(param0)
+    ]);
+
+    return result[0].toString();
+  }
+
+  try_uri(param0: BigInt): ethereum.CallResult<string> {
+    let result = super.tryCall("uri", "uri(uint256):(string)", [
+      ethereum.Value.fromUnsignedBigInt(param0)
+    ]);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toString());
+  }
+
+  uriID(id: BigInt): string {
+    let result = super.call("uriID", "uriID(uint256):(string)", [
       ethereum.Value.fromUnsignedBigInt(id)
     ]);
 
     return result[0].toString();
   }
 
-  try_uri(id: BigInt): ethereum.CallResult<string> {
-    let result = super.tryCall("uri", "uri(uint256):(string)", [
+  try_uriID(id: BigInt): ethereum.CallResult<string> {
+    let result = super.tryCall("uriID", "uriID(uint256):(string)", [
       ethereum.Value.fromUnsignedBigInt(id)
     ]);
     if (result.reverted) {

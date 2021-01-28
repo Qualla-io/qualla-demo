@@ -21,6 +21,12 @@ const GET_USER = `
       subscribers {
         id
       }
+      ownedNFTs{
+        id
+      }
+      createdNFTs{
+        id
+      }
     }
   }
 `;
@@ -57,6 +63,12 @@ const GET_USERS = `
         id
       }
       subscribers {
+        id
+      }
+      ownedNFTs{
+        id
+      }
+      createdNFTs{
         id
       }
     }

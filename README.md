@@ -9,7 +9,7 @@ To reset chain and database:
 3. In run "rm -Recurse -Force graph-node/data/"
 4. In ./: "npx hardhat node --hostname 0.0.0.0"
 5. In ./: "npx hardhat run scripts/init-deploy.js --network localhost"
-6. In ./ run "docker-compose -f graphnode-docker.yml up --build -d"
+6. In ./ run "docker-compose -f graphnode-docker.yml up --build -d" (wait for graph-node to boot)
 6. In ./subgraphs: "yarn codegen" && "yarn prepare:local" && "yarn create-local" && "yarn deploy-local"
 7. In ./ run "docker-compose -f docker-compose.yml up --build -d"
 

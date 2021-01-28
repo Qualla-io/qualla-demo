@@ -35,7 +35,7 @@ const creatorList = [
     link: "dashboard/subscribers",
     icon: <SupervisorAccountIcon />,
   },
-  { text: "NFTs", link: "dashboard/nft", icon: <PaletteIcon /> },
+  { text: "NFT Factory", link: "dashboard/nft", icon: <PaletteIcon /> },
 ];
 
 const SubscriberList = [

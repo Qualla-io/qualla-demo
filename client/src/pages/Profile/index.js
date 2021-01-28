@@ -12,6 +12,7 @@ import BaseTokens from "./components/BaseTokens";
 import Footer from "../../containers/Footer";
 import { accountVar } from "../../cache";
 import SubTokens from "./components/SubTokens";
+import Posts from "./components/Posts";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -101,6 +102,9 @@ export default function Profile() {
                   userProps={data?.getUserFromUrl}
                   accountProps={accountData?.userSubscribedTo}
                 />
+              </Grid>
+              <Grid item xs={12} className={classes.item}>
+                <Posts />
               </Grid>
             </Grid>
           </>

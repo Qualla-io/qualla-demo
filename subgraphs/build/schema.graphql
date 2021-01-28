@@ -6,6 +6,8 @@ type User @entity {
   nonce: BigInt
   approved: Boolean
   balance: BigInt
+  ownedNFTs: [NftToken!] @derivedFrom(field: "owner")
+  createdNFTs: [NftToken!] @derivedFrom(field: "creator")
 }
 
 type BaseToken @entity {
@@ -32,7 +34,7 @@ type SubscriptionToken @entity {
 
 type NftToken @entity {
   id: ID!
-  uri: String!
+  uriID: String!
   creator: User!
   owner: User!
   testID: String

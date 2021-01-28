@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import { connect, NatsConnectionOptions, Payload } from "ts-nats";
 
 import { getSubToken, getSubTokens } from "./getSubToken";
-import { subscriptionV1 } from "./utils";
+import { qualla } from "./utils";
 
 let nc;
 
@@ -46,7 +46,7 @@ const resolvers = {
     unsubscribe: async (_, { userID, tokenID, signature }) => {
       signature = ethers.utils.splitSignature(signature);
 
-      await subscriptionV1.unSubscribe(
+      await qualla.unSubscribe(
         userID,
         tokenID,
         signature.v,
