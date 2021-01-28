@@ -4,7 +4,7 @@ pragma solidity >=0.6.0 <0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract QuallaStorage is Ownable {
-    constructor(address[] memory quallaContracts) {
+    constructor(address[] memory quallaContracts, uint256 _chainId) {
         // initialize contracts if already deployed
         for (uint256 i = 0; i < quallaContracts.length; i++) {
             addressStorage[
@@ -13,6 +13,7 @@ contract QuallaStorage is Ownable {
                 )
             ] = quallaContracts[i];
         }
+        uIntStorage[keccak256("chainId")] = _chainId;
     }
 
     /**** Storage Types *******/

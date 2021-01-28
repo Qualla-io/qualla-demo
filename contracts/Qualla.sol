@@ -1,32 +1,35 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity >=0.6.0 <0.8.0;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./QuallaNFT.sol";
 import "./QuallaSubscription.sol";
 import "./QuallaStorage.sol";
 import "./ERC1155.sol";
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Qualla is Ownable, ERC1155 {
+
+contract Qualla is Ownable {
     using SafeMath for uint256;
 
-    string public constant name = "Qualla Subscription";
-    string public constant version = "1";
+    // Eventually this should be a true proxy contract. Until then just hacking it together
+
+    // string public constant name = "Qualla Subscription";
+    // string public constant version = "1";
 
     QuallaStorage quallaStorage;
     QuallaSubscription quallaSubscription;
     QuallaNFT quallaNFT;
 
     constructor(
-        string memory uri_,
-        uint256 chainId_,
+        // string memory uri_,
+        // uint256 chainId_,
         address _quallaStorage
-    ) ERC1155(uri_) {
+    ) {
         quallaStorage = QuallaStorage(_quallaStorage);
 
-        quallaStorage.setUint(keccak256("chainId"), chainId_);
+        // quallaStorage.setUint(keccak256("chainId"), chainId_);
         // quallaStorage.setBytes(
         //     keccak256(abi.encode("DOMAIN_SEPARATOR")),
         //     keccak256(

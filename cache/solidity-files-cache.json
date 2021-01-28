@@ -1264,8 +1264,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\QuallaSubscription.sol": {
-      "lastModificationDate": 1611816139923,
-      "contentHash": "1f35ad0668e6b31488ccc67038ab9a90",
+      "lastModificationDate": 1611852986090,
+      "contentHash": "650d1450ad0df548e75de9209090374b",
       "sourceName": "contracts/QuallaSubscription.sol",
       "solcConfig": {
         "version": "0.7.3",
@@ -1290,9 +1290,13 @@
         }
       },
       "imports": [
+        "@openzeppelin/contracts/access/Ownable.sol",
         "@openzeppelin/contracts/token/ERC20/IERC20.sol",
         "@openzeppelin/contracts/math/SafeMath.sol",
-        "./QuallaStorage.sol"
+        "./QuallaStorage.sol",
+        "./QuallaLib.sol",
+        "./ERC1155.sol",
+        "hardhat/console.sol"
       ],
       "versionPragmas": [
         ">=0.6.0 <0.8.0"
@@ -1302,8 +1306,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\Qualla.sol": {
-      "lastModificationDate": 1611817819038,
-      "contentHash": "d2205f35ef9df230fc0e28c57e7f94d4",
+      "lastModificationDate": 1611851787286,
+      "contentHash": "877df57a01c29d26d8a52efb7220cc03",
       "sourceName": "contracts/Qualla.sol",
       "solcConfig": {
         "version": "0.7.3",
@@ -1328,12 +1332,12 @@
         }
       },
       "imports": [
+        "@openzeppelin/contracts/access/Ownable.sol",
         "@openzeppelin/contracts/math/SafeMath.sol",
         "./QuallaNFT.sol",
         "./QuallaSubscription.sol",
         "./QuallaStorage.sol",
-        "./ERC1155.sol",
-        "@openzeppelin/contracts/access/Ownable.sol"
+        "./ERC1155.sol"
       ],
       "versionPragmas": [
         ">=0.6.0 <0.8.0"
@@ -1343,8 +1347,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\QuallaStorage.sol": {
-      "lastModificationDate": 1611817800478,
-      "contentHash": "37d791a7b621fcd4b829820c0bfc01d2",
+      "lastModificationDate": 1611849694573,
+      "contentHash": "ead882a851b0de370fda876f1c41e20b",
       "sourceName": "contracts/QuallaStorage.sol",
       "solcConfig": {
         "version": "0.7.3",
@@ -1415,8 +1419,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\QuallaLib.sol": {
-      "lastModificationDate": 1611815861929,
-      "contentHash": "94a29bc0d9a7b0c3f7726a9b0095d76e",
+      "lastModificationDate": 1611851824551,
+      "contentHash": "f2053642cc31f896313f9d9f64fc0a9c",
       "sourceName": "contracts/QuallaLib.sol",
       "solcConfig": {
         "version": "0.7.3",

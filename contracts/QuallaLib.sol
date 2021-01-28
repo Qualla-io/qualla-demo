@@ -11,7 +11,7 @@ library QuallaLib {
         bytes32 s,
         bytes32 DOMAIN_SEPARATOR,
         bytes32 USER_TYPEHASH
-    ) internal {
+    ) internal pure {
         bytes32 digest =
             keccak256(
                 abi.encodePacked(
