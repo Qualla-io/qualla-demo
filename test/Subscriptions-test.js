@@ -27,6 +27,48 @@ describe("Qualla Diamond Contract", function () {
     ],
   };
 
+  async function mintOneBaseToken() {
+    data = {
+      user: charlie.address,
+      nonce: 0,
+      action: "mint",
+    };
+
+    signature = await _walletCharlie._signTypedData(domain, types, data);
+
+    signature = ethers.utils.splitSignature(signature);
+
+    await subscriptionFacet.mintSubscription(
+      charlie.address,
+      5,
+      testDai.address,
+      10,
+      signature.v,
+      signature.r,
+      signature.s
+    );
+  }
+
+  async function buyOneSubToken() {
+    data = {
+      user: bob.address,
+      nonce: 0,
+      action: "subscribe",
+    };
+
+    signature = await _walletBob._signTypedData(domain, types, data);
+
+    signature = ethers.utils.splitSignature(signature);
+
+    await subscriptionFacet.buySubscription(
+      bob.address,
+      "340282366920938463463374607431768211456",
+      signature.v,
+      signature.r,
+      signature.s
+    );
+  }
+
   beforeEach(async () => {
     [alice, bob, charlie, daniel] = await ethers.getSigners();
 
@@ -60,27 +102,9 @@ describe("Qualla Diamond Contract", function () {
     };
   });
 
-  context("With minting subscriptions", async () => {
+  xcontext("With minting subscriptions", async () => {
     it("Should mint new baseToken", async () => {
-      data = {
-        user: charlie.address,
-        nonce: 0,
-        action: "mint",
-      };
-
-      signature = await _walletCharlie._signTypedData(domain, types, data);
-
-      signature = ethers.utils.splitSignature(signature);
-
-      await subscriptionFacet.mintSubscription(
-        charlie.address,
-        5,
-        testDai.address,
-        10,
-        signature.v,
-        signature.r,
-        signature.s
-      );
+      await mintOneBaseToken();
 
       result = await subscriptionFacet.balanceOf(
         charlie.address,
@@ -129,25 +153,7 @@ describe("Qualla Diamond Contract", function () {
     });
 
     it("Should burn baseToken", async () => {
-      data = {
-        user: charlie.address,
-        nonce: 0,
-        action: "mint",
-      };
-
-      signature = await _walletCharlie._signTypedData(domain, types, data);
-
-      signature = ethers.utils.splitSignature(signature);
-
-      await subscriptionFacet.mintSubscription(
-        charlie.address,
-        5,
-        testDai.address,
-        10,
-        signature.v,
-        signature.r,
-        signature.s
-      );
+      await mintOneBaseToken();
 
       data = {
         user: charlie.address,
@@ -176,43 +182,9 @@ describe("Qualla Diamond Contract", function () {
     });
 
     it("Should mint new of subToken from baseToken when bought", async () => {
-      data = {
-        user: charlie.address,
-        nonce: 0,
-        action: "mint",
-      };
+      await mintOneBaseToken();
 
-      signature = await _walletCharlie._signTypedData(domain, types, data);
-
-      signature = ethers.utils.splitSignature(signature);
-
-      await subscriptionFacet.mintSubscription(
-        charlie.address,
-        5,
-        testDai.address,
-        10,
-        signature.v,
-        signature.r,
-        signature.s
-      );
-
-      data = {
-        user: bob.address,
-        nonce: 0,
-        action: "subscribe",
-      };
-
-      signature = await _walletBob._signTypedData(domain, types, data);
-
-      signature = ethers.utils.splitSignature(signature);
-
-      await subscriptionFacet.buySubscription(
-        bob.address,
-        "340282366920938463463374607431768211456",
-        signature.v,
-        signature.r,
-        signature.s
-      );
+      await buyOneSubToken();
 
       result = await subscriptionFacet.balanceOf(
         bob.address,
@@ -230,43 +202,9 @@ describe("Qualla Diamond Contract", function () {
     });
 
     it("Should burn subToken when unsubscribed", async () => {
-      data = {
-        user: charlie.address,
-        nonce: 0,
-        action: "mint",
-      };
+      await mintOneBaseToken();
 
-      signature = await _walletCharlie._signTypedData(domain, types, data);
-
-      signature = ethers.utils.splitSignature(signature);
-
-      await subscriptionFacet.mintSubscription(
-        charlie.address,
-        5,
-        testDai.address,
-        10,
-        signature.v,
-        signature.r,
-        signature.s
-      );
-
-      data = {
-        user: bob.address,
-        nonce: 0,
-        action: "subscribe",
-      };
-
-      signature = await _walletBob._signTypedData(domain, types, data);
-
-      signature = ethers.utils.splitSignature(signature);
-
-      await subscriptionFacet.buySubscription(
-        bob.address,
-        "340282366920938463463374607431768211456",
-        signature.v,
-        signature.r,
-        signature.s
-      );
+      await buyOneSubToken();
 
       data = {
         user: bob.address,
@@ -299,6 +237,90 @@ describe("Qualla Diamond Contract", function () {
       );
 
       expect(result.toString()).to.equal("5");
+    });
+  });
+
+  context("With minting NFTs", async () => {
+    it("should mint NFTs to subscribers", async () => {
+      await mintOneBaseToken();
+
+      await buyOneSubToken();
+
+      data = {
+        user: charlie.address,
+        nonce: 1,
+        action: "nft",
+      };
+
+      let signature = await _walletCharlie._signTypedData(domain, types, data);
+
+      signature = ethers.utils.splitSignature(signature);
+
+      await subscriptionFacet.mintNFTtoSubscribers(
+        "340282366920938463463374607431768211456",
+        "TEST",
+        signature.v,
+        signature.r,
+        signature.s
+      );
+
+      result = await subscriptionFacet.balanceOf(
+        charlie.address,
+        "57896044618658097711785492504343953927315557066662158946655541218820101242880"
+      );
+
+      expect(result.toString()).to.equal("2");
+    });
+
+    it("Should allow user to claim nft", async () => {
+      await mintOneBaseToken();
+
+      await buyOneSubToken();
+
+      data = {
+        user: charlie.address,
+        nonce: 1,
+        action: "nft",
+      };
+
+      signature = await _walletCharlie._signTypedData(domain, types, data);
+
+      signature = ethers.utils.splitSignature(signature);
+
+      await subscriptionFacet.mintNFTtoSubscribers(
+        "340282366920938463463374607431768211456",
+        "TEST",
+        signature.v,
+        signature.r,
+        signature.s
+      );
+
+      data = {
+        user: bob.address,
+        nonce: 1,
+        action: "claim",
+      };
+
+      signature = await _walletBob._signTypedData(domain, types, data);
+
+      signature = ethers.utils.splitSignature(signature);
+
+      await subscriptionFacet.claimNFT(
+        bob.address,
+        "340282366920938463463374607431768211457",
+        "57896044618658097711785492504343953927315557066662158946655541218820101242880",
+        signature.v,
+        signature.r,
+        signature.s
+      );
+
+      result = await subscriptionFacet.balanceOf(
+        bob.address,
+        "57896044618658097711785492504343953927315557066662158946655541218820101242881"
+      );
+
+      expect(result.toString()).to.equal("1");
+
     });
   });
 });

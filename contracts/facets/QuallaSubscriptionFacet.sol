@@ -5,10 +5,10 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/GSN/Context.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../interfaces/IERC165.sol";
 import "../interfaces/IERC1155.sol";
 import "../libraries/LibSubscriptions.sol";
-import "../libraries/LibUsers.sol";
 import "../libraries/LibDiamond.sol";
 import "../libraries/LibERC1155.sol";
 
@@ -240,7 +240,7 @@ contract QuallaSubscriptionsFacet is Context, IERC1155 {
 
         ss.baseToken[id] = LibSubscriptions.BaseToken(
             creator,
-            paymentToken,
+            IERC20(paymentToken),
             paymentValue,
             1
         );
@@ -283,7 +283,7 @@ contract QuallaSubscriptionsFacet is Context, IERC1155 {
 
             ss.baseToken[ids[i]] = LibSubscriptions.BaseToken(
                 creator,
-                paymentTokens[i],
+                IERC20(paymentTokens[i]),
                 paymentValues[i],
                 1
             );
@@ -333,13 +333,12 @@ contract QuallaSubscriptionsFacet is Context, IERC1155 {
         require(_token.creator != address(0), "Qualla/Invalid-Token-Id");
 
         require(
-            IERC20(_token.paymentToken).balanceOf(subscriber) >
-                _token.paymentValue,
+            _token.paymentToken.balanceOf(subscriber) > _token.paymentValue,
             "Qualla/Insufficient-Balance"
         );
 
         require(
-            IERC20(_token.paymentToken).allowance(subscriber, address(this)) >
+            _token.paymentToken.allowance(subscriber, address(this)) >
                 _token.paymentValue,
             "Qualla/Insufficient-Allowance"
         );
@@ -419,10 +418,9 @@ contract QuallaSubscriptionsFacet is Context, IERC1155 {
 
         // burn token in not enough funds or allowance
         if (
-            IERC20(_token.paymentToken).allowance(subscriber, address(this)) <
+            _token.paymentToken.allowance(subscriber, address(this)) <
             _token.paymentValue ||
-            IERC20(_token.paymentToken).balanceOf(subscriber) <
-            _token.paymentValue
+            _token.paymentToken.balanceOf(subscriber) < _token.paymentValue
         ) {
             _burn(subscriber, id_, 1);
             _mint(_token.creator, id, 1, bytes(""));
@@ -430,13 +428,13 @@ contract QuallaSubscriptionsFacet is Context, IERC1155 {
 
         // _transfer tokens
 
-        IERC20(_token.paymentToken).transferFrom(
+        _token.paymentToken.transferFrom(
             subscriber,
             ds.contractOwner,
             _token.paymentValue.mul(ds.fee).div(100)
         );
 
-        IERC20(_token.paymentToken).transferFrom(
+        _token.paymentToken.transferFrom(
             subscriber,
             _token.creator,
             _token.paymentValue.mul(creatorCut).div(100)
@@ -447,6 +445,136 @@ contract QuallaSubscriptionsFacet is Context, IERC1155 {
 
         // For demo purposes!
         ss.subToken[id_].nextWidthdraw = ss.subToken[id_].nextWidthdraw.add(15);
+    }
+
+    /***********************************|
+   |          NFT       Functions        |
+   |__________________________________*/
+
+    function getTest() external view returns (uint256) {
+        LibSubscriptions.SubscriptionStorage storage ss =
+            LibSubscriptions.subscriptionStorage();
+
+        return ss.test;
+    }
+
+    function mintNFTtoSubscribers(
+        uint256 baseTokenId,
+        string memory _uri,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public {
+        LibSubscriptions.SubscriptionStorage storage ss =
+            LibSubscriptions.subscriptionStorage();
+
+        verifyAndInc(ss.baseToken[baseTokenId].creator, "nft", v, r, s);
+
+        uint256 id = (ss.tokenNonce.add(1) << 128);
+        id = (id | TYPE_NF_BIT);
+
+        ss.test = id;
+
+        ss.nftToken[id] = LibSubscriptions.NFTToken(
+            _uri,
+            block.timestamp,
+            baseTokenId,
+            1,
+            ss.baseToken[baseTokenId].creator
+        );
+
+        // Amounts = baseToken.nonce is going to mint extra nfts for burnt sub tokens but thats ok for now.
+        _mint(
+            ss.baseToken[baseTokenId].creator,
+            id,
+            ss.baseToken[baseTokenId].nonce,
+            bytes("")
+        );
+
+        ss.tokenNonce = ss.tokenNonce.add(1);
+    }
+
+    function mintNFTtoSubscribersBatch(
+        uint256[] memory baseTokenId,
+        string memory _uri,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public {
+        LibSubscriptions.SubscriptionStorage storage ss =
+            LibSubscriptions.subscriptionStorage();
+        address creator = ss.baseToken[baseTokenId[0]].creator;
+
+        verifyAndInc(creator, "nft", v, r, s);
+
+        uint256[] memory ids = new uint256[](baseTokenId.length);
+        uint256[] memory amounts = new uint256[](baseTokenId.length);
+
+        for (uint256 i; i < baseTokenId.length; i++) {
+            require(
+                ss.baseToken[baseTokenId[i]].creator == creator,
+                "Qualla/Invalid Creator"
+            );
+
+            ids[i] = (ss.tokenNonce.add(1) << 128);
+            ids[i] = (ids[i] | TYPE_NF_BIT);
+
+            // same amounts comment as above
+            amounts[i] = ss.baseToken[baseTokenId[i]].nonce;
+
+            ss.nftToken[ids[i]] = LibSubscriptions.NFTToken(
+                _uri,
+                block.timestamp,
+                baseTokenId[i],
+                1,
+                creator
+            );
+
+            ss.tokenNonce = ss.tokenNonce.add(1);
+        }
+
+        _mintBatch(
+            ss.baseToken[baseTokenId[0]].creator,
+            ids,
+            amounts,
+            bytes("")
+        );
+    }
+
+    function claimNFT(
+        address user,
+        uint256 subTokenId,
+        uint256 nftTokenId,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public {
+        verifyAndInc(user, "claim", v, r, s);
+
+        LibSubscriptions.SubscriptionStorage storage ss =
+            LibSubscriptions.subscriptionStorage();
+        require(ss._balances[subTokenId][user] > 0, "Qualla/Invalid User");
+        require(
+            subTokenId & NONCE_MASK == ss.nftToken[nftTokenId].baseToken,
+            "Qualla/Invalid Redeem"
+        );
+        require(
+            //Subtoken must be minted before nft
+            ss.subToken[subTokenId].mintStamp <
+                ss.nftToken[nftTokenId].mintStamp,
+            "Qualla/Invalid mintstamp"
+        );
+        require(
+            ss.nftRedeemed[nftTokenId][subTokenId] == false,
+            "Qualla/Already Redeemed"
+        );
+
+        uint256 id = nftTokenId | ss.nftToken[nftTokenId].nonce;
+
+        _mint(user, id, 1, bytes(""));
+        _burn(ss.nftToken[nftTokenId].creator, nftTokenId, 1);
+
+        ss.nftRedeemed[nftTokenId][subTokenId] = true;
     }
 
     /***********************************|
@@ -551,15 +679,16 @@ contract QuallaSubscriptionsFacet is Context, IERC1155 {
         bytes32 r,
         bytes32 s
     ) internal {
-        LibUsers.UserStorage storage us = LibUsers.userStorage();
+        LibSubscriptions.SubscriptionStorage storage ss =
+            LibSubscriptions.subscriptionStorage();
         LibDiamond.verifySignature(
             creator,
-            us.userProps[creator].nonce,
+            ss.userProps[creator].nonce,
             action,
             v,
             r,
             s
         );
-        LibUsers.incUserNonce(creator);
+        LibSubscriptions.incUserNonce(creator);
     }
 }

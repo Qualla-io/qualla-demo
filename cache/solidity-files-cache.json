@@ -1546,8 +1546,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\libraries\\LibSubscriptions.sol": {
-      "lastModificationDate": 1611896381561,
-      "contentHash": "8e0bcc7a76dafe58ac0e5eabe7cf2a40",
+      "lastModificationDate": 1611957869952,
+      "contentHash": "2859a638e62103adb71cc05bb866a41b",
       "sourceName": "contracts/libraries/LibSubscriptions.sol",
       "solcConfig": {
         "version": "0.7.6",
@@ -1572,7 +1572,8 @@
         }
       },
       "imports": [
-        "@openzeppelin/contracts/token/ERC20/IERC20.sol"
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+        "@openzeppelin/contracts/math/SafeMath.sol"
       ],
       "versionPragmas": [
         "^0.7.6"
@@ -1616,8 +1617,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\facets\\QuallaSubscriptionFacet.sol": {
-      "lastModificationDate": 1611897101787,
-      "contentHash": "11a74adfbacb6c69e3166d7c0c9ff998",
+      "lastModificationDate": 1611958302686,
+      "contentHash": "0afd48352abe12065beec23af626d94c",
       "sourceName": "contracts/facets/QuallaSubscriptionFacet.sol",
       "solcConfig": {
         "version": "0.7.6",
@@ -1644,10 +1645,10 @@
       "imports": [
         "@openzeppelin/contracts/GSN/Context.sol",
         "@openzeppelin/contracts/math/SafeMath.sol",
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol",
         "../interfaces/IERC165.sol",
         "../interfaces/IERC1155.sol",
         "../libraries/LibSubscriptions.sol",
-        "../libraries/LibUsers.sol",
         "../libraries/LibDiamond.sol",
         "../libraries/LibERC1155.sol",
         "hardhat/console.sol"
@@ -1690,42 +1691,6 @@
       "artifacts": [
         "IERC1155TokenReceiver",
         "LibERC1155"
-      ]
-    },
-    "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\libraries\\LibUsers.sol": {
-      "lastModificationDate": 1611890813630,
-      "contentHash": "a512e108ebf8d32a9496496040938666",
-      "sourceName": "contracts/libraries/LibUsers.sol",
-      "solcConfig": {
-        "version": "0.7.6",
-        "settings": {
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "@openzeppelin/contracts/math/SafeMath.sol"
-      ],
-      "versionPragmas": [
-        "^0.7.6"
-      ],
-      "artifacts": [
-        "LibUsers"
       ]
     }
   }
