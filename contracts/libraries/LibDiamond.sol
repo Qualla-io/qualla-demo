@@ -25,10 +25,7 @@ library LibDiamond {
         // owner of the contract
         address contractOwner;
         uint256 chainId;
-        bytes32 DOMAIN_SEPARATOR;
-        bytes32 USER_TYPEHASH;
         string version;
-        uint8 fee; // percent
     }
 
     function diamondStorage()
@@ -285,32 +282,5 @@ library LibDiamond {
         require(contractSize > 0, _errorMessage);
     }
 
-    function verifySignature(
-        address user,
-        uint256 userNonce,
-        string memory action,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) internal {
-        DiamondStorage storage ds = diamondStorage();
-
-        bytes32 digest =
-            keccak256(
-                abi.encodePacked(
-                    "\x19\x01",
-                    ds.DOMAIN_SEPARATOR,
-                    keccak256(
-                        abi.encode(
-                            ds.USER_TYPEHASH,
-                            user,
-                            userNonce,
-                            keccak256(bytes(action))
-                        )
-                    )
-                )
-            );
-
-        require(user == ecrecover(digest, v, r, s), "Qualla/invalid-permit");
-    }
+    
 }

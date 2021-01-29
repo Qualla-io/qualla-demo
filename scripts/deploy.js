@@ -37,12 +37,16 @@ async function main(scriptName) {
     diamondCutFacet,
     diamondLoupeFacet,
     ownershipFacet,
+    erc1155Facet,
     subscriptionFacet,
+    nftFacet,
   ] = await deployFacets(
     "DiamondCutFacet",
     "DiamondLoupeFacet",
     "OwnershipFacet",
-    "QuallaSubscriptionsFacet"
+    "ERC1155Facet",
+    "QuallaSubscriptionsFacet",
+    "QuallaNFTFacet"
   );
 
   const quallaDiamond = await diamond.deploy({
@@ -51,7 +55,9 @@ async function main(scriptName) {
       ["DiamondCutFacet", diamondCutFacet],
       ["DiamondLoupeFacet", diamondLoupeFacet],
       ["OwnershipFacet", ownershipFacet],
+      ["ERC1155Facet", erc1155Facet],
       ["QuallaSubscriptionsFacet", subscriptionFacet],
+      ["QuallaNFTFacet", nftFacet],
     ],
     args: [accounts[0].address, 31337, "1"], //[owner, chainId, version]
   });
@@ -64,7 +70,9 @@ async function main(scriptName) {
     diamondLoupeFacet: diamondLoupeFacet,
     diamondCutFacet: diamondCutFacet,
     ownershipFacet: ownershipFacet,
+    erc1155Facet: erc1155Facet,
     subscriptionFacet: subscriptionFacet,
+    nftFacet: nftFacet,
     testDai: testDai,
   };
 }

@@ -11,10 +11,12 @@ pragma experimental ABIEncoderV2;
 
 import "./libraries/LibSubscriptions.sol";
 import "./libraries/LibDiamond.sol";
+import "./libraries/LibERC1155.sol";
 import "./interfaces/IDiamondLoupe.sol";
 import "./interfaces/IDiamondCut.sol";
 import "./interfaces/IERC173.sol";
 import "./interfaces/IERC165.sol";
+import "./interfaces/IERC1155.sol";
 
 contract QuallaDiamond {
     // more arguments are added to this struct
@@ -33,9 +35,10 @@ contract QuallaDiamond {
         LibDiamond.setContractOwner(_args.owner);
 
         LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+        LibERC1155.ERC1155Storage storage erc1155 = LibERC1155.erc1155Storage();
 
         // meta
-        ds.DOMAIN_SEPARATOR = keccak256(
+        erc1155.DOMAIN_SEPARATOR = keccak256(
             abi.encode(
                 keccak256(
                     "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
@@ -47,16 +50,17 @@ contract QuallaDiamond {
             )
         );
 
-        ds.USER_TYPEHASH = keccak256(
+        erc1155.USER_TYPEHASH = keccak256(
             "User(address user,uint256 nonce,string action)"
         );
-        ds.fee = 5;
+        erc1155.fee = 5;
 
         // adding ERC165 data
         ds.supportedInterfaces[type(IERC165).interfaceId] = true;
         ds.supportedInterfaces[type(IDiamondCut).interfaceId] = true;
         ds.supportedInterfaces[type(IDiamondLoupe).interfaceId] = true;
         ds.supportedInterfaces[type(IERC173).interfaceId] = true;
+        ds.supportedInterfaces[type(IERC1155).interfaceId] = true;
     }
 
     // Find facet for function that is called and execute the

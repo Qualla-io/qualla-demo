@@ -12,6 +12,7 @@ describe("Qualla Diamond Contract", function () {
   let _walletCharlie;
 
   let subscriptionFacet;
+  let erc1155Facet;
 
   let result;
   let signature;
@@ -83,6 +84,12 @@ describe("Qualla Diamond Contract", function () {
       alice
     );
 
+    erc1155Facet = new ethers.Contract(
+      deployVars.quallaDiamond.address,
+      deployVars.erc1155Facet.interface,
+      alice
+    );
+
     _walletBob = new ethers.Wallet(
       "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
     );
@@ -102,11 +109,11 @@ describe("Qualla Diamond Contract", function () {
     };
   });
 
-  xcontext("With minting subscriptions", async () => {
+  context("With minting subscriptions", async () => {
     it("Should mint new baseToken", async () => {
       await mintOneBaseToken();
 
-      result = await subscriptionFacet.balanceOf(
+      result = await erc1155Facet.balanceOf(
         charlie.address,
         "340282366920938463463374607431768211456"
       );
@@ -173,7 +180,7 @@ describe("Qualla Diamond Contract", function () {
         signature.s
       );
 
-      result = await subscriptionFacet.balanceOf(
+      result = await erc1155Facet.balanceOf(
         charlie.address,
         "340282366920938463463374607431768211456"
       );
@@ -186,14 +193,14 @@ describe("Qualla Diamond Contract", function () {
 
       await buyOneSubToken();
 
-      result = await subscriptionFacet.balanceOf(
+      result = await erc1155Facet.balanceOf(
         bob.address,
         "340282366920938463463374607431768211457"
       );
 
       expect(result.toString()).to.equal("1");
 
-      result = await subscriptionFacet.balanceOf(
+      result = await erc1155Facet.balanceOf(
         charlie.address,
         "340282366920938463463374607431768211456"
       );
@@ -224,14 +231,14 @@ describe("Qualla Diamond Contract", function () {
         signature.s
       );
 
-      result = await subscriptionFacet.balanceOf(
+      result = await erc1155Facet.balanceOf(
         bob.address,
         "340282366920938463463374607431768211457"
       );
 
       expect(result.toString()).to.equal("0");
 
-      result = await subscriptionFacet.balanceOf(
+      result = await erc1155Facet.balanceOf(
         charlie.address,
         "340282366920938463463374607431768211456"
       );
@@ -240,87 +247,4 @@ describe("Qualla Diamond Contract", function () {
     });
   });
 
-  context("With minting NFTs", async () => {
-    it("should mint NFTs to subscribers", async () => {
-      await mintOneBaseToken();
-
-      await buyOneSubToken();
-
-      data = {
-        user: charlie.address,
-        nonce: 1,
-        action: "nft",
-      };
-
-      let signature = await _walletCharlie._signTypedData(domain, types, data);
-
-      signature = ethers.utils.splitSignature(signature);
-
-      await subscriptionFacet.mintNFTtoSubscribers(
-        "340282366920938463463374607431768211456",
-        "TEST",
-        signature.v,
-        signature.r,
-        signature.s
-      );
-
-      result = await subscriptionFacet.balanceOf(
-        charlie.address,
-        "57896044618658097711785492504343953927315557066662158946655541218820101242880"
-      );
-
-      expect(result.toString()).to.equal("2");
-    });
-
-    it("Should allow user to claim nft", async () => {
-      await mintOneBaseToken();
-
-      await buyOneSubToken();
-
-      data = {
-        user: charlie.address,
-        nonce: 1,
-        action: "nft",
-      };
-
-      signature = await _walletCharlie._signTypedData(domain, types, data);
-
-      signature = ethers.utils.splitSignature(signature);
-
-      await subscriptionFacet.mintNFTtoSubscribers(
-        "340282366920938463463374607431768211456",
-        "TEST",
-        signature.v,
-        signature.r,
-        signature.s
-      );
-
-      data = {
-        user: bob.address,
-        nonce: 1,
-        action: "claim",
-      };
-
-      signature = await _walletBob._signTypedData(domain, types, data);
-
-      signature = ethers.utils.splitSignature(signature);
-
-      await subscriptionFacet.claimNFT(
-        bob.address,
-        "340282366920938463463374607431768211457",
-        "57896044618658097711785492504343953927315557066662158946655541218820101242880",
-        signature.v,
-        signature.r,
-        signature.s
-      );
-
-      result = await subscriptionFacet.balanceOf(
-        bob.address,
-        "57896044618658097711785492504343953927315557066662158946655541218820101242881"
-      );
-
-      expect(result.toString()).to.equal("1");
-
-    });
-  });
 });

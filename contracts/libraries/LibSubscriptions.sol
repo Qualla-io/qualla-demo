@@ -34,18 +34,11 @@ library LibSubscriptions {
         address creator;
     }
 
-    struct User {
-        uint256 nonce; // should probably move this to its own library
-    }
-
     struct SubscriptionStorage {
         mapping(uint256 => BaseToken) baseToken;
         mapping(uint256 => SubToken) subToken;
         mapping(uint256 => NFTToken) nftToken;
         mapping(uint256 => mapping(uint256 => bool)) nftRedeemed;
-        mapping(uint256 => mapping(address => uint256)) _balances;
-        mapping(address => mapping(address => bool)) _operatorApprovals;
-        mapping(address => User) userProps;
         uint256 tokenNonce;
         uint256 test;
     }
@@ -61,8 +54,4 @@ library LibSubscriptions {
         }
     }
 
-    function incUserNonce(address _user) internal {
-        SubscriptionStorage storage ss = subscriptionStorage();
-        ss.userProps[_user].nonce = ss.userProps[_user].nonce.add(1);
-    }
 }
