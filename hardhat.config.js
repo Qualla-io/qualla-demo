@@ -1,5 +1,6 @@
 require("@nomiclabs/hardhat-waffle");
-require('hardhat-contract-sizer');
+require("hardhat-contract-sizer");
+require("diamond-util");
 const { INFURA_PROJECT_ID, RINKEBY_PRIVATE_KEY } = require("./secrets");
 
 // This is a sample Hardhat task. To learn how to create your own go to
@@ -19,7 +20,7 @@ task("accounts", "Prints the list of accounts", async () => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  solidity: "0.7.3",
+  solidity: "0.7.6",
   networks: {
     hardhat: {},
     rinkeby: {
@@ -34,5 +35,5 @@ module.exports = {
     alphaSort: true,
     runOnCompile: true,
     disambiguatePaths: false,
-  }
+  },
 };

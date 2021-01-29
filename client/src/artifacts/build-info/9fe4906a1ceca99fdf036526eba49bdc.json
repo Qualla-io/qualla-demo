@@ -1,0 +1,1226 @@
+{
+  "id": "9fe4906a1ceca99fdf036526eba49bdc",
+  "_format": "hh-sol-build-info-1",
+  "solcVersion": "0.7.6",
+  "solcLongVersion": "0.7.6+commit.7338295f",
+  "input": {
+    "language": "Solidity",
+    "sources": {
+      "contracts/QuallaDiamond.sol": {
+        "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.7.6;\r\npragma experimental ABIEncoderV2;\r\n\r\n/******************************************************************************\\\r\n* EIP-2535 Diamond Standard: https://eips.ethereum.org/EIPS/eip-2535\r\n* Implementation of : https://github.com/mudgen/diamond-1/blob/master/contracts/Diamond.sol\r\n*\r\n* \r\n/******************************************************************************/\r\n\r\nimport \"@openzeppelin/contracts/introspection/IERC165.sol\";\r\nimport \"./interfaces/IERC173.sol\";\r\nimport \"./interfaces/IDiamondCut.sol\";\r\n\r\ncontract Qualla {\r\n    struct DiamondArgs {\r\n        address owner;\r\n    }\r\n}\r\n"
+      },
+      "@openzeppelin/contracts/introspection/IERC165.sol": {
+        "content": "// SPDX-License-Identifier: MIT\n\npragma solidity >=0.6.0 <0.8.0;\n\n/**\n * @dev Interface of the ERC165 standard, as defined in the\n * https://eips.ethereum.org/EIPS/eip-165[EIP].\n *\n * Implementers can declare support of contract interfaces, which can then be\n * queried by others ({ERC165Checker}).\n *\n * For an implementation, see {ERC165}.\n */\ninterface IERC165 {\n    /**\n     * @dev Returns true if this contract implements the interface defined by\n     * `interfaceId`. See the corresponding\n     * https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section]\n     * to learn more about how these ids are created.\n     *\n     * This function call must use less than 30 000 gas.\n     */\n    function supportsInterface(bytes4 interfaceId) external view returns (bool);\n}\n"
+      },
+      "contracts/interfaces/IERC173.sol": {
+        "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.7.6;\r\n\r\n/// @title ERC-173 Contract Ownership Standard\r\n///  Note: the ERC-165 identifier for this interface is 0x7f5828d0\r\n/* is ERC165 */\r\ninterface IERC173 {\r\n    /// @dev This emits when ownership of a contract changes.\r\n    event OwnershipTransferred(\r\n        address indexed previousOwner,\r\n        address indexed newOwner\r\n    );\r\n\r\n    /// @notice Get the address of the owner\r\n    /// @return owner_ The address of the owner.\r\n    function owner() external view returns (address owner_);\r\n\r\n    /// @notice Set the address of the new owner of the contract\r\n    /// @dev Set _newOwner to address(0) to renounce any ownership.\r\n    /// @param _newOwner The address of the new owner of the contract\r\n    function transferOwnership(address _newOwner) external;\r\n}\r\n"
+      },
+      "contracts/interfaces/IDiamondCut.sol": {
+        "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.7.6;\r\npragma experimental ABIEncoderV2;\r\n\r\ninterface IDiamondCut {\r\n    enum FacetCutAction {Add, Replace, Remove}\r\n    // Add=0, Replace=1, Remove=2\r\n\r\n    struct FacetCut {\r\n        address facetAddress;\r\n        FacetCutAction action;\r\n        bytes4[] functionSelectors;\r\n    }\r\n\r\n    /// @notice Add/replace/remove any number of functions and optionally execute\r\n    ///         a function with delegatecall\r\n    /// @param _diamondCut Contains the facet addresses and function selectors\r\n    /// @param _init The address of the contract or facet to execute _calldata\r\n    /// @param _calldata A function call, including function selector and arguments\r\n    ///                  _calldata is executed with delegatecall on _init\r\n\r\n    function diamondCut(\r\n        FacetCut[] calldata _diamondCut,\r\n        address _init,\r\n        bytes calldata _calldata\r\n    ) external;\r\n\r\n    event DiamondCut(FacetCut[] _diamondCut, address _init, bytes _calldata);\r\n}\r\n"
+      }
+    },
+    "settings": {
+      "optimizer": {
+        "enabled": false,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers"
+          ],
+          "": [
+            "ast"
+          ]
+        }
+      }
+    }
+  },
+  "output": {
+    "contracts": {
+      "@openzeppelin/contracts/introspection/IERC165.sol": {
+        "IERC165": {
+          "abi": [
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes4",
+                  "name": "interfaceId",
+                  "type": "bytes4"
+                }
+              ],
+              "name": "supportsInterface",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            }
+          ],
+          "evm": {
+            "bytecode": {
+              "generatedSources": [],
+              "linkReferences": {},
+              "object": "",
+              "opcodes": "",
+              "sourceMap": ""
+            },
+            "deployedBytecode": {
+              "generatedSources": [],
+              "immutableReferences": {},
+              "linkReferences": {},
+              "object": "",
+              "opcodes": "",
+              "sourceMap": ""
+            },
+            "methodIdentifiers": {
+              "supportsInterface(bytes4)": "01ffc9a7"
+            }
+          }
+        }
+      },
+      "contracts/QuallaDiamond.sol": {
+        "Qualla": {
+          "abi": [],
+          "evm": {
+            "bytecode": {
+              "generatedSources": [],
+              "linkReferences": {},
+              "object": "6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220ca591736b532621319fab5d5a18ed99c56893e7a6c6355eee5f83cb09bc354a064736f6c63430007060033",
+              "opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH1 0xF JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x3F DUP1 PUSH1 0x1D PUSH1 0x0 CODECOPY PUSH1 0x0 RETURN INVALID PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x0 DUP1 REVERT INVALID LOG2 PUSH5 0x6970667358 0x22 SLT KECCAK256 0xCA MSIZE OR CALLDATASIZE 0xB5 ORIGIN PUSH3 0x1319FA 0xB5 0xD5 LOG1 DUP15 0xD9 SWAP13 JUMP DUP10 RETURNDATACOPY PUSH27 0x6C6355EEE5F83CB09BC354A064736F6C6343000706003300000000 ",
+              "sourceMap": "570:77:1:-:0;;;;;;;;;;;;;;;;;;;"
+            },
+            "deployedBytecode": {
+              "generatedSources": [],
+              "immutableReferences": {},
+              "linkReferences": {},
+              "object": "6080604052600080fdfea2646970667358221220ca591736b532621319fab5d5a18ed99c56893e7a6c6355eee5f83cb09bc354a064736f6c63430007060033",
+              "opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x0 DUP1 REVERT INVALID LOG2 PUSH5 0x6970667358 0x22 SLT KECCAK256 0xCA MSIZE OR CALLDATASIZE 0xB5 ORIGIN PUSH3 0x1319FA 0xB5 0xD5 LOG1 DUP15 0xD9 SWAP13 JUMP DUP10 RETURNDATACOPY PUSH27 0x6C6355EEE5F83CB09BC354A064736F6C6343000706003300000000 ",
+              "sourceMap": "570:77:1:-:0;;;;;"
+            },
+            "methodIdentifiers": {}
+          }
+        }
+      },
+      "contracts/interfaces/IDiamondCut.sol": {
+        "IDiamondCut": {
+          "abi": [
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "facetAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "enum IDiamondCut.FacetCutAction",
+                      "name": "action",
+                      "type": "uint8"
+                    },
+                    {
+                      "internalType": "bytes4[]",
+                      "name": "functionSelectors",
+                      "type": "bytes4[]"
+                    }
+                  ],
+                  "indexed": false,
+                  "internalType": "struct IDiamondCut.FacetCut[]",
+                  "name": "_diamondCut",
+                  "type": "tuple[]"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "_init",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "bytes",
+                  "name": "_calldata",
+                  "type": "bytes"
+                }
+              ],
+              "name": "DiamondCut",
+              "type": "event"
+            },
+            {
+              "inputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "facetAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "enum IDiamondCut.FacetCutAction",
+                      "name": "action",
+                      "type": "uint8"
+                    },
+                    {
+                      "internalType": "bytes4[]",
+                      "name": "functionSelectors",
+                      "type": "bytes4[]"
+                    }
+                  ],
+                  "internalType": "struct IDiamondCut.FacetCut[]",
+                  "name": "_diamondCut",
+                  "type": "tuple[]"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_init",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "_calldata",
+                  "type": "bytes"
+                }
+              ],
+              "name": "diamondCut",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            }
+          ],
+          "evm": {
+            "bytecode": {
+              "generatedSources": [],
+              "linkReferences": {},
+              "object": "",
+              "opcodes": "",
+              "sourceMap": ""
+            },
+            "deployedBytecode": {
+              "generatedSources": [],
+              "immutableReferences": {},
+              "linkReferences": {},
+              "object": "",
+              "opcodes": "",
+              "sourceMap": ""
+            },
+            "methodIdentifiers": {
+              "diamondCut((address,uint8,bytes4[])[],address,bytes)": "1f931c1c"
+            }
+          }
+        }
+      },
+      "contracts/interfaces/IERC173.sol": {
+        "IERC173": {
+          "abi": [
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "previousOwner",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "OwnershipTransferred",
+              "type": "event"
+            },
+            {
+              "inputs": [],
+              "name": "owner",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner_",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "transferOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            }
+          ],
+          "evm": {
+            "bytecode": {
+              "generatedSources": [],
+              "linkReferences": {},
+              "object": "",
+              "opcodes": "",
+              "sourceMap": ""
+            },
+            "deployedBytecode": {
+              "generatedSources": [],
+              "immutableReferences": {},
+              "linkReferences": {},
+              "object": "",
+              "opcodes": "",
+              "sourceMap": ""
+            },
+            "methodIdentifiers": {
+              "owner()": "8da5cb5b",
+              "transferOwnership(address)": "f2fde38b"
+            }
+          }
+        }
+      }
+    },
+    "sources": {
+      "@openzeppelin/contracts/introspection/IERC165.sol": {
+        "ast": {
+          "absolutePath": "@openzeppelin/contracts/introspection/IERC165.sol",
+          "exportedSymbols": {
+            "IERC165": [
+              11
+            ]
+          },
+          "id": 12,
+          "license": "MIT",
+          "nodeType": "SourceUnit",
+          "nodes": [
+            {
+              "id": 1,
+              "literals": [
+                "solidity",
+                ">=",
+                "0.6",
+                ".0",
+                "<",
+                "0.8",
+                ".0"
+              ],
+              "nodeType": "PragmaDirective",
+              "src": "33:31:0"
+            },
+            {
+              "abstract": false,
+              "baseContracts": [],
+              "contractDependencies": [],
+              "contractKind": "interface",
+              "documentation": {
+                "id": 2,
+                "nodeType": "StructuredDocumentation",
+                "src": "66:279:0",
+                "text": " @dev Interface of the ERC165 standard, as defined in the\n https://eips.ethereum.org/EIPS/eip-165[EIP].\n Implementers can declare support of contract interfaces, which can then be\n queried by others ({ERC165Checker}).\n For an implementation, see {ERC165}."
+              },
+              "fullyImplemented": false,
+              "id": 11,
+              "linearizedBaseContracts": [
+                11
+              ],
+              "name": "IERC165",
+              "nodeType": "ContractDefinition",
+              "nodes": [
+                {
+                  "documentation": {
+                    "id": 3,
+                    "nodeType": "StructuredDocumentation",
+                    "src": "370:340:0",
+                    "text": " @dev Returns true if this contract implements the interface defined by\n `interfaceId`. See the corresponding\n https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section]\n to learn more about how these ids are created.\n This function call must use less than 30 000 gas."
+                  },
+                  "functionSelector": "01ffc9a7",
+                  "id": 10,
+                  "implemented": false,
+                  "kind": "function",
+                  "modifiers": [],
+                  "name": "supportsInterface",
+                  "nodeType": "FunctionDefinition",
+                  "parameters": {
+                    "id": 6,
+                    "nodeType": "ParameterList",
+                    "parameters": [
+                      {
+                        "constant": false,
+                        "id": 5,
+                        "mutability": "mutable",
+                        "name": "interfaceId",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 10,
+                        "src": "742:18:0",
+                        "stateVariable": false,
+                        "storageLocation": "default",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes4",
+                          "typeString": "bytes4"
+                        },
+                        "typeName": {
+                          "id": 4,
+                          "name": "bytes4",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "742:6:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bytes4",
+                            "typeString": "bytes4"
+                          }
+                        },
+                        "visibility": "internal"
+                      }
+                    ],
+                    "src": "741:20:0"
+                  },
+                  "returnParameters": {
+                    "id": 9,
+                    "nodeType": "ParameterList",
+                    "parameters": [
+                      {
+                        "constant": false,
+                        "id": 8,
+                        "mutability": "mutable",
+                        "name": "",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 10,
+                        "src": "785:4:0",
+                        "stateVariable": false,
+                        "storageLocation": "default",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        },
+                        "typeName": {
+                          "id": 7,
+                          "name": "bool",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "785:4:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bool",
+                            "typeString": "bool"
+                          }
+                        },
+                        "visibility": "internal"
+                      }
+                    ],
+                    "src": "784:6:0"
+                  },
+                  "scope": 11,
+                  "src": "715:76:0",
+                  "stateMutability": "view",
+                  "virtual": false,
+                  "visibility": "external"
+                }
+              ],
+              "scope": 12,
+              "src": "346:447:0"
+            }
+          ],
+          "src": "33:761:0"
+        },
+        "id": 0
+      },
+      "contracts/QuallaDiamond.sol": {
+        "ast": {
+          "absolutePath": "contracts/QuallaDiamond.sol",
+          "exportedSymbols": {
+            "IDiamondCut": [
+              57
+            ],
+            "IERC165": [
+              11
+            ],
+            "IERC173": [
+              80
+            ],
+            "Qualla": [
+              21
+            ]
+          },
+          "id": 22,
+          "license": "MIT",
+          "nodeType": "SourceUnit",
+          "nodes": [
+            {
+              "id": 13,
+              "literals": [
+                "solidity",
+                "^",
+                "0.7",
+                ".6"
+              ],
+              "nodeType": "PragmaDirective",
+              "src": "33:23:1"
+            },
+            {
+              "id": 14,
+              "literals": [
+                "experimental",
+                "ABIEncoderV2"
+              ],
+              "nodeType": "PragmaDirective",
+              "src": "58:33:1"
+            },
+            {
+              "absolutePath": "@openzeppelin/contracts/introspection/IERC165.sol",
+              "file": "@openzeppelin/contracts/introspection/IERC165.sol",
+              "id": 15,
+              "nodeType": "ImportDirective",
+              "scope": 22,
+              "sourceUnit": 12,
+              "src": "431:59:1",
+              "symbolAliases": [],
+              "unitAlias": ""
+            },
+            {
+              "absolutePath": "contracts/interfaces/IERC173.sol",
+              "file": "./interfaces/IERC173.sol",
+              "id": 16,
+              "nodeType": "ImportDirective",
+              "scope": 22,
+              "sourceUnit": 81,
+              "src": "492:34:1",
+              "symbolAliases": [],
+              "unitAlias": ""
+            },
+            {
+              "absolutePath": "contracts/interfaces/IDiamondCut.sol",
+              "file": "./interfaces/IDiamondCut.sol",
+              "id": 17,
+              "nodeType": "ImportDirective",
+              "scope": 22,
+              "sourceUnit": 58,
+              "src": "528:38:1",
+              "symbolAliases": [],
+              "unitAlias": ""
+            },
+            {
+              "abstract": false,
+              "baseContracts": [],
+              "contractDependencies": [],
+              "contractKind": "contract",
+              "fullyImplemented": true,
+              "id": 21,
+              "linearizedBaseContracts": [
+                21
+              ],
+              "name": "Qualla",
+              "nodeType": "ContractDefinition",
+              "nodes": [
+                {
+                  "canonicalName": "Qualla.DiamondArgs",
+                  "id": 20,
+                  "members": [
+                    {
+                      "constant": false,
+                      "id": 19,
+                      "mutability": "mutable",
+                      "name": "owner",
+                      "nodeType": "VariableDeclaration",
+                      "scope": 20,
+                      "src": "623:13:1",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      },
+                      "typeName": {
+                        "id": 18,
+                        "name": "address",
+                        "nodeType": "ElementaryTypeName",
+                        "src": "623:7:1",
+                        "stateMutability": "nonpayable",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      "visibility": "internal"
+                    }
+                  ],
+                  "name": "DiamondArgs",
+                  "nodeType": "StructDefinition",
+                  "scope": 21,
+                  "src": "593:51:1",
+                  "visibility": "public"
+                }
+              ],
+              "scope": 22,
+              "src": "570:77:1"
+            }
+          ],
+          "src": "33:616:1"
+        },
+        "id": 1
+      },
+      "contracts/interfaces/IDiamondCut.sol": {
+        "ast": {
+          "absolutePath": "contracts/interfaces/IDiamondCut.sol",
+          "exportedSymbols": {
+            "IDiamondCut": [
+              57
+            ]
+          },
+          "id": 58,
+          "license": "MIT",
+          "nodeType": "SourceUnit",
+          "nodes": [
+            {
+              "id": 23,
+              "literals": [
+                "solidity",
+                "^",
+                "0.7",
+                ".6"
+              ],
+              "nodeType": "PragmaDirective",
+              "src": "33:23:2"
+            },
+            {
+              "id": 24,
+              "literals": [
+                "experimental",
+                "ABIEncoderV2"
+              ],
+              "nodeType": "PragmaDirective",
+              "src": "58:33:2"
+            },
+            {
+              "abstract": false,
+              "baseContracts": [],
+              "contractDependencies": [],
+              "contractKind": "interface",
+              "fullyImplemented": false,
+              "id": 57,
+              "linearizedBaseContracts": [
+                57
+              ],
+              "name": "IDiamondCut",
+              "nodeType": "ContractDefinition",
+              "nodes": [
+                {
+                  "canonicalName": "IDiamondCut.FacetCutAction",
+                  "id": 28,
+                  "members": [
+                    {
+                      "id": 25,
+                      "name": "Add",
+                      "nodeType": "EnumValue",
+                      "src": "145:3:2"
+                    },
+                    {
+                      "id": 26,
+                      "name": "Replace",
+                      "nodeType": "EnumValue",
+                      "src": "150:7:2"
+                    },
+                    {
+                      "id": 27,
+                      "name": "Remove",
+                      "nodeType": "EnumValue",
+                      "src": "159:6:2"
+                    }
+                  ],
+                  "name": "FacetCutAction",
+                  "nodeType": "EnumDefinition",
+                  "src": "124:42:2"
+                },
+                {
+                  "canonicalName": "IDiamondCut.FacetCut",
+                  "id": 36,
+                  "members": [
+                    {
+                      "constant": false,
+                      "id": 30,
+                      "mutability": "mutable",
+                      "name": "facetAddress",
+                      "nodeType": "VariableDeclaration",
+                      "scope": 36,
+                      "src": "236:20:2",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      },
+                      "typeName": {
+                        "id": 29,
+                        "name": "address",
+                        "nodeType": "ElementaryTypeName",
+                        "src": "236:7:2",
+                        "stateMutability": "nonpayable",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      "visibility": "internal"
+                    },
+                    {
+                      "constant": false,
+                      "id": 32,
+                      "mutability": "mutable",
+                      "name": "action",
+                      "nodeType": "VariableDeclaration",
+                      "scope": 36,
+                      "src": "267:21:2",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_enum$_FacetCutAction_$28",
+                        "typeString": "enum IDiamondCut.FacetCutAction"
+                      },
+                      "typeName": {
+                        "id": 31,
+                        "name": "FacetCutAction",
+                        "nodeType": "UserDefinedTypeName",
+                        "referencedDeclaration": 28,
+                        "src": "267:14:2",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_enum$_FacetCutAction_$28",
+                          "typeString": "enum IDiamondCut.FacetCutAction"
+                        }
+                      },
+                      "visibility": "internal"
+                    },
+                    {
+                      "constant": false,
+                      "id": 35,
+                      "mutability": "mutable",
+                      "name": "functionSelectors",
+                      "nodeType": "VariableDeclaration",
+                      "scope": 36,
+                      "src": "299:26:2",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_array$_t_bytes4_$dyn_storage_ptr",
+                        "typeString": "bytes4[]"
+                      },
+                      "typeName": {
+                        "baseType": {
+                          "id": 33,
+                          "name": "bytes4",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "299:6:2",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bytes4",
+                            "typeString": "bytes4"
+                          }
+                        },
+                        "id": 34,
+                        "nodeType": "ArrayTypeName",
+                        "src": "299:8:2",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_array$_t_bytes4_$dyn_storage_ptr",
+                          "typeString": "bytes4[]"
+                        }
+                      },
+                      "visibility": "internal"
+                    }
+                  ],
+                  "name": "FacetCut",
+                  "nodeType": "StructDefinition",
+                  "scope": 57,
+                  "src": "209:124:2",
+                  "visibility": "public"
+                },
+                {
+                  "documentation": {
+                    "id": 37,
+                    "nodeType": "StructuredDocumentation",
+                    "src": "341:445:2",
+                    "text": "@notice Add/replace/remove any number of functions and optionally execute\n         a function with delegatecall\n @param _diamondCut Contains the facet addresses and function selectors\n @param _init The address of the contract or facet to execute _calldata\n @param _calldata A function call, including function selector and arguments\n                  _calldata is executed with delegatecall on _init"
+                  },
+                  "functionSelector": "1f931c1c",
+                  "id": 47,
+                  "implemented": false,
+                  "kind": "function",
+                  "modifiers": [],
+                  "name": "diamondCut",
+                  "nodeType": "FunctionDefinition",
+                  "parameters": {
+                    "id": 45,
+                    "nodeType": "ParameterList",
+                    "parameters": [
+                      {
+                        "constant": false,
+                        "id": 40,
+                        "mutability": "mutable",
+                        "name": "_diamondCut",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 47,
+                        "src": "822:31:2",
+                        "stateVariable": false,
+                        "storageLocation": "calldata",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_array$_t_struct$_FacetCut_$36_calldata_ptr_$dyn_calldata_ptr",
+                          "typeString": "struct IDiamondCut.FacetCut[]"
+                        },
+                        "typeName": {
+                          "baseType": {
+                            "id": 38,
+                            "name": "FacetCut",
+                            "nodeType": "UserDefinedTypeName",
+                            "referencedDeclaration": 36,
+                            "src": "822:8:2",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_struct$_FacetCut_$36_storage_ptr",
+                              "typeString": "struct IDiamondCut.FacetCut"
+                            }
+                          },
+                          "id": 39,
+                          "nodeType": "ArrayTypeName",
+                          "src": "822:10:2",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_array$_t_struct$_FacetCut_$36_storage_$dyn_storage_ptr",
+                            "typeString": "struct IDiamondCut.FacetCut[]"
+                          }
+                        },
+                        "visibility": "internal"
+                      },
+                      {
+                        "constant": false,
+                        "id": 42,
+                        "mutability": "mutable",
+                        "name": "_init",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 47,
+                        "src": "864:13:2",
+                        "stateVariable": false,
+                        "storageLocation": "default",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        },
+                        "typeName": {
+                          "id": 41,
+                          "name": "address",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "864:7:2",
+                          "stateMutability": "nonpayable",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        },
+                        "visibility": "internal"
+                      },
+                      {
+                        "constant": false,
+                        "id": 44,
+                        "mutability": "mutable",
+                        "name": "_calldata",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 47,
+                        "src": "888:24:2",
+                        "stateVariable": false,
+                        "storageLocation": "calldata",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes_calldata_ptr",
+                          "typeString": "bytes"
+                        },
+                        "typeName": {
+                          "id": 43,
+                          "name": "bytes",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "888:5:2",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bytes_storage_ptr",
+                            "typeString": "bytes"
+                          }
+                        },
+                        "visibility": "internal"
+                      }
+                    ],
+                    "src": "811:108:2"
+                  },
+                  "returnParameters": {
+                    "id": 46,
+                    "nodeType": "ParameterList",
+                    "parameters": [],
+                    "src": "928:0:2"
+                  },
+                  "scope": 57,
+                  "src": "792:137:2",
+                  "stateMutability": "nonpayable",
+                  "virtual": false,
+                  "visibility": "external"
+                },
+                {
+                  "anonymous": false,
+                  "id": 56,
+                  "name": "DiamondCut",
+                  "nodeType": "EventDefinition",
+                  "parameters": {
+                    "id": 55,
+                    "nodeType": "ParameterList",
+                    "parameters": [
+                      {
+                        "constant": false,
+                        "id": 50,
+                        "indexed": false,
+                        "mutability": "mutable",
+                        "name": "_diamondCut",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 56,
+                        "src": "954:22:2",
+                        "stateVariable": false,
+                        "storageLocation": "default",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_array$_t_struct$_FacetCut_$36_memory_ptr_$dyn_memory_ptr",
+                          "typeString": "struct IDiamondCut.FacetCut[]"
+                        },
+                        "typeName": {
+                          "baseType": {
+                            "id": 48,
+                            "name": "FacetCut",
+                            "nodeType": "UserDefinedTypeName",
+                            "referencedDeclaration": 36,
+                            "src": "954:8:2",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_struct$_FacetCut_$36_storage_ptr",
+                              "typeString": "struct IDiamondCut.FacetCut"
+                            }
+                          },
+                          "id": 49,
+                          "nodeType": "ArrayTypeName",
+                          "src": "954:10:2",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_array$_t_struct$_FacetCut_$36_storage_$dyn_storage_ptr",
+                            "typeString": "struct IDiamondCut.FacetCut[]"
+                          }
+                        },
+                        "visibility": "internal"
+                      },
+                      {
+                        "constant": false,
+                        "id": 52,
+                        "indexed": false,
+                        "mutability": "mutable",
+                        "name": "_init",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 56,
+                        "src": "978:13:2",
+                        "stateVariable": false,
+                        "storageLocation": "default",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        },
+                        "typeName": {
+                          "id": 51,
+                          "name": "address",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "978:7:2",
+                          "stateMutability": "nonpayable",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        },
+                        "visibility": "internal"
+                      },
+                      {
+                        "constant": false,
+                        "id": 54,
+                        "indexed": false,
+                        "mutability": "mutable",
+                        "name": "_calldata",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 56,
+                        "src": "993:15:2",
+                        "stateVariable": false,
+                        "storageLocation": "default",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes_memory_ptr",
+                          "typeString": "bytes"
+                        },
+                        "typeName": {
+                          "id": 53,
+                          "name": "bytes",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "993:5:2",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bytes_storage_ptr",
+                            "typeString": "bytes"
+                          }
+                        },
+                        "visibility": "internal"
+                      }
+                    ],
+                    "src": "953:56:2"
+                  },
+                  "src": "937:73:2"
+                }
+              ],
+              "scope": 58,
+              "src": "95:918:2"
+            }
+          ],
+          "src": "33:982:2"
+        },
+        "id": 2
+      },
+      "contracts/interfaces/IERC173.sol": {
+        "ast": {
+          "absolutePath": "contracts/interfaces/IERC173.sol",
+          "exportedSymbols": {
+            "IERC173": [
+              80
+            ]
+          },
+          "id": 81,
+          "license": "MIT",
+          "nodeType": "SourceUnit",
+          "nodes": [
+            {
+              "id": 59,
+              "literals": [
+                "solidity",
+                "^",
+                "0.7",
+                ".6"
+              ],
+              "nodeType": "PragmaDirective",
+              "src": "33:23:3"
+            },
+            {
+              "abstract": false,
+              "baseContracts": [],
+              "contractDependencies": [],
+              "contractKind": "interface",
+              "documentation": {
+                "id": 60,
+                "nodeType": "StructuredDocumentation",
+                "src": "60:116:3",
+                "text": "@title ERC-173 Contract Ownership Standard\n  Note: the ERC-165 identifier for this interface is 0x7f5828d0"
+              },
+              "fullyImplemented": false,
+              "id": 80,
+              "linearizedBaseContracts": [
+                80
+              ],
+              "name": "IERC173",
+              "nodeType": "ContractDefinition",
+              "nodes": [
+                {
+                  "anonymous": false,
+                  "documentation": {
+                    "id": 61,
+                    "nodeType": "StructuredDocumentation",
+                    "src": "218:57:3",
+                    "text": "@dev This emits when ownership of a contract changes."
+                  },
+                  "id": 67,
+                  "name": "OwnershipTransferred",
+                  "nodeType": "EventDefinition",
+                  "parameters": {
+                    "id": 66,
+                    "nodeType": "ParameterList",
+                    "parameters": [
+                      {
+                        "constant": false,
+                        "id": 63,
+                        "indexed": true,
+                        "mutability": "mutable",
+                        "name": "previousOwner",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 67,
+                        "src": "318:29:3",
+                        "stateVariable": false,
+                        "storageLocation": "default",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        },
+                        "typeName": {
+                          "id": 62,
+                          "name": "address",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "318:7:3",
+                          "stateMutability": "nonpayable",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        },
+                        "visibility": "internal"
+                      },
+                      {
+                        "constant": false,
+                        "id": 65,
+                        "indexed": true,
+                        "mutability": "mutable",
+                        "name": "newOwner",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 67,
+                        "src": "358:24:3",
+                        "stateVariable": false,
+                        "storageLocation": "default",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        },
+                        "typeName": {
+                          "id": 64,
+                          "name": "address",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "358:7:3",
+                          "stateMutability": "nonpayable",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        },
+                        "visibility": "internal"
+                      }
+                    ],
+                    "src": "307:82:3"
+                  },
+                  "src": "281:109:3"
+                },
+                {
+                  "documentation": {
+                    "id": 68,
+                    "nodeType": "StructuredDocumentation",
+                    "src": "398:90:3",
+                    "text": "@notice Get the address of the owner\n @return owner_ The address of the owner."
+                  },
+                  "functionSelector": "8da5cb5b",
+                  "id": 73,
+                  "implemented": false,
+                  "kind": "function",
+                  "modifiers": [],
+                  "name": "owner",
+                  "nodeType": "FunctionDefinition",
+                  "parameters": {
+                    "id": 69,
+                    "nodeType": "ParameterList",
+                    "parameters": [],
+                    "src": "508:2:3"
+                  },
+                  "returnParameters": {
+                    "id": 72,
+                    "nodeType": "ParameterList",
+                    "parameters": [
+                      {
+                        "constant": false,
+                        "id": 71,
+                        "mutability": "mutable",
+                        "name": "owner_",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 73,
+                        "src": "534:14:3",
+                        "stateVariable": false,
+                        "storageLocation": "default",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        },
+                        "typeName": {
+                          "id": 70,
+                          "name": "address",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "534:7:3",
+                          "stateMutability": "nonpayable",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        },
+                        "visibility": "internal"
+                      }
+                    ],
+                    "src": "533:16:3"
+                  },
+                  "scope": 80,
+                  "src": "494:56:3",
+                  "stateMutability": "view",
+                  "virtual": false,
+                  "visibility": "external"
+                },
+                {
+                  "documentation": {
+                    "id": 74,
+                    "nodeType": "StructuredDocumentation",
+                    "src": "558:200:3",
+                    "text": "@notice Set the address of the new owner of the contract\n @dev Set _newOwner to address(0) to renounce any ownership.\n @param _newOwner The address of the new owner of the contract"
+                  },
+                  "functionSelector": "f2fde38b",
+                  "id": 79,
+                  "implemented": false,
+                  "kind": "function",
+                  "modifiers": [],
+                  "name": "transferOwnership",
+                  "nodeType": "FunctionDefinition",
+                  "parameters": {
+                    "id": 77,
+                    "nodeType": "ParameterList",
+                    "parameters": [
+                      {
+                        "constant": false,
+                        "id": 76,
+                        "mutability": "mutable",
+                        "name": "_newOwner",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 79,
+                        "src": "791:17:3",
+                        "stateVariable": false,
+                        "storageLocation": "default",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        },
+                        "typeName": {
+                          "id": 75,
+                          "name": "address",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "791:7:3",
+                          "stateMutability": "nonpayable",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        },
+                        "visibility": "internal"
+                      }
+                    ],
+                    "src": "790:19:3"
+                  },
+                  "returnParameters": {
+                    "id": 78,
+                    "nodeType": "ParameterList",
+                    "parameters": [],
+                    "src": "818:0:3"
+                  },
+                  "scope": 80,
+                  "src": "764:55:3",
+                  "stateMutability": "nonpayable",
+                  "virtual": false,
+                  "visibility": "external"
+                }
+              ],
+              "scope": 81,
+              "src": "193:629:3"
+            }
+          ],
+          "src": "33:791:3"
+        },
+        "id": 3
+      }
+    }
+  }
+}
