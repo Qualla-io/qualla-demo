@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import { connect, NatsConnectionOptions, Payload } from "ts-nats";
 
 import { getSubToken, getSubTokens } from "./getSubToken";
-import { qualla } from "./utils";
+import { dai, account, diamond, erc1155, subscriptions, nft } from "./utils";
 
 let nc;
 
@@ -46,7 +46,7 @@ const resolvers = {
     unsubscribe: async (_, { userID, tokenID, signature }) => {
       signature = ethers.utils.splitSignature(signature);
 
-      await qualla.unSubscribe(
+      await subscriptions.unSubscribe(
         userID,
         tokenID,
         signature.v,
@@ -99,6 +99,5 @@ async function natsConn() {
     console.log("NATS connection error");
   }
 }
-
 
 natsConn();

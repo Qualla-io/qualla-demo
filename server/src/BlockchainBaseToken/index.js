@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import { connect, NatsConnectionOptions, Payload } from "ts-nats";
 
 import { getBaseToken, getBaseTokens, getNFT, getNFTs } from "./getBaseToken";
-import { qualla, dai, account, signer } from "./utils";
+import { dai, account, diamond, erc1155, subscriptions, nft } from "./utils";
 
 let nc;
 
@@ -110,7 +110,7 @@ const resolvers = {
 
       // TODO: validate userID matches user recovered from signature
 
-      await qualla.buySubscription(
+      await subscriptions.buySubscription(
         userID,
         baseTokenID,
         signature.v,
@@ -129,13 +129,13 @@ const resolvers = {
         });
       }
 
-      let nonce = await qualla.userNonce(account.address);
+      let nonce = await erc1155.getUserNonce(account.address);
 
       let domain = {
         name: "Qualla Subscription",
         version: "1",
         chainId: 31337,
-        verifyingContract: qualla.address,
+        verifyingContract: diamond.address,
       };
 
       let creatorTypes = {
@@ -152,7 +152,8 @@ const resolvers = {
         action: "subscribe",
       };
 
-      let signature = await signer._signTypedData(
+      // changed from signer
+      let signature = await account._signTypedData(
         domain,
         creatorTypes,
         subscriberData
@@ -160,7 +161,7 @@ const resolvers = {
 
       signature = ethers.utils.splitSignature(signature);
 
-      await qualla.buySubscription(
+      await subscriptions.buySubscription(
         account.address,
         baseTokenID,
         signature.v,
@@ -184,14 +185,14 @@ const resolvers = {
     ) => {
       signature = ethers.utils.splitSignature(signature);
 
-      let res = await qualla.mintSubscription(
+      let res = await subscriptions.mintSubscription(
         userID,
         quantity,
         dai.address,
         ethers.utils.parseEther(paymentValue).toString(),
         signature.v,
         signature.r,
-        signature.s,
+        signature.s
       );
 
       let msg = {
@@ -229,14 +230,14 @@ const resolvers = {
         _values.push(ethers.utils.parseEther(paymentValue[i]).toString());
       }
 
-      let res = await qualla.mintBatchSubscription(
+      let res = await subscriptions.mintBatchSubscription(
         userID,
         quantity,
         _addresses,
         _values,
         signature.v,
         signature.r,
-        signature.s,
+        signature.s
       );
 
       let msg = {
@@ -269,7 +270,7 @@ const resolvers = {
       if (quantity.gt(0)) {
         signature = ethers.utils.splitSignature(signature);
 
-        await qualla.burnSubscription(
+        await subscriptions.burnSubscription(
           baseTokenID,
           quantity.toFixed(),
           signature.v,
@@ -296,7 +297,7 @@ const resolvers = {
 
       let uriID = uuidv4();
 
-      await qualla.mintBatchNFT(
+      await nft.mintBatchNFT(
         userID.toLowerCase(),
         amount,
         uriID,

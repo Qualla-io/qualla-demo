@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import Dai from "./abi/TestDai.json";
-import Diamond from "./abi/Diamond.sol/QuallaDiamond.json.";
+import Diamond from "./abi/Diamond.sol/QuallaDiamond.json";
 import ERC1155 from "./abi/facets/ERC1155Facet.sol/ERC1155Facet.json";
 import Subscriptions from "./abi/facets/QuallaSubscriptionFacet.sol/QuallaSubscriptionsFacet.json";
 import NFT from "./abi/facets/QuallaNFTFactet.sol/QuallaNFTFacet.json";
