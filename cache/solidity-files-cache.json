@@ -1193,8 +1193,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\libraries\\LibSubscriptions.sol": {
-      "lastModificationDate": 1611960695044,
-      "contentHash": "4e0f22b336c10ad2b923fe4c1e52a1f7",
+      "lastModificationDate": 1611972027597,
+      "contentHash": "043fe8e97f47b3524341c76fd558a671",
       "sourceName": "contracts/libraries/LibSubscriptions.sol",
       "solcConfig": {
         "version": "0.7.6",
@@ -1440,8 +1440,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\interfaces\\IERC1155.sol": {
-      "lastModificationDate": 1611880485345,
-      "contentHash": "f837ab2848a85b8e63c97c7a5eef0de7",
+      "lastModificationDate": 1611971737319,
+      "contentHash": "855fc06302333bc0a502f3440f129639",
       "sourceName": "contracts/interfaces/IERC1155.sol",
       "solcConfig": {
         "version": "0.7.6",
@@ -1473,48 +1473,9 @@
         "IERC1155"
       ]
     },
-    "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\facets\\ERC1155Factet.sol": {
-      "lastModificationDate": 1611960919447,
-      "contentHash": "65ae765462b44b28aa924a3b9716d120",
-      "sourceName": "contracts/facets/ERC1155Factet.sol",
-      "solcConfig": {
-        "version": "0.7.6",
-        "settings": {
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "../interfaces/IERC1155.sol",
-        "../libraries/LibERC1155.sol",
-        "@openzeppelin/contracts/math/SafeMath.sol",
-        "@openzeppelin/contracts/GSN/Context.sol"
-      ],
-      "versionPragmas": [
-        "^0.7.6"
-      ],
-      "artifacts": [
-        "ERC1155Facet"
-      ]
-    },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\facets\\QuallaSubscriptionFacet.sol": {
-      "lastModificationDate": 1611961586676,
-      "contentHash": "f4d3da504680db33ea4df362bfa0d862",
+      "lastModificationDate": 1611972801723,
+      "contentHash": "196b0169ab47795cde977b2f7dbade26",
       "sourceName": "contracts/facets/QuallaSubscriptionFacet.sol",
       "solcConfig": {
         "version": "0.7.6",
@@ -1771,6 +1732,46 @@
       ],
       "artifacts": [
         "DiamondCutFacet"
+      ]
+    },
+    "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\facets\\ERC1155Facet.sol": {
+      "lastModificationDate": 1611972072864,
+      "contentHash": "632b1196ccf5cbad78b18e5bda19f746",
+      "sourceName": "contracts/facets/ERC1155Facet.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../interfaces/IERC1155.sol",
+        "../libraries/LibERC1155.sol",
+        "../libraries/LibSubscriptions.sol",
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "@openzeppelin/contracts/GSN/Context.sol"
+      ],
+      "versionPragmas": [
+        "^0.7.6"
+      ],
+      "artifacts": [
+        "ERC1155Facet"
       ]
     }
   }

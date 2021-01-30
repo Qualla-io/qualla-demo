@@ -5,7 +5,7 @@ async function main(scriptName) {
   const accounts = await ethers.getSigners();
   const account = await accounts[0].getAddress();
 
-  if (hre.network.name === "hardhat") {
+  if (hre.network.name === "hardhat" || hre.network.name === "localhost" ) {
     let TestDai = await ethers.getContractFactory("TestDai");
     testDai = await TestDai.deploy(31337);
     await testDai.deployed();

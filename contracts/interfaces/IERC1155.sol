@@ -138,4 +138,6 @@ interface IERC1155 {
         bytes calldata data
     ) external;
 
+
+    function uri(uint256 id) external view returns (string memory);
 }

@@ -2,7 +2,6 @@
 pragma solidity ^0.7.6;
 pragma experimental ABIEncoderV2;
 
-
 import "@openzeppelin/contracts/math/SafeMath.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -57,14 +56,22 @@ contract QuallaSubscriptionsFacet {
         return res;
     }
 
-    // Maybe add a batch get?
+    function getBaseIdFromToken(uint256 id_)
+        external
+        pure
+        returns (uint256 id)
+    {
+        require(id_ & TYPE_NF_BIT == 0, "Qualla/Wrong-Token-Type");
+        require(id_ & NF_INDEX_MASK > 0, "Qualla/Invalid-Subscription-Index");
 
+        return id_ & NONCE_MASK;
+    }
+
+    // Maybe add a batch get?
 
     /***********************************|
    |             Write Functions        |
    |__________________________________*/
-
-    
 
     // Minting
     function mintSubscription(
@@ -294,7 +301,7 @@ contract QuallaSubscriptionsFacet {
 
         // For demo purposes!
         ss.subToken[id_].nextWidthdraw = ss.subToken[id_].nextWidthdraw.add(15);
-    }
 
-    
+        // Add event here
+    }
 }

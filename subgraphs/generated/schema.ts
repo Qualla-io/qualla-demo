@@ -135,6 +135,40 @@ export class User extends Entity {
       this.set("balance", Value.fromBigInt(value as BigInt));
     }
   }
+
+  get ownedNFTs(): Array<string> | null {
+    let value = this.get("ownedNFTs");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set ownedNFTs(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("ownedNFTs");
+    } else {
+      this.set("ownedNFTs", Value.fromStringArray(value as Array<string>));
+    }
+  }
+
+  get createdNFTs(): Array<string> | null {
+    let value = this.get("createdNFTs");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set createdNFTs(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("createdNFTs");
+    } else {
+      this.set("createdNFTs", Value.fromStringArray(value as Array<string>));
+    }
+  }
 }
 
 export class BaseToken extends Entity {

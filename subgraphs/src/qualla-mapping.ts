@@ -1,6 +1,9 @@
 import { TransferSingle, TransferBatch } from "../generated/Qualla/IERC1155";
-import { Qualla } from "../generated/Qualla/Qualla";
-import { QuallaSubscription } from "../generated/Qualla/QuallaSubscription";
+import { ERC1155 } from "../generated/Qualla/ERC1155";
+import { SubscriptionFacet } from "../generated/Qualla/SubscriptionFacet";
+
+// import { Qualla } from "../generated/IERC1155/ERC1155";
+// import { QuallaSubscription } from "../generated/Qualla/QuallaSubscription";
 import {
   User,
   BaseToken,
@@ -11,7 +14,8 @@ import {
 import { BigInt, store } from "@graphprotocol/graph-ts";
 
 export function handleTransferBatch(event: TransferBatch): void {
-  let contract = QuallaSubscription.bind(event.address);
+  let contract = ERC1155.bind(event.address);
+  let subscriptionFacet = SubscriptionFacet.bind(event.address);
   let _tokenIds = event.params.ids;
   let _values = event.params.values;
 
@@ -23,13 +27,13 @@ export function handleTransferBatch(event: TransferBatch): void {
     userTo = new User(idTo);
   }
   // This is lazy but works for now
-  userTo.nonce = contract.userNonce(event.params.to);
+  userTo.nonce = contract.getUserNonce(event.params.to);
 
   let userFrom = User.load(idFrom);
   if (userFrom == null) {
     userFrom = new User(idFrom);
   }
-  userFrom.nonce = contract.userNonce(event.params.from);
+  userFrom.nonce = contract.getUserNonce(event.params.from);
 
   if (
     idTo != "0x0000000000000000000000000000000000000000" &&
@@ -72,10 +76,9 @@ export function handleTransferBatch(event: TransferBatch): void {
           baseToken.initialSupply = value;
           baseToken.owner = userTo.id;
           baseToken.testID = hexedID;
-          baseToken.paymentValue = contract.tokenIdToPaymentValue(_tokenId);
-          baseToken.paymentToken = contract
-            .tokenIdToPaymentToken(_tokenId)
-            .toHexString();
+          let _token = subscriptionFacet.getBaseToken(_tokenId);
+          baseToken.paymentValue = _token.paymentValue;
+          baseToken.paymentToken = _token.paymentToken.toHexString();
           baseToken.txHash =
             event.transaction.hash.toHex() + "-" + i.toString();
 
@@ -94,12 +97,12 @@ export function handleTransferBatch(event: TransferBatch): void {
         hexedID = _tokenId.toHex();
         let subToken = new SubscriptionToken(tokenId);
         let baseToken = BaseToken.load(
-          contract.getBaseIdFromToken(_tokenId).toString()
+          subscriptionFacet.getBaseIdFromToken(_tokenId).toString()
         );
         subToken.baseToken = baseToken.id;
         subToken.owner = userTo.id;
         subToken.creator = baseToken.owner;
-        subToken.nextWithdraw = contract.tokenId_ToNextWithdraw(_tokenId);
+        subToken.nextWithdraw = BigInt.fromI32(0);
         subToken.testID = hexedID;
 
         subToken.save();
@@ -188,7 +191,8 @@ export function handleTransferBatch(event: TransferBatch): void {
 }
 
 export function handleTransferSingle(event: TransferSingle): void {
-  let contract = QuallaSubscription.bind(event.address);
+  let contract = ERC1155.bind(event.address);
+  let subscriptionFacet = SubscriptionFacet.bind(event.address);
 
   let _tokenId = event.params.id;
   let tokenId = event.params.id.toString();
@@ -203,13 +207,13 @@ export function handleTransferSingle(event: TransferSingle): void {
     userTo = new User(idTo);
   }
   // This is lazy but works for now
-  userTo.nonce = contract.userNonce(event.params.to);
+  userTo.nonce = contract.getUserNonce(event.params.to);
 
   let userFrom = User.load(idFrom);
   if (userFrom == null) {
     userFrom = new User(idFrom);
   }
-  userFrom.nonce = contract.userNonce(event.params.from);
+  userFrom.nonce = contract.getUserNonce(event.params.from);
 
   if (
     idTo != "0x0000000000000000000000000000000000000000" &&
@@ -234,10 +238,9 @@ export function handleTransferSingle(event: TransferSingle): void {
         baseToken.initialSupply = value;
         baseToken.owner = userTo.id;
         baseToken.testID = hexedID;
-        baseToken.paymentValue = contract.tokenIdToPaymentValue(_tokenId);
-        baseToken.paymentToken = contract
-          .tokenIdToPaymentToken(_tokenId)
-          .toHexString();
+        let _token = subscriptionFacet.getBaseToken(_tokenId);
+        baseToken.paymentValue = _token.paymentValue;
+        baseToken.paymentToken = _token.paymentToken.toHexString();
         baseToken.txHash = event.transaction.hash.toHex() + "-" + "0";
 
         // baseToken.index = BigInt.fromI32(1);
@@ -250,12 +253,12 @@ export function handleTransferSingle(event: TransferSingle): void {
       // Sub Token
       let subToken = new SubscriptionToken(tokenId);
       let baseToken = BaseToken.load(
-        contract.getBaseIdFromToken(_tokenId).toString()
+        subscriptionFacet.getBaseIdFromToken(_tokenId).toString()
       );
       subToken.baseToken = baseToken.id;
       subToken.owner = userTo.id;
       subToken.creator = baseToken.owner;
-      subToken.nextWithdraw = contract.tokenId_ToNextWithdraw(_tokenId);
+      subToken.nextWithdraw = BigInt.fromI32(0);
       subToken.testID = hexedID;
 
       subToken.save();

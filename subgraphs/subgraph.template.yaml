@@ -8,8 +8,8 @@ dataSources:
     name: Qualla
     network: {{network}}
     source:
-      address: '{{address}}'
-      abi: Qualla
+      address: "{{address}}"
+      abi: IERC1155
       startBlock: {{blockstart}}
     mapping:
       kind: ethereum/events
@@ -21,18 +21,12 @@ dataSources:
         - SubscriptionToken
         - NftToken
       abis:
-        - name: Qualla
-          file: ../client/src/artifacts/contracts/Qualla.sol/Qualla.json
-        - name: QuallaNFT
-          file: ../client/src/artifacts/contracts/QuallaNFT.sol/QuallaNFT.json
-        - name: QuallaSubscription
-          file: ../client/src/artifacts/contracts/QuallaSubscription.sol/QuallaSubscription.json
-        - name: QuallaBase
-          file: ../client/src/artifacts/contracts/QuallaBase.sol/QuallaBase.json
-        - name: ERC1155
-          file: ../client/src/artifacts/contracts/ERC1155.sol/ERC1155.json
         - name: IERC1155
-          file: ../client/src/artifacts/@openzeppelin/contracts/token/ERC1155/IERC1155.sol/IERC1155.json
+          file: ../client/src/artifacts/contracts/interfaces/IERC1155.sol/IERC1155.json
+        - name: ERC1155
+          file: ../client/src/artifacts/contracts/facets/ERC1155Facet.sol/ERC1155Facet.json
+        - name: SubscriptionFacet
+          file: ../client/src/artifacts/contracts/facets/QuallaSubscriptionFacet.sol/QuallaSubscriptionsFacet.json
       eventHandlers:
         - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
           handler: handleTransferSingle
@@ -43,7 +37,7 @@ dataSources:
     name: Dai
     network: {{network}}
     source:
-      address: '{{daiAddress}}'
+      address: "{{daiAddress}}"
       abi: TestDai
       startBlock: {{blockstart}}
     mapping:

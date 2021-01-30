@@ -27,7 +27,7 @@ library LibSubscriptions {
     }
 
     struct NFTToken {
-        string uriID;
+        string uri;
         uint256 mintStamp;
         uint256 baseToken;
         uint256 nonce;
