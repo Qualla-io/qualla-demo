@@ -23,7 +23,6 @@ import {
   balVar,
   daiVar,
   signerVar,
-  subscriptionVar,
 } from "../../../cache";
 import ConfirmationModal from "../../../components/ConfirmationModal";
 
@@ -99,7 +98,6 @@ export default function BaseTokenCard({ tokenProps, accountProps }) {
   let account = useReactiveVar(accountVar);
   let dai = useReactiveVar(daiVar);
   let signer = useReactiveVar(signerVar);
-  let subscriptionV1 = useReactiveVar(subscriptionVar);
   let balance = useReactiveVar(balVar);
   const [subscribe] = useMutation(SUBSCRIBE);
   const [permit] = useMutation(PERMIT);
@@ -155,7 +153,7 @@ export default function BaseTokenCard({ tokenProps, accountProps }) {
       name: "Qualla Subscription",
       version: "1",
       chainId: process.env.REACT_APP_CHAIN_ID,
-      verifyingContract: subscriptionV1.address,
+      verifyingContract: process.env.REACT_APP_GRAPHQL_SUB_CONTRACT,
     };
 
     let creatorTypes = {
@@ -213,7 +211,7 @@ export default function BaseTokenCard({ tokenProps, accountProps }) {
 
     var message = {
       holder: account,
-      spender: subscriptionV1.address,
+      spender: process.env.REACT_APP_GRAPHQL_SUB_CONTRACT,
       nonce,
       expiry: parseInt(0),
       allowed: true,

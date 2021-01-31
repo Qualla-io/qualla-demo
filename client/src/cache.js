@@ -7,10 +7,11 @@ export const accountVar = makeVar(null);
 export const providerVar = makeVar(null);
 export const signerVar = makeVar(null);
 export const daiVar = makeVar(null);
-export const subscriptionVar = makeVar(null);
+// export const subscriptionVar = makeVar(null);
 export const ethVar = makeVar(null);
 export const feeVar = makeVar(0);
 export const balVar = makeVar("0");
+export const chainIdVar = makeVar(null);
 
 const wsLink = new WebSocketLink({
   uri: process.env.REACT_APP_GRAPHQL_SUB_ENDPOINT,
@@ -37,5 +38,6 @@ const link = split(
 
 export const client = new ApolloClient({
   cache: new InMemoryCache({}),
-  link,
+  uri: process.env.REACT_APP_GRAPHQL_ENDPOINT,
+  // link,
 });

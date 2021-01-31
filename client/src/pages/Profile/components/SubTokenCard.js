@@ -18,7 +18,7 @@ import AllInclusiveIcon from "@material-ui/icons/AllInclusive";
 import AvatarIcons from "../../../components/AvatarIcons";
 import ConfirmationModal from "../../../components/ConfirmationModal";
 import { UNSUBSCRIBE } from "../queries";
-import { accountVar, signerVar, subscriptionVar } from "../../../cache";
+import { accountVar, signerVar } from "../../../cache";
 import { useMutation, useReactiveVar } from "@apollo/client";
 
 const useStyles = makeStyles((theme) => ({
@@ -92,7 +92,6 @@ export default function SubTokenCard({ tokenProps, accountProps }) {
   const { enqueueSnackbar } = useSnackbar();
   let account = useReactiveVar(accountVar);
   let signer = useReactiveVar(signerVar);
-  let subscriptionV1 = useReactiveVar(subscriptionVar);
   let [unsubscribe] = useMutation(UNSUBSCRIBE);
   let [confirmModal, setConfirmModal] = useState({
     open: false,
@@ -134,7 +133,7 @@ export default function SubTokenCard({ tokenProps, accountProps }) {
       name: "Qualla Subscription",
       version: "1",
       chainId: process.env.REACT_APP_CHAIN_ID,
-      verifyingContract: subscriptionV1.address,
+      verifyingContract: process.env.REACT_APP_GRAPHQL_SUB_CONTRACT,
     };
 
     let creatorTypes = {

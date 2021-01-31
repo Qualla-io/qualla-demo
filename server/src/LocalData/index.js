@@ -15,7 +15,7 @@ let nc;
 const typeDefs = gql`
   type Query {
     getUserFromUrl(url: String): User
-    nftMetadata(uriID: String): String
+    nftMetadata(uriID: String): String!
   }
 
   type Mutation {
@@ -49,6 +49,9 @@ const typeDefs = gql`
     id: ID! @external
     uriID: String! @external
     metadata: String @requires(fields: "uriID")
+    title: String
+    description: String
+    gifIndex: Float
   }
 `;
 
@@ -57,8 +60,10 @@ const resolvers = {
     getUserFromUrl: async (_, { url }) => {
       return await UserModel.findOne({ url: url }).exec();
     },
-    nftMetada: async (_, { uriID }) => {
+    nftMetadata: async (_, { uriID }) => {
+
       let _nft = await NFTModel.findById(uriID);
+
       if (_nft) {
         return _nft.metadata;
       } else {
@@ -175,14 +180,21 @@ const resolvers = {
     },
   },
   Nft: {
-    metadata: async (nftInstance) => {
-      let _nft = await NFTModel.findById(nftInstance.uriID);
+    // metadata: async (nftInstance) => {
 
-      if (_nft) {
-        return _nft.metadata;
-      } else {
-        return null;
-      }
+    //   let _nft = await NFTModel.findById(nftInstance.uriID);
+
+    //   if (_nft) {
+    //     return _nft.metadata;
+    //   } else {
+    //     return null;
+    //   }
+    // },
+    __resolveReference(nftInstance) {
+      // console.log(nftInstance.uriID.slice(nftInstance.uriID.indexOf("=") + 1));
+      return NFTModel.findById(
+        nftInstance.uriID.slice(nftInstance.uriID.indexOf("=") + 1)
+      );
     },
   },
 };
@@ -253,8 +265,25 @@ async function handleModify(data) {
 
 async function handleNft(data) {
   let _nft = new NFTModel();
+
+  let metadata = {
+    uriID: data.uriID,
+    title: data.title,
+    description: data.description,
+    properties: {
+      gifIndex: data.gifIndex,
+      created: Date.now(),
+      creator: data.userID,
+    },
+  };
+
+  metadata = JSON.stringify(metadata);
+
   _nft._id = data.uriID;
-  _nft.metadata = data.metadata;
+  _nft.title = data.title;
+  _nft.description = data.description;
+  _nft.gifIndex = data.gifIndex;
+  _nft.metadata = metadata;
 
   await _nft.save();
 }

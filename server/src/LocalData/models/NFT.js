@@ -5,6 +5,9 @@ var NFTSchema = new Schema(
   {
     _id: { type: String }, // uriID
     metadata: { type: String },
+    title: { type: String },
+    description: { type: String },
+    gifIndex: { type: Number },
   },
   {
     toObject: { virtuals: true },

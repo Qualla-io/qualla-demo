@@ -2,8 +2,7 @@ import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 
 import FABspeeddial from "../components/FABspeeddial.js";
-import Web3Modal from "../components/Web3Dialog.js";
-
+import Web3Dialog from "../components/Web3Dialog.js";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -27,7 +26,7 @@ export default function Layout(props) {
   const classes = useStyles();
   return (
     <div className={classes.root}>
-      <Web3Modal />
+      <Web3Dialog _open={!localStorage.getItem('read')} />
 
       {props.children}
 

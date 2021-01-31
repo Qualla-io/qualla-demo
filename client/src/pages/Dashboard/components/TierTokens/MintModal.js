@@ -3,7 +3,7 @@ import { useSnackbar } from "notistack";
 import { useMutation, useReactiveVar } from "@apollo/client";
 import BigNumber from "bignumber.js";
 
-import { accountVar, signerVar, subscriptionVar } from "../../../../cache";
+import { accountVar, signerVar } from "../../../../cache";
 import ConfirmationModal from "../../../../components/ConfirmationModal";
 import { useQueryWithAccount } from "../../../../hooks";
 import NewTokenCard from "./NewTokenCard";
@@ -44,7 +44,6 @@ export default function MintModal({ open, setOpen }) {
   const { enqueueSnackbar } = useSnackbar();
   let account = useReactiveVar(accountVar);
   let signer = useReactiveVar(signerVar);
-  let subscriptionV1 = useReactiveVar(subscriptionVar);
   let { data } = useQueryWithAccount(GET_USER_NONCE);
   const [tokens, setTokens] = useState([
     { title: "", value: "0", description: "", quantity: "0", avatar: 0 },
@@ -165,7 +164,7 @@ export default function MintModal({ open, setOpen }) {
       name: "Qualla Subscription",
       version: "1",
       chainId: process.env.REACT_APP_CHAIN_ID,
-      verifyingContract: subscriptionV1.address,
+      verifyingContract: process.env.REACT_APP_GRAPHQL_SUB_CONTRACT,
     };
 
     let creatorTypes = {

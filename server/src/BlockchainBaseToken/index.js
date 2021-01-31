@@ -50,9 +50,11 @@ const typeDefs = gql`
     ): Boolean!
     mintNft(
       userID: ID!
-      amount: Float!
+      title: String!
+      description: String!
+      baseTokens: [String!]
+      gifIndex: Float!
       signature: String!
-      metaData: String!
     ): Boolean!
   }
 
@@ -183,6 +185,10 @@ const resolvers = {
         avatarID,
       }
     ) => {
+      let nonce = await erc1155.getUserNonce(userID);
+
+      console.log(nonce.toString());
+
       signature = ethers.utils.splitSignature(signature);
 
       let res = await subscriptions.mintSubscription(
@@ -292,28 +298,49 @@ const resolvers = {
 
       return true;
     },
-    mintNft: async (_, { userID, amount, signature, metadata }) => {
+    mintNft: async (
+      _,
+      { userID, signature, title, description, baseTokens, gifIndex }
+    ) => {
       signature = ethers.utils.splitSignature(signature);
 
       let uriID = uuidv4();
 
-      await nft.mintBatchNFT(
-        userID.toLowerCase(),
-        amount,
-        uriID,
-        signature.v,
-        signature.r,
-        signature.s
-      );
+      if (baseTokens.length > 1) {
+        // mint batch
+        await nft.mintNFTtoSubscribersBatch(
+          baseTokens,
+          `https://demo.qualla.io/graphql?query={nftMetadata(uriID:${uriID})}`,
+          signature.v,
+          signature.r,
+          signature.s
+        );
+      } else {
+        // mint single
+        await nft.mintNFTtoSubscribers(
+          baseTokens[0],
+          `https://demo.qualla.io/graphql?query={nftMetadata(uriID:${uriID})}`,
+          signature.v,
+          signature.r,
+          signature.s
+        );
+      }
+
+      console.log(title);
 
       let msg = {
         action: "mintNFT",
         uriID: uriID,
-        metadata: metadata,
+        title: title,
+        description: description,
+        gifIndex: gifIndex,
+        userID: userID,
       };
 
       nc.publish("local", msg);
       console.log(" [x] Sent %s: '%s'", "local", msg);
+
+      return true;
     },
   },
   BaseToken: {

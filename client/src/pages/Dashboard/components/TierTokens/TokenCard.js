@@ -26,7 +26,7 @@ import { useSnackbar } from "notistack";
 import ConfirmationModal from "../../../../components/ConfirmationModal";
 import { useMutation, useReactiveVar } from "@apollo/client";
 import { BURN_OR_MODIFY } from "../../../Mint/queries";
-import { accountVar, signerVar, subscriptionVar } from "../../../../cache";
+import { accountVar, signerVar } from "../../../../cache";
 import { ethers } from "ethers";
 
 const useStyles = makeStyles((theme) => ({
@@ -94,7 +94,6 @@ export default function TokenCard({ tokenProps, nonce }) {
   const classes = useStyles();
   const account = useReactiveVar(accountVar);
   const signer = useReactiveVar(signerVar);
-  const subscriptionV1 = useReactiveVar(subscriptionVar);
   const { enqueueSnackbar } = useSnackbar();
   const [expanded, setExpanded] = useState(false);
   const [max, setmax] = useState(false);
@@ -226,7 +225,7 @@ export default function TokenCard({ tokenProps, nonce }) {
       name: "Qualla Subscription",
       version: "1",
       chainId: process.env.REACT_APP_CHAIN_ID,
-      verifyingContract: subscriptionV1.address,
+      verifyingContract: process.env.REACT_APP_GRAPHQL_SUB_CONTRACT,
     };
 
     let creatorTypes = {
