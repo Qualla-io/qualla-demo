@@ -14,6 +14,7 @@ import DiscordBlackIcon from "../img/Discord-Logo-Black.svg";
 // import { useReactiveVar } from "@apollo/client";
 // import { accountVar } from "../cache";
 import Tour from "./Tour";
+import FeedbackDialog from "./FeedbackDialog";
 
 const useStyles = makeStyles((theme) => ({
   backdrop: {
@@ -30,6 +31,7 @@ const useStyles = makeStyles((theme) => ({
 export default function FABspeeddial() {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
+  const [_open, _setOpen] = useState(false);
   // let [mint] = useMutation(MINT);
   // let account = useReactiveVar(accountVar);
   // const { enqueueSnackbar } = useSnackbar();
@@ -50,10 +52,27 @@ export default function FABspeeddial() {
       ),
       name: "Tour",
     },
-    { icon: <FeedbackIcon style={{ color: "#000" }} />, name: "Feedback" },
     {
-      icon: <DiscordBlackIcon style={{ width: 25 }} />,
-      name: "Support",
+      icon: (
+        <FeedbackIcon
+          style={{ color: "#000" }}
+          onClick={() => {
+            _setOpen(true);
+          }}
+        />
+      ),
+      name: "Feedback",
+    },
+    {
+      icon: (
+        <DiscordBlackIcon
+          onClick={() => {
+            window.open("https://discord.gg/Wp55W2UGcu", "_blank");
+          }}
+          style={{ width: 25 }}
+        />
+      ),
+      name: "Discord",
     },
     { icon: <ShareIcon style={{ color: "#000" }} />, name: "Share" },
   ];
@@ -104,6 +123,9 @@ export default function FABspeeddial() {
           />
         ))}
       </SpeedDial>
+      {_open ? (
+        <FeedbackDialog _open={_open} _setOpen={_setOpen} />
+      ) : null}
     </>
   );
 }

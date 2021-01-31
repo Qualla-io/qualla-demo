@@ -6,9 +6,9 @@ import validator from "validator";
 import UserModel from "./models/user";
 import BaseTokenModel from "./models/baseToken";
 import NFTModel from "./models/NFT";
+import FeedbackModel from "./models/feedback";
 
 import mongoose from "mongoose";
-import NFT from "./models/NFT";
 
 let nc;
 
@@ -16,6 +16,7 @@ const typeDefs = gql`
   type Query {
     getUserFromUrl(url: String): User
     nftMetadata(uriID: String): String!
+    feedback: [Feedback]
   }
 
   type Mutation {
@@ -27,6 +28,7 @@ const typeDefs = gql`
       url: String
       description: String
     ): User
+    provideFeedback(userID: String!, feedback: String!): Boolean
   }
 
   extend type User @key(fields: "id") {
@@ -53,15 +55,23 @@ const typeDefs = gql`
     description: String
     gifIndex: Float
   }
+
+  type Feedback @key(fields: "id") {
+    id: ID!
+    user: User
+    feedback: String
+  }
 `;
 
 const resolvers = {
   Query: {
+    feedback: async () => {
+      return await FeedbackModel.find({});
+    },
     getUserFromUrl: async (_, { url }) => {
       return await UserModel.findOne({ url: url }).exec();
     },
     nftMetadata: async (_, { uriID }) => {
-
       let _nft = await NFTModel.findById(uriID);
 
       if (_nft) {
@@ -72,6 +82,14 @@ const resolvers = {
     },
   },
   Mutation: {
+    provideFeedback: async (_, { userID, feedback }) => {
+      let _feedback = new FeedbackModel();
+      _feedback._id = mongoose.Types.ObjectId();
+      _feedback.user = userID.toLowerCase();
+      _feedback.feedback = feedback;
+      await _feedback.save();
+      return true;
+    },
     updateUser: async (
       _,
       { id, username, avatar, coverPhoto, url, description }
@@ -191,9 +209,8 @@ const resolvers = {
     //   }
     // },
     __resolveReference(nftInstance) {
-      // console.log(nftInstance.uriID.slice(nftInstance.uriID.indexOf("=") + 1));
       return NFTModel.findById(
-        nftInstance.uriID.slice(nftInstance.uriID.indexOf("=") + 1)
+        nftInstance?.uriID?.slice(nftInstance?.uriID?.indexOf("=") + 1)
       );
     },
   },
