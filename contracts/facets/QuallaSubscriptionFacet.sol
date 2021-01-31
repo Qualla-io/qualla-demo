@@ -4,9 +4,9 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../libraries/LibSubscriptions.sol";
 import "../libraries/LibERC1155.sol";
+import "../tokens/IERC20.sol";
 
 import "hardhat/console.sol";
 

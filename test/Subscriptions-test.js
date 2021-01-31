@@ -109,7 +109,7 @@ describe("Qualla Diamond Contract", function () {
     };
   });
 
-  context("With minting subscriptions", async () => {
+  xcontext("With minting subscriptions", async () => {
     it("Should mint new baseToken", async () => {
       await mintOneBaseToken();
 

@@ -2,8 +2,9 @@
 pragma solidity ^0.7.6;
 pragma experimental ABIEncoderV2;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
+
+import "../tokens/IERC20.sol";
 
 library LibSubscriptions {
     using SafeMath for uint256;
@@ -39,6 +40,8 @@ library LibSubscriptions {
         mapping(uint256 => SubToken) subToken;
         mapping(uint256 => NFTToken) nftToken;
         mapping(uint256 => mapping(uint256 => bool)) nftRedeemed;
+        mapping(IERC20 => address) ERC20toWrapper;
+        IERC20[] wrappedTokens;
         uint256 tokenNonce;
         uint256 test;
     }
@@ -53,5 +56,4 @@ library LibSubscriptions {
             ss.slot := position
         }
     }
-
 }

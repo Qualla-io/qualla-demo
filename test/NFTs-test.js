@@ -116,7 +116,7 @@ describe("Qualla Diamond Contract", function () {
     };
   });
 
-  context("With minting NFTs", async () => {
+  xcontext("With minting NFTs", async () => {
     it("should mint NFTs to subscribers", async () => {
       await mintOneBaseToken();
 

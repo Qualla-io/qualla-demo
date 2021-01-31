@@ -1193,8 +1193,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\libraries\\LibSubscriptions.sol": {
-      "lastModificationDate": 1611972027597,
-      "contentHash": "043fe8e97f47b3524341c76fd558a671",
+      "lastModificationDate": 1612117521385,
+      "contentHash": "ec8ae53f3fc8e6c82c202d10a984ee00",
       "sourceName": "contracts/libraries/LibSubscriptions.sol",
       "solcConfig": {
         "version": "0.7.6",
@@ -1219,8 +1219,8 @@
         }
       },
       "imports": [
-        "@openzeppelin/contracts/token/ERC20/IERC20.sol",
-        "@openzeppelin/contracts/math/SafeMath.sol"
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "../tokens/IERC20.sol"
       ],
       "versionPragmas": [
         "^0.7.6"
@@ -1474,8 +1474,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\facets\\QuallaSubscriptionFacet.sol": {
-      "lastModificationDate": 1611972801723,
-      "contentHash": "196b0169ab47795cde977b2f7dbade26",
+      "lastModificationDate": 1612111665973,
+      "contentHash": "c8841ccff5141e807d3ae0ed3d75b854",
       "sourceName": "contracts/facets/QuallaSubscriptionFacet.sol",
       "solcConfig": {
         "version": "0.7.6",
@@ -1501,9 +1501,9 @@
       },
       "imports": [
         "@openzeppelin/contracts/math/SafeMath.sol",
-        "@openzeppelin/contracts/token/ERC20/IERC20.sol",
         "../libraries/LibSubscriptions.sol",
         "../libraries/LibERC1155.sol",
+        "../tokens/IERC20.sol",
         "hardhat/console.sol"
       ],
       "versionPragmas": [
@@ -1772,6 +1772,300 @@
       ],
       "artifacts": [
         "ERC1155Facet"
+      ]
+    },
+    "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\tokens\\IERC20.sol": {
+      "lastModificationDate": 1612109252713,
+      "contentHash": "2583d4c5a31cc6c6650c35df8ae8d92b",
+      "sourceName": "contracts/tokens/IERC20.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.7.6"
+      ],
+      "artifacts": [
+        "IERC20"
+      ]
+    },
+    "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\tokens\\ERC20.sol": {
+      "lastModificationDate": 1612111691269,
+      "contentHash": "2a1135e0c0c7ceaa3536226b73aed6cf",
+      "sourceName": "contracts/tokens/ERC20.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "@openzeppelin/contracts/GSN/Context.sol",
+        "@openzeppelin/contracts/proxy/Initializable.sol",
+        "./IERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.7.6"
+      ],
+      "artifacts": [
+        "ERC20"
+      ]
+    },
+    "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\node_modules\\@openzeppelin\\contracts\\proxy\\Initializable.sol": {
+      "lastModificationDate": 1611877451783,
+      "contentHash": "99bd69d93b6e25a9cdf9c04550e1780f",
+      "sourceName": "@openzeppelin/contracts/proxy/Initializable.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.4.24 <0.8.0"
+      ],
+      "artifacts": [
+        "Initializable"
+      ]
+    },
+    "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\facets\\TokenFactoryFacet.sol": {
+      "lastModificationDate": 1612117550138,
+      "contentHash": "965573979e5ca831f90417b6db789fcb",
+      "sourceName": "contracts/facets/TokenFactoryFacet.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "../libraries/LibSubscriptions.sol",
+        "../tokens/IERC20.sol",
+        "../tokens/ERC20Info.sol",
+        "../tokens/Qtoken.sol",
+        "hardhat/console.sol"
+      ],
+      "versionPragmas": [
+        "^0.7.6"
+      ],
+      "artifacts": [
+        "TokenFactoryFacet"
+      ]
+    },
+    "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\tokens\\Qtoken.sol": {
+      "lastModificationDate": 1612115081664,
+      "contentHash": "cfbccdeca8435d40bd39c5e3c7b24df9",
+      "sourceName": "contracts/tokens/Qtoken.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "./ERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.7.6"
+      ],
+      "artifacts": [
+        "Qtoken"
+      ]
+    },
+    "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\tokens\\ERC20Info.sol": {
+      "lastModificationDate": 1612112900462,
+      "contentHash": "afaca48f593360846cf78554e714042d",
+      "sourceName": "contracts/tokens/ERC20Info.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC20.sol",
+        "./IERC20Info.sol"
+      ],
+      "versionPragmas": [
+        "^0.7.6"
+      ],
+      "artifacts": [
+        "ERC20Info"
+      ]
+    },
+    "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\tokens\\IERC20Info.sol": {
+      "lastModificationDate": 1612112871790,
+      "contentHash": "c79b62e2105dc0669afce5db03abaa53",
+      "sourceName": "contracts/tokens/IERC20Info.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.7.6"
+      ],
+      "artifacts": [
+        "IERC20Info"
+      ]
+    },
+    "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\facets\\TokenManagementFacet.sol": {
+      "lastModificationDate": 1612117897780,
+      "contentHash": "5eb5f4b1937680566a60bafd08540b1d",
+      "sourceName": "contracts/facets/TokenManagementFacet.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "../libraries/LibSubscriptions.sol",
+        "../tokens/IERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.7.6"
+      ],
+      "artifacts": [
+        "TokenManagementFacet"
       ]
     }
   }

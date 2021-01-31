@@ -5,7 +5,7 @@ async function main(scriptName) {
   const accounts = await ethers.getSigners();
   const account = await accounts[0].getAddress();
 
-  if (hre.network.name === "hardhat" || hre.network.name === "localhost" ) {
+  if (hre.network.name === "hardhat" || hre.network.name === "localhost") {
     let TestDai = await ethers.getContractFactory("TestDai");
     testDai = await TestDai.deploy(31337);
     await testDai.deployed();
@@ -40,13 +40,15 @@ async function main(scriptName) {
     erc1155Facet,
     subscriptionFacet,
     nftFacet,
+    factoryFacet,
   ] = await deployFacets(
     "DiamondCutFacet",
     "DiamondLoupeFacet",
     "OwnershipFacet",
     "ERC1155Facet",
     "QuallaSubscriptionsFacet",
-    "QuallaNFTFacet"
+    "QuallaNFTFacet",
+    "TokenFactoryFacet"
   );
 
   const quallaDiamond = await diamond.deploy({
@@ -58,6 +60,7 @@ async function main(scriptName) {
       ["ERC1155Facet", erc1155Facet],
       ["QuallaSubscriptionsFacet", subscriptionFacet],
       ["QuallaNFTFacet", nftFacet],
+      ["TokenFactoryFacet", factoryFacet],
     ],
     args: [accounts[0].address, 31337, "1"], //[owner, chainId, version]
   });
@@ -73,6 +76,7 @@ async function main(scriptName) {
     erc1155Facet: erc1155Facet,
     subscriptionFacet: subscriptionFacet,
     nftFacet: nftFacet,
+    factoryFacet: factoryFacet,
     testDai: testDai,
   };
 }

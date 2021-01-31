@@ -256,7 +256,7 @@ export default function NFTMintCard({ user, baseTokens }) {
                 </Grid>
                 <Grid item xs={12} className={classes.item}>
                   <Typography className={classes.typo}>
-                    Distribute <br /> To Tiers:
+                    Airdrop <br /> To Tiers:
                   </Typography>
                   {baseTokens?.length > 0 ? (
                     <>
