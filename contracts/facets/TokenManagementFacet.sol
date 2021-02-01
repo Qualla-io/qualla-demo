@@ -4,21 +4,18 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 
-import "../libraries/LibSubscriptions.sol";
+import "../libraries/LibAppStorage.sol";
 import "../tokens/IERC20.sol";
 
-contract TokenManagementFacet {
-
+contract TokenManagementFacet is LibAppBase {
     struct TokenBalances {
         IERC20 token;
         uint256 balance;
     }
 
     function getAllBalances() external view returns (TokenBalances[] memory) {
-        LibSubscriptions.SubscriptionStorage storage ss =
-            LibSubscriptions.subscriptionStorage();
 
-        IERC20[] memory tokens = ss.wrappedTokens;
+        IERC20[] memory tokens = state.wrappedTokens;
 
         TokenBalances[] memory report = new TokenBalances[](tokens.length);
 
@@ -31,6 +28,4 @@ contract TokenManagementFacet {
 
         return report;
     }
-
-    
 }

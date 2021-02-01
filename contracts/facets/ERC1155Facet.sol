@@ -4,12 +4,12 @@ pragma experimental ABIEncoderV2;
 
 import "../interfaces/IERC1155.sol";
 import "../libraries/LibERC1155.sol";
-import "../libraries/LibSubscriptions.sol";
+import "../libraries/LibAppStorage.sol";
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/GSN/Context.sol";
 
-contract ERC1155Facet is IERC1155, Context {
+contract ERC1155Facet is IERC1155, Context, LibAppBase {
     using SafeMath for uint256;
 
     function getUserNonce(address user) external view returns (uint256) {
@@ -34,9 +34,7 @@ contract ERC1155Facet is IERC1155, Context {
         override
         returns (string memory)
     {
-        LibSubscriptions.SubscriptionStorage storage ss =
-            LibSubscriptions.subscriptionStorage();
-        return ss.nftToken[id & (uint256(uint128(~0)) << 128)].uri; // id & NONCE_MASK
+        return state.nftToken[id & (uint256(uint128(~0)) << 128)].uri; // id & NONCE_MASK
     }
 
     /**

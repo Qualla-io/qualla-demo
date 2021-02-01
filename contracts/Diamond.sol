@@ -9,7 +9,7 @@ pragma experimental ABIEncoderV2;
 * Implementation of a diamond.
 /******************************************************************************/
 
-import "./libraries/LibSubscriptions.sol";
+import "./libraries/LibAppStorage.sol";
 import "./libraries/LibDiamond.sol";
 import "./libraries/LibERC1155.sol";
 import "./interfaces/IDiamondLoupe.sol";
@@ -19,6 +19,8 @@ import "./interfaces/IERC165.sol";
 import "./interfaces/IERC1155.sol";
 
 contract QuallaDiamond {
+    using LibAppStorage for AppStorage;
+    AppStorage internal state;
     // more arguments are added to this struct
     // this avoids stack too deep errors
     struct DiamondArgs {

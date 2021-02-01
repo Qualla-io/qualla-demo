@@ -4,23 +4,21 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 
-import "../libraries/LibSubscriptions.sol";
+import "../libraries/LibAppStorage.sol";
 import "../tokens/IERC20.sol";
 import "../tokens/ERC20Info.sol";
 import "../tokens/Qtoken.sol";
 
 import "hardhat/console.sol";
 
-contract TokenFactoryFacet {
+contract TokenFactoryFacet is LibAppBase {
     using SafeMath for uint256;
 
     event WrapperDeployed(address indexed qToken, address indexed token);
 
     function getTokenWrapper(IERC20 token) public view returns (address) {
-        LibSubscriptions.SubscriptionStorage storage ss =
-            LibSubscriptions.subscriptionStorage();
 
-        return ss.ERC20toWrapper[token];
+        return state.ERC20toWrapper[token];
     }
 
     function deployERC20Wrapper(
@@ -33,17 +31,13 @@ contract TokenFactoryFacet {
 
         // Initialze new wrapper
 
-        // store mapping
-        LibSubscriptions.SubscriptionStorage storage ss =
-            LibSubscriptions.subscriptionStorage();
-
         Qtoken token = new Qtoken();
 
         token.initialize(underlyingToken, underlyingDecimals, name, symbol);
         // = deploy wrapper
 
-        ss.ERC20toWrapper[underlyingToken] = address(token);
-        ss.wrappedTokens.push(underlyingToken);
+        state.ERC20toWrapper[underlyingToken] = address(token);
+        state.wrappedTokens.push(underlyingToken);
         emit WrapperDeployed(address(token), address(underlyingToken));
     }
 
