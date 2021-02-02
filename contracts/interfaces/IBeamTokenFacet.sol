@@ -7,6 +7,12 @@ import "../libraries/LibAppStorage.sol";
 interface IBeamTokenFacet {
     // --- Read Functions -------------------------
 
+    function realtimeBalanceOf(
+        IQtoken token,
+        address account,
+        uint256 timestamp
+    ) external view returns (int256 dynamicBal, uint256 deposit);
+
     function getBeamToken(uint256 id)
         external
         view

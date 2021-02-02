@@ -37,6 +37,7 @@ contract TokenFactoryFacet is LibAppBase {
         // = deploy wrapper
 
         state.ERC20toWrapper[underlyingToken] = address(token);
+         state.isWrappedToken[address(token)] = true;
         state.wrappedTokens.push(underlyingToken);
         emit WrapperDeployed(address(token), address(underlyingToken));
     }
@@ -52,5 +53,13 @@ contract TokenFactoryFacet is LibAppBase {
             name,
             symbol
         );
+    }
+
+    function demoMintWrappedERC20(
+        IQtoken underlyingToken,
+        address account,
+        uint256 amount
+    ) external {
+        underlyingToken.demoMint(account, amount);
     }
 }

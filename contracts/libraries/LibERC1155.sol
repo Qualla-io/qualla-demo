@@ -145,6 +145,7 @@ library LibERC1155 {
         emit TransferSingle(operator, address(0), account, id, amount);
 
         onERC1155Received(operator, address(0), account, id, amount, data);
+
     }
 
     function _mintBatch(

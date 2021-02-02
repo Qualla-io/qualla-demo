@@ -39,6 +39,8 @@ contract QuallaDiamond {
         LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
         LibERC1155.ERC1155Storage storage erc1155 = LibERC1155.erc1155Storage();
 
+        state.liqPeriod = 86400; // one day
+
         // meta
         erc1155.DOMAIN_SEPARATOR = keccak256(
             abi.encode(

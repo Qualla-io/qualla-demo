@@ -5,7 +5,9 @@ pragma experimental ABIEncoderV2;
 interface IQtoken {
     // --- Read Functions -------------------------
 
-    function realtimeBalanceOf(address account, uint256 timestamp) external;
+    function realtimeBalanceOf(address account, uint256 timestamp)
+        external view
+        returns (int256 availableBalance, uint256 deposit);
 
     function getUnderlyingToken() external view returns (address);
 
@@ -23,4 +25,6 @@ interface IQtoken {
     function downgrade(uint256 amount) external;
 
     function operatorDowngrade(address account, uint256 amount) external;
+
+    function settleBalance(address account, int256 amount) external;
 }

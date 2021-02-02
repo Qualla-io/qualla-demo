@@ -9,6 +9,7 @@ import "../interfaces/IBaseTokenFacet.sol";
 import "../libraries/LibAppStorage.sol";
 import "../libraries/LibERC1155.sol";
 import "../tokens/IERC20.sol";
+import "../tokens/IQtoken.sol";
 
 import "hardhat/console.sol";
 
@@ -25,7 +26,6 @@ contract BaseTokenFacet is IBaseTokenFacet, LibAppBase {
         override
         returns (BaseToken memory)
     {
-
         BaseToken memory res;
 
         res.creator = state.baseToken[id].creator;
@@ -47,7 +47,7 @@ contract BaseTokenFacet is IBaseTokenFacet, LibAppBase {
     function mintBase(
         address creator,
         uint256 amount,
-        IERC20 paymentToken,
+        IQtoken paymentToken, // wrapped token
         uint256 flowRate,
         uint8 v,
         bytes32 r,
@@ -56,7 +56,7 @@ contract BaseTokenFacet is IBaseTokenFacet, LibAppBase {
         LibERC1155.verifySignature(creator, "mint", v, r, s);
 
         require(
-            state.ERC20toWrapper[paymentToken] != address(0),
+            state.isWrappedToken[address(paymentToken)],
             "Qualla/Invalid-paymentToken"
         );
 
@@ -66,9 +66,11 @@ contract BaseTokenFacet is IBaseTokenFacet, LibAppBase {
 
         uint256 id = (state.tokenNonce.add(1) << 128);
 
+        // console.log(id);
+
         state.baseToken[id] = BaseToken(
             creator,
-            IERC20(paymentToken),
+            IQtoken(paymentToken),
             flowRate,
             1, // nonce
             0 // activeBeams
@@ -82,7 +84,7 @@ contract BaseTokenFacet is IBaseTokenFacet, LibAppBase {
     function mintBatchBase(
         address creator,
         uint256[] memory amounts,
-        IERC20[] calldata paymentTokens,
+        IQtoken[] calldata paymentTokens, // wrapped token
         uint256[] calldata flowRates,
         uint8 v,
         bytes32 r,
@@ -94,7 +96,7 @@ contract BaseTokenFacet is IBaseTokenFacet, LibAppBase {
         );
         require(
             amounts.length == flowRates.length,
-            "ERC1155: amounts and paymentValues length mismatch"
+            "Qualla: amounts and paymentValues length mismatch"
         );
         LibERC1155.verifySignature(creator, "mint", v, r, s);
 
@@ -102,7 +104,7 @@ contract BaseTokenFacet is IBaseTokenFacet, LibAppBase {
 
         for (uint256 i = 0; i < amounts.length; i++) {
             require(
-                state.ERC20toWrapper[paymentTokens[i]] != address(0),
+                state.isWrappedToken[address(paymentTokens[i])],
                 "Qualla/Invalid-paymentToken"
             );
 
@@ -114,7 +116,7 @@ contract BaseTokenFacet is IBaseTokenFacet, LibAppBase {
 
             state.baseToken[ids[i]] = BaseToken(
                 creator,
-                IERC20(paymentTokens[i]), // should this be the wrapped token instead?
+                IQtoken(paymentTokens[i]),
                 flowRates[i],
                 1, // nonce
                 0 // activeBeams
@@ -134,10 +136,7 @@ contract BaseTokenFacet is IBaseTokenFacet, LibAppBase {
         bytes32 r,
         bytes32 s
     ) public override {
-        require(
-            id & LibAppStorage.TYPE_NF_BIT == 0,
-            "Qualla/Wrong-Token-Type"
-        );
+        require(id & LibAppStorage.TYPE_NF_BIT == 0, "Qualla/Wrong-Token-Type");
         require(
             id & LibAppStorage.NF_INDEX_MASK == 0,
             "Qualla/Invalid-Subscription-Index"
@@ -152,7 +151,6 @@ contract BaseTokenFacet is IBaseTokenFacet, LibAppBase {
     // function executeSubscription(uint256 id_, address subscriber) public {
     //     require(id_ & TYPE_NF_BIT == 0, "Qualla/Wrong-Token-Type");
     //     require(id_ & NF_INDEX_MASK > 0, "Qualla/Invalid-Subscription-Index");
-
 
     //     LibERC1155.ERC1155Storage storage erc1155 = LibERC1155.erc1155Storage();
 

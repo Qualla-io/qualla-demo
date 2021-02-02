@@ -1150,8 +1150,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\Diamond.sol": {
-      "lastModificationDate": 1612139442013,
-      "contentHash": "a6eb4044dfb66783f24addcbef933664",
+      "lastModificationDate": 1612204652837,
+      "contentHash": "c978169051745b4c597aee81053c0a51",
       "sourceName": "contracts/Diamond.sol",
       "solcConfig": {
         "version": "0.7.6",
@@ -1229,8 +1229,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\libraries\\LibERC1155.sol": {
-      "lastModificationDate": 1611960973079,
-      "contentHash": "bf8f884845564fbbdb0fd61ebc675d3e",
+      "lastModificationDate": 1612200791292,
+      "contentHash": "3812d88c7ca810eb901c50c013a2c4d2",
       "sourceName": "contracts/libraries/LibERC1155.sol",
       "solcConfig": {
         "version": "0.7.6",
@@ -1694,8 +1694,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\tokens\\ERC20.sol": {
-      "lastModificationDate": 1612111691269,
-      "contentHash": "2a1135e0c0c7ceaa3536226b73aed6cf",
+      "lastModificationDate": 1612221088735,
+      "contentHash": "b97f7bec2a9e8f02090c13e522aa8af0",
       "sourceName": "contracts/tokens/ERC20.sol",
       "solcConfig": {
         "version": "0.7.6",
@@ -1719,18 +1719,9 @@
           }
         }
       },
-      "imports": [
-        "@openzeppelin/contracts/math/SafeMath.sol",
-        "@openzeppelin/contracts/GSN/Context.sol",
-        "@openzeppelin/contracts/proxy/Initializable.sol",
-        "./IERC20.sol"
-      ],
-      "versionPragmas": [
-        "^0.7.6"
-      ],
-      "artifacts": [
-        "ERC20"
-      ]
+      "imports": [],
+      "versionPragmas": [],
+      "artifacts": []
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\node_modules\\@openzeppelin\\contracts\\proxy\\Initializable.sol": {
       "lastModificationDate": 1611877451783,
@@ -1767,8 +1758,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\facets\\TokenFactoryFacet.sol": {
-      "lastModificationDate": 1612140694023,
-      "contentHash": "e6f09ba03741585aaa28115cda3839c3",
+      "lastModificationDate": 1612199742025,
+      "contentHash": "dcc0319a0d0d9831098e940dc4343a92",
       "sourceName": "contracts/facets/TokenFactoryFacet.sol",
       "solcConfig": {
         "version": "0.7.6",
@@ -1808,8 +1799,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\tokens\\Qtoken.sol": {
-      "lastModificationDate": 1612135524684,
-      "contentHash": "fb080d898fd6e8d2e3bd1c453b2d1441",
+      "lastModificationDate": 1612222683598,
+      "contentHash": "02835c583fd1aadd41b29327f22ad2f7",
       "sourceName": "contracts/tokens/Qtoken.sol",
       "solcConfig": {
         "version": "0.7.6",
@@ -1834,9 +1825,15 @@
         }
       },
       "imports": [
+        "@openzeppelin/contracts/GSN/Context.sol",
         "@openzeppelin/contracts/math/SafeMath.sol",
+        "@openzeppelin/contracts/utils/SafeCast.sol",
+        "@openzeppelin/contracts/math/SignedSafeMath.sol",
+        "@openzeppelin/contracts/proxy/Initializable.sol",
         "./IQtoken.sol",
-        "./ERC20.sol"
+        "../interfaces/IBeamTokenFacet.sol",
+        "./IERC20.sol",
+        "hardhat/console.sol"
       ],
       "versionPragmas": [
         "^0.7.6"
@@ -1955,8 +1952,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\facets\\BaseTokenFacet.sol": {
-      "lastModificationDate": 1612141389019,
-      "contentHash": "26d46f16b6586d88cd86077b8d349f74",
+      "lastModificationDate": 1612200422971,
+      "contentHash": "0e3fc303becda29156b2ba29a526b87e",
       "sourceName": "contracts/facets/BaseTokenFacet.sol",
       "solcConfig": {
         "version": "0.7.6",
@@ -1986,6 +1983,7 @@
         "../libraries/LibAppStorage.sol",
         "../libraries/LibERC1155.sol",
         "../tokens/IERC20.sol",
+        "../tokens/IQtoken.sol",
         "hardhat/console.sol"
       ],
       "versionPragmas": [
@@ -1996,8 +1994,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\interfaces\\IBaseTokenFacet.sol": {
-      "lastModificationDate": 1612140135415,
-      "contentHash": "62d52243a184d4fdc081fb2eb5f73796",
+      "lastModificationDate": 1612151266673,
+      "contentHash": "62b2dd37a4b14aea9f93553d5a634c89",
       "sourceName": "contracts/interfaces/IBaseTokenFacet.sol",
       "solcConfig": {
         "version": "0.7.6",
@@ -2071,8 +2069,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\facets\\BeamTokenFacet.sol": {
-      "lastModificationDate": 1612141401808,
-      "contentHash": "f411dfc75b622ec8ea0ee00779938bea",
+      "lastModificationDate": 1612228113196,
+      "contentHash": "b8eac040f97f57184f8f617465d6c826",
       "sourceName": "contracts/facets/BeamTokenFacet.sol",
       "solcConfig": {
         "version": "0.7.6",
@@ -2098,6 +2096,8 @@
       },
       "imports": [
         "@openzeppelin/contracts/math/SafeMath.sol",
+        "@openzeppelin/contracts/utils/SafeCast.sol",
+        "@openzeppelin/contracts/math/SignedSafeMath.sol",
         "../interfaces/IBeamTokenFacet.sol",
         "../libraries/LibAppStorage.sol",
         "../libraries/LibERC1155.sol"
@@ -2110,8 +2110,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\interfaces\\IBeamTokenFacet.sol": {
-      "lastModificationDate": 1612140538146,
-      "contentHash": "10304aed810aa17741fd8ef4ea93c0ba",
+      "lastModificationDate": 1612216991077,
+      "contentHash": "8b17ab8e834116c74444af45d560cf72",
       "sourceName": "contracts/interfaces/IBeamTokenFacet.sol",
       "solcConfig": {
         "version": "0.7.6",
@@ -2182,8 +2182,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\tokens\\IQtoken.sol": {
-      "lastModificationDate": 1612134817937,
-      "contentHash": "ee2cbc91a7887f1c6844d39e63a99b67",
+      "lastModificationDate": 1612217012698,
+      "contentHash": "f5fea92411e6e63498899864f9983c4b",
       "sourceName": "contracts/tokens/IQtoken.sol",
       "solcConfig": {
         "version": "0.7.6",
@@ -2216,8 +2216,8 @@
       ]
     },
     "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\contracts\\libraries\\LibAppStorage.sol": {
-      "lastModificationDate": 1612141436601,
-      "contentHash": "19dc24b70c8fb0f53613df6ea64dfb93",
+      "lastModificationDate": 1612219050327,
+      "contentHash": "adc997a85c1631b0cb529f1075aa120f",
       "sourceName": "contracts/libraries/LibAppStorage.sol",
       "solcConfig": {
         "version": "0.7.6",
@@ -2243,6 +2243,7 @@
       },
       "imports": [
         "@openzeppelin/contracts/math/SafeMath.sol",
+        "../tokens/IQtoken.sol",
         "../tokens/IERC20.sol"
       ],
       "versionPragmas": [
@@ -2251,6 +2252,74 @@
       "artifacts": [
         "LibAppBase",
         "LibAppStorage"
+      ]
+    },
+    "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\node_modules\\@openzeppelin\\contracts\\utils\\SafeCast.sol": {
+      "lastModificationDate": 1611877451788,
+      "contentHash": "c227dcf457382aabf2d78218f6457799",
+      "sourceName": "@openzeppelin/contracts/utils/SafeCast.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "SafeCast"
+      ]
+    },
+    "C:\\Users\\ghard\\Documents\\GitHub\\qualla-demo\\node_modules\\@openzeppelin\\contracts\\math\\SignedSafeMath.sol": {
+      "lastModificationDate": 1611877451789,
+      "contentHash": "159169e078460f380436878421b73431",
+      "sourceName": "@openzeppelin/contracts/math/SignedSafeMath.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "SignedSafeMath"
       ]
     }
   }

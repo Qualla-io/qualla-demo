@@ -38,7 +38,8 @@ async function main(scriptName) {
     diamondLoupeFacet,
     ownershipFacet,
     erc1155Facet,
-    subscriptionFacet,
+    baseTokenFacet,
+    beamTokenFacet,
     nftFacet,
     factoryFacet,
   ] = await deployFacets(
@@ -46,8 +47,9 @@ async function main(scriptName) {
     "DiamondLoupeFacet",
     "OwnershipFacet",
     "ERC1155Facet",
-    "QuallaSubscriptionsFacet",
-    "QuallaNFTFacet",
+    "BaseTokenFacet",
+    "BeamTokenFacet",
+    "NFTFacet",
     "TokenFactoryFacet"
   );
 
@@ -58,14 +60,57 @@ async function main(scriptName) {
       ["DiamondLoupeFacet", diamondLoupeFacet],
       ["OwnershipFacet", ownershipFacet],
       ["ERC1155Facet", erc1155Facet],
-      ["QuallaSubscriptionsFacet", subscriptionFacet],
-      ["QuallaNFTFacet", nftFacet],
+      ["BaseTokenFacet", baseTokenFacet],
+      ["BeamTokenFacet", beamTokenFacet],
+      ["NFTFacet", nftFacet],
       ["TokenFactoryFacet", factoryFacet],
     ],
     args: [accounts[0].address, 31337, "1"], //[owner, chainId, version]
   });
 
   console.log("Qualla diamond address:" + quallaDiamond.address);
+
+  // Wrap facets, is there an easy way to loop this?
+
+  erc1155Facet = new ethers.Contract(
+    quallaDiamond.address,
+    erc1155Facet.interface,
+    accounts[0]
+  );
+
+  baseTokenFacet = new ethers.Contract(
+    quallaDiamond.address,
+    baseTokenFacet.interface,
+    accounts[0]
+  );
+
+  beamTokenFacet = new ethers.Contract(
+    quallaDiamond.address,
+    beamTokenFacet.interface,
+    accounts[0]
+  );
+
+  nftFacet = new ethers.Contract(
+    quallaDiamond.address,
+    nftFacet.interface,
+    accounts[0]
+  );
+
+  factoryFacet = new ethers.Contract(
+    quallaDiamond.address,
+    factoryFacet.interface,
+    accounts[0]
+  );
+
+  // Wrap testDai
+
+  await factoryFacet.deployERC20WrapperInfo(testDai.address, "qDai", "qDAI");
+
+  let address = await factoryFacet.getTokenWrapper(global.testDai.address);
+
+  let qDai = await ethers.getContractFactory("Qtoken");
+
+  qDai = new ethers.Contract(address, qDai.interface, accounts[0]);
 
   return {
     account: account,
@@ -74,10 +119,12 @@ async function main(scriptName) {
     diamondCutFacet: diamondCutFacet,
     ownershipFacet: ownershipFacet,
     erc1155Facet: erc1155Facet,
-    subscriptionFacet: subscriptionFacet,
-    nftFacet: nftFacet,
-    factoryFacet: factoryFacet,
-    testDai: testDai,
+    baseTokenFacet,
+    beamTokenFacet,
+    nftFacet,
+    factoryFacet,
+    testDai,
+    qDai,
   };
 }
 

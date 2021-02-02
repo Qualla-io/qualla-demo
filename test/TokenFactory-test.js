@@ -10,6 +10,8 @@ describe("Qualla Token Factory Contract", function () {
   let daniel;
   let factoryFacet;
 
+  let qDai;
+
   let result;
 
   beforeEach(async () => {
@@ -19,29 +21,16 @@ describe("Qualla Token Factory Contract", function () {
     global.quallaDiamond = deployVars.quallaDiamond;
     global.testDai = deployVars.testDai;
 
-    factoryFacet = new ethers.Contract(
-      deployVars.quallaDiamond.address,
-      deployVars.factoryFacet.interface,
-      alice
-    );
+    factoryFacet = deployVars.factoryFacet;
+    qDai = deployVars.qDai;
 
     let _testDai = await testDai.connect(bob);
     await _testDai.approve(deployVars.quallaDiamond.address, 1000);
+
   });
 
-  context("With deploying wrapper tokens", async () => {
+  xcontext("With deploying wrapper tokens", async () => {
     it("Should deploy a new wrapper contract", async () => {
-      await factoryFacet.deployERC20WrapperInfo(
-        global.testDai.address,
-        "qDai",
-        "qDAI"
-      );
-
-      let address = await factoryFacet.getTokenWrapper(global.testDai.address);
-
-      let qDai = await ethers.getContractFactory("Qtoken");
-
-      qDai = new ethers.Contract(address, qDai.interface, alice);
 
       result = await qDai.name();
 
@@ -54,6 +43,7 @@ describe("Qualla Token Factory Contract", function () {
       result = await qDai.decimals();
 
       expect(result.toString()).to.equal("18");
+
     });
   });
 });

@@ -1,34 +1,38 @@
 type User @entity {
   id: ID!
-  baseTokens: [BaseToken!] @derivedFrom(field: "owner")
-  subscriptions: [SubscriptionToken!] @derivedFrom(field: "owner")
-  subscribers: [SubscriptionToken!] @derivedFrom(field: "creator")
+  tierTokens: [TierToken!] @derivedFrom(field: "owner")
+  beamToekns: [BeamToken!] @derivedFrom(field: "owner")
+  subscribers: [BeamToken!] @derivedFrom(field: "creator")
   nonce: BigInt
   approved: Boolean
   balance: BigInt
+  flowRate: BigInt
+  lastUpdated: BigInt
   ownedNFTs: [NftToken!] @derivedFrom(field: "owner")
   createdNFTs: [NftToken!] @derivedFrom(field: "creator")
 }
 
-type BaseToken @entity {
+type TierToken @entity {
   id: ID!
   quantity: BigInt!
   owner: User!
-  paymentValue: BigInt!
+  flowRate: BigInt!
   paymentToken: String!
-  activeTokens: [SubscriptionToken!] @derivedFrom(field: "baseToken")
+  activeTokens: [BeamToken!] @derivedFrom(field: "tierToken")
   testID: String
   txHash: String!
   # index: BigInt!
   initialSupply: BigInt!
 }
 
-type SubscriptionToken @entity {
+type BeamToken @entity {
   id: ID!
   owner: User
   creator: User!
-  nextWithdraw: BigInt
-  baseToken: BaseToken
+  flowRate: BigInt
+  deposit: BigInt
+  mintStamp: BingInt
+  tierToken: TierToken
   testID: String
 }
 
@@ -37,6 +41,8 @@ type NftToken @entity {
   uriID: String!
   creator: User!
   owner: User!
+  nonce: BigInt!
+  mintStamp: BigInt!
   testID: String
 }
 

@@ -4,21 +4,25 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 
+import "../tokens/IQtoken.sol";
 import "../tokens/IERC20.sol";
 
 struct BaseToken {
     address creator;
-    IERC20 paymentToken;
+    IQtoken paymentToken;
     uint256 flowRate;
     uint256 nonce;
     uint256 activeBeams;
 }
 
+// not sure if I need to keep all this data
 struct BeamToken {
-    // address to;
-    // address from;
-    // uint256 flowRate;
+    address to;
+    address from;
+    uint256 flowRate;
+    uint256 deposit;
     uint256 mintStamp;
+    IQtoken paymentToken;
 }
 
 struct NFTToken {
@@ -29,8 +33,9 @@ struct NFTToken {
     address creator;
 }
 
-struct UserFlows {
-    int256 aggFlowRate;
+struct UserFlow {
+    int256 netFlowRate;
+    uint256 netDeposit;
     uint256 lastUpdated;
 }
 
@@ -41,9 +46,12 @@ struct AppStorage {
     mapping(uint256 => NFTToken) nftToken;
     mapping(uint256 => mapping(uint256 => bool)) nftRedeemed;
     mapping(IERC20 => address) ERC20toWrapper;
+    mapping(IQtoken => mapping(address => UserFlow)) userFlowData;
+    mapping(address => bool) isWrappedToken;
     IERC20[] wrappedTokens;
     uint256 tokenNonce;
     uint256 test;
+    uint256 liqPeriod;
 }
 
 library LibAppStorage {

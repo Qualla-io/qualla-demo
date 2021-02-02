@@ -7,17 +7,14 @@ import "../libraries/LibAppStorage.sol";
 interface IBaseTokenFacet {
     // --- Read Functions -------------------------
 
-    function getBaseToken(uint256 id)
-        external
-        view
-        returns (BaseToken memory);
+    function getBaseToken(uint256 id) external view returns (BaseToken memory);
 
     // --- Write Functions ------------------------
 
     function mintBase(
         address creator,
         uint256 amount,
-        IERC20 paymentToken,
+        IQtoken paymentToken,
         uint256 flowRate,
         uint8 v,
         bytes32 r,
@@ -27,7 +24,7 @@ interface IBaseTokenFacet {
     function mintBatchBase(
         address creator,
         uint256[] memory amounts,
-        IERC20[] calldata paymentTokens,
+        IQtoken[] calldata paymentTokens,
         uint256[] calldata flowRates,
         uint8 v,
         bytes32 r,
