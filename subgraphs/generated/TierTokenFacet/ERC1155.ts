@@ -126,9 +126,9 @@ export class URI__Params {
   }
 }
 
-export class IERC1155 extends ethereum.SmartContract {
-  static bind(address: Address): IERC1155 {
-    return new IERC1155("IERC1155", address);
+export class ERC1155 extends ethereum.SmartContract {
+  static bind(address: Address): ERC1155 {
+    return new ERC1155("ERC1155", address);
   }
 
   balanceOf(account: Address, id: BigInt): BigInt {
@@ -190,6 +190,27 @@ export class IERC1155 extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBigIntArray());
+  }
+
+  getUserNonce(user: Address): BigInt {
+    let result = super.call("getUserNonce", "getUserNonce(address):(uint256)", [
+      ethereum.Value.fromAddress(user)
+    ]);
+
+    return result[0].toBigInt();
+  }
+
+  try_getUserNonce(user: Address): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "getUserNonce",
+      "getUserNonce(address):(uint256)",
+      [ethereum.Value.fromAddress(user)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   isApprovedForAll(account: Address, operator: Address): boolean {

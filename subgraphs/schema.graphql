@@ -25,7 +25,7 @@ type TierToken @entity {
   quantity: BigInt!
   owner: User!
   flowRate: BigInt!
-  paymentToken: String!
+  paymentToken: Qtoken!
   activeTokens: [BeamToken!] @derivedFrom(field: "tierToken")
   initialSupply: BigInt!
 }

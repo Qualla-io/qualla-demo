@@ -44,6 +44,8 @@ dataSources:
       abis:
         - name: BeamToken
           file: ../client/src/artifacts/contracts/interfaces/IBeamTokenFacet.sol/IBeamTokenFacet.json
+        - name: ERC1155
+          file: ../client/src/artifacts/contracts/facets/ERC1155Facet.sol/ERC1155Facet.json
       eventHandlers:
         - event: FlowUpdated(indexed address,indexed address,int256,uint256,uint256)
           handler: handleFlowUpdated
@@ -67,6 +69,8 @@ dataSources:
       abis:
         - name: TierToken
           file: ../client/src/artifacts/contracts/interfaces/ITierTokenFacet.sol/ITierTokenFacet.json
+        - name: ERC1155
+          file: ../client/src/artifacts/contracts/facets/ERC1155Facet.sol/ERC1155Facet.json
       eventHandlers:
         - event: TierTransfer(indexed address,indexed address,indexed address,uint256,uint256,uint256)
           handler: handleTierTransfer

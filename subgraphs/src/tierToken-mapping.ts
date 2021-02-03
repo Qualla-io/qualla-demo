@@ -2,6 +2,7 @@ import {
   TierTransfer,
   BatchTierTransfer,
 } from "../generated/TierTokenFacet/TierToken";
+import { ERC1155 } from "../generated/TierTokenFacet/ERC1155";
 
 import { BigInt, store } from "@graphprotocol/graph-ts";
 import { TierToken, User } from "../generated/schema";
@@ -9,14 +10,14 @@ import { TierToken, User } from "../generated/schema";
 export function handleTierTransfer(event: TierTransfer): void {
   let idTo = event.params.to.toHexString();
   let idFrom = event.params.from.toHexString();
-
+  let contract = ERC1155.bind(event.address);
   let userTo = User.load(idTo);
 
   if (userTo == null && idTo != "0x0000000000000000000000000000000000000000") {
     // new user
     userTo = new User(idTo);
-    userTo.nonce = BigInt.fromI32(0);
   }
+  userTo.nonce = contract.getUserNonce(event.params.to); // lazy
 
   let userFrom = User.load(idFrom);
 
@@ -26,8 +27,8 @@ export function handleTierTransfer(event: TierTransfer): void {
   ) {
     // new user
     userFrom = new User(idFrom);
-    userFrom.nonce = BigInt.fromI32(0);
   }
+  userFrom.nonce = contract.getUserNonce(event.params.from); // lazy
 
   let tierToken = TierToken.load(event.params.id.toString());
 
@@ -62,14 +63,15 @@ export function handleTierTransfer(event: TierTransfer): void {
 export function handleBatchTierTransfer(event: BatchTierTransfer): void {
   let idTo = event.params.to.toHexString();
   let idFrom = event.params.from.toHexString();
+  let contract = ERC1155.bind(event.address);
 
   let userTo = User.load(idTo);
 
   if (userTo == null && idTo != "0x0000000000000000000000000000000000000000") {
     // new user
     userTo = new User(idTo);
-    userTo.nonce = BigInt.fromI32(0);
   }
+  userTo.nonce = contract.getUserNonce(event.params.to); // lazy
 
   let userFrom = User.load(idFrom);
 
@@ -79,8 +81,8 @@ export function handleBatchTierTransfer(event: BatchTierTransfer): void {
   ) {
     // new user
     userFrom = new User(idFrom);
-    userFrom.nonce = BigInt.fromI32(0);
   }
+  userFrom.nonce = contract.getUserNonce(event.params.from); // lazy
 
   let ids = event.params.ids;
   let flowRates = event.params.flowRates;
@@ -94,7 +96,7 @@ export function handleBatchTierTransfer(event: BatchTierTransfer): void {
       tierToken.quantity = amounts[i];
       tierToken.owner = idTo;
       tierToken.flowRate = flowRates[i];
-      tierToken.paymentToken = paymentTokens[i].toString(); // cant go from hexstring so check this
+      tierToken.paymentToken = paymentTokens[i].toHexString();
       tierToken.initialSupply = amounts[i];
     } else if (idTo == "0x0000000000000000000000000000000000000000") {
       // burning tokens

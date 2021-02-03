@@ -11,40 +11,44 @@ export function handleTransfer(event: Transfer): void {
 
   let userTo = User.load(idTo);
 
-  if (userTo == null && idTo != "0x0000000000000000000000000000000000000000") {
+  if (userTo == null) {
     // new user
     userTo = new User(idTo);
     userTo.nonce = BigInt.fromI32(0);
   }
+  let toBalanceID = idTo + `-` + event.address.toHexString();
 
-  let toBalance = Balance.load(`${idTo}-${event.address.toHexString()}`);
-  if (
-    toBalance == null &&
-    idTo != "0x0000000000000000000000000000000000000000"
-  ) {
+  let toBalance = Balance.load(toBalanceID);
+  if (toBalance == null) {
     // new balance
-    toBalance = new Balance(`${idTo}-${event.address.toHexString()}`);
+    toBalance = new Balance(toBalanceID);
     toBalance.settledBalance = BigInt.fromI32(0);
+    toBalance.qtoken = event.address.toHexString();
+    toBalance.user = idTo;
+    toBalance.netFlowrate = BigInt.fromI32(0);
+    toBalance.netDeposit = BigInt.fromI32(0);
+    toBalance.lastUpdated = event.block.timestamp;
   }
 
   let userFrom = User.load(idFrom);
 
-  if (
-    userFrom == null &&
-    idFrom != "0x0000000000000000000000000000000000000000"
-  ) {
+  if (userFrom == null) {
     // new user
     userFrom = new User(idFrom);
     userFrom.nonce = BigInt.fromI32(0);
   }
-  let fromBalance = Balance.load(`${idFrom}-${event.address.toHexString()}`);
-  if (
-    fromBalance == null &&
-    idFrom != "0x0000000000000000000000000000000000000000"
-  ) {
+
+  let fromBalanceID = idFrom + `-` + event.address.toHexString();
+  let fromBalance = Balance.load(fromBalanceID);
+  if (fromBalance == null) {
     // new balance
-    fromBalance = new Balance(`${idFrom}-${event.address.toHexString()}`);
+    fromBalance = new Balance(fromBalanceID);
     fromBalance.settledBalance = BigInt.fromI32(0);
+    fromBalance.qtoken = event.address.toHexString();
+    fromBalance.user = idFrom;
+    fromBalance.netFlowrate = BigInt.fromI32(0);
+    fromBalance.netDeposit = BigInt.fromI32(0);
+    fromBalance.lastUpdated = event.block.timestamp;
   }
 
   if (idFrom == "0x0000000000000000000000000000000000000000") {
@@ -85,11 +89,18 @@ export function handleSettle(event: Settle): void {
     user = new User(account);
     user.nonce = BigInt.fromI32(0);
   }
-  let balance = Balance.load(`${account}-${event.address.toHexString()}`);
-  if ((balance = null)) {
+
+  let balanceId = account + `-` + event.address.toHexString();
+  let balance = Balance.load(balanceId);
+  if (balance == null) {
     // new balance
-    balance = new Balance(`${account}-${event.address.toHexString()}`);
+    balance = new Balance(balanceId);
     balance.settledBalance = BigInt.fromI32(0);
+    balance.qtoken = event.address.toHexString();
+    balance.user = account;
+    balance.netFlowrate = BigInt.fromI32(0);
+    balance.netDeposit = BigInt.fromI32(0);
+    balance.lastUpdated = event.block.timestamp;
   }
 
   balance.settledBalance = balance.settledBalance.plus(event.params.amount);

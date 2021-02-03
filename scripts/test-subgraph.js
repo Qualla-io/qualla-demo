@@ -1,30 +1,20 @@
 const hre = require("hardhat");
+const { deployProject } = require("./deploy");
 
 async function main() {
-  let abiCoder = hre.ethers.utils.defaultAbiCoder;
-
-  let chainId = 31337;
-
-  // We get the contract to deploy
-  let Qualla = await ethers.getContractFactory("Qualla");
-  let qualla = await Qualla.deploy("http://localhost:4000/graphql?query={nftMetadata{uriID}}", chainId);
-
-  await qualla.deployed();
-
-  console.log("subscription deployed to:", qualla.address);
-
-  let TestDai = await ethers.getContractFactory("TestDai");
-  testDai = await TestDai.deploy(chainId);
-
-  await testDai.deployed();
-
-  console.log("Dai deployed to:", testDai.address);
+  const {
+    qDai,
+    factoryFacet,
+    tierTokenFacet,
+    beamTokenFacet,
+    quallaDiamond,
+  } = await deployProject("Graph Test");
 
   domain = {
     name: "Qualla Subscription",
     version: "1",
     chainId: 31337,
-    verifyingContract: qualla.address,
+    verifyingContract: quallaDiamond.address,
   };
 
   types = {
@@ -46,13 +36,13 @@ async function main() {
     "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a"
   );
 
-  let _testDai = await testDai.connect(bob);
-  await _testDai.approve(qualla.address, 1000);
+  await factoryFacet.demoMintWrappedERC20(
+    qDai.address,
+    bob.address,
+    ethers.utils.parseEther("100").toString()
+  );
 
-  // mint a batch of subscriptions
-
-  let paymentTokens = [testDai.address, testDai.address, testDai.address];
-  let paymentValues = [10, 20, 30];
+  // mint one tier token -----------------------------------------------
 
   let data = {
     user: charlie.address,
@@ -64,7 +54,32 @@ async function main() {
 
   signature = ethers.utils.splitSignature(signature);
 
-  await qualla.mintBatchSubscription(
+  await tierTokenFacet.mintTier(
+    charlie.address,
+    5,
+    qDai.address,
+    2628000, // $1 per month
+    signature.v,
+    signature.r,
+    signature.s
+  );
+
+  // mint a batch of subscriptions -----------------------------------------------
+
+  let paymentTokens = [qDai.address, qDai.address, qDai.address];
+  let paymentValues = [2628000, 26280000, 262800000]; //$1, 10, 100 per month
+
+  data = {
+    user: charlie.address,
+    nonce: 1,
+    action: "mint",
+  };
+
+  signature = await _walletCharlie._signTypedData(domain, types, data);
+
+  signature = ethers.utils.splitSignature(signature);
+
+  await tierTokenFacet.mintBatchTier(
     charlie.address,
     [0, 0, 0],
     paymentTokens,
@@ -74,7 +89,7 @@ async function main() {
     signature.s
   );
 
-  // Test Subscribe
+  // buy a subscription -----------------------------------------------
   data = {
     user: bob.address,
     nonce: 0,
@@ -85,7 +100,7 @@ async function main() {
 
   signature = ethers.utils.splitSignature(signature);
 
-  await qualla.buySubscription(
+  await beamTokenFacet.mintBeam(
     bob.address,
     "340282366920938463463374607431768211456",
     signature.v,
@@ -93,26 +108,26 @@ async function main() {
     signature.s
   );
 
-  for (var i = 0; i < 50; i++) {
-    data = {
-      user: charlie.address,
-      nonce: i + 1,
-      action: "nft",
-    };
+  // for (var i = 0; i < 50; i++) {
+  //   data = {
+  //     user: charlie.address,
+  //     nonce: i + 1,
+  //     action: "nft",
+  //   };
 
-    signature = await _walletCharlie._signTypedData(domain, types, data);
+  //   signature = await _walletCharlie._signTypedData(domain, types, data);
 
-    signature = ethers.utils.splitSignature(signature);
+  //   signature = ethers.utils.splitSignature(signature);
 
-    await qualla.mintBatchNFT(
-      charlie.address,
-      420,
-      "TEST",
-      signature.v,
-      signature.r,
-      signature.s
-    );
-  }
+  //   await qualla.mintBatchNFT(
+  //     charlie.address,
+  //     420,
+  //     "TEST",
+  //     signature.v,
+  //     signature.r,
+  //     signature.s
+  //   );
+  // }
 }
 
 // We recommend this pattern to be able to use async/await everywhere
