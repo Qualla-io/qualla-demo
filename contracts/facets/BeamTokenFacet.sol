@@ -62,7 +62,7 @@ contract BeamTokenFacet is IBeamTokenFacet, LibAppBase {
         return res;
     }
 
-    function getBaseIdFromBeamToken(uint256 id_)
+    function getTierIdFromBeamToken(uint256 id_)
         external
         pure
         override
@@ -94,7 +94,7 @@ contract BeamTokenFacet is IBeamTokenFacet, LibAppBase {
             "Qualla/Invalid-Subscription-Index"
         );
 
-        BaseToken memory _token = state.baseToken[id];
+        TierToken memory _token = state.tierToken[id];
 
         require(_token.creator != address(0), "Qualla/Invalid-Token-Id");
 
@@ -136,15 +136,26 @@ contract BeamTokenFacet is IBeamTokenFacet, LibAppBase {
         LibERC1155._burn(_token.creator, id, 1);
         LibERC1155._mint(subscriber, id_, 1, bytes(""));
 
-        state.baseToken[id].nonce = state.baseToken[id].nonce.add(1);
-        state.baseToken[id].activeBeams = state.baseToken[id].activeBeams.add(
+        state.tierToken[id].nonce = state.tierToken[id].nonce.add(1);
+        state.tierToken[id].activeBeams = state.tierToken[id].activeBeams.add(
             1
         );
 
+        // Not sure I actually need this right now
         state.userBeams[_token.creator].push(_beamToken);
         state.userBeams[subscriber].push(_beamToken);
 
         _requireSufficientBalance(_token.paymentToken, subscriber);
+
+        emit BeamTransfer(
+            subscriber,
+            address(0),
+            id_,
+            id,
+            _token.flowRate,
+            _deposit,
+            block.timestamp
+        );
     }
 
     function unSubscribe(
@@ -180,8 +191,8 @@ contract BeamTokenFacet is IBeamTokenFacet, LibAppBase {
             bytes("")
         );
 
-        state.baseToken[id_ & LibAppStorage.NONCE_MASK].activeBeams = state
-            .baseToken[id_ & LibAppStorage.NONCE_MASK]
+        state.tierToken[id_ & LibAppStorage.NONCE_MASK].activeBeams = state
+            .tierToken[id_ & LibAppStorage.NONCE_MASK]
             .activeBeams
             .add(1);
 
@@ -198,11 +209,21 @@ contract BeamTokenFacet is IBeamTokenFacet, LibAppBase {
             state.beamToken[id_].flowRate.toInt256(),
             int256(0).sub(state.beamToken[id_].deposit.toInt256())
         );
+
+        emit BeamTransfer(
+            address(0),
+            subscriber,
+            id_,
+            id_ & LibAppStorage.NONCE_MASK,
+            0,
+            0,
+            block.timestamp
+        );
     }
 
     function liquidateBeam(uint256 id_) external {
         require(
-            !state.beamtTiken[id_].paymentToken.isAccountLiquid(
+            !state.beamToken[id_].paymentToken.isAccountLiquid(
                 state.beamToken[id_].from,
                 block.timestamp
             ),
@@ -216,8 +237,6 @@ contract BeamTokenFacet is IBeamTokenFacet, LibAppBase {
         // update nft claims
 
         // burn token?
-
-
     }
 
     // --- Internal Functions ---------------------
@@ -234,11 +253,17 @@ contract BeamTokenFacet is IBeamTokenFacet, LibAppBase {
                 oldFlow.netFlowRate
             );
 
-        // console.log(deltaBalance.toUint256());
-
         qToken.settleBalance(user, deltaBalance);
 
         state.userFlowData[qToken][user] = UserFlow(
+            oldFlow.netFlowRate.add(flowRateDelta),
+            oldFlow.netDeposit.toInt256().add(depositDelta).toUint256(),
+            block.timestamp
+        );
+
+        emit FlowUpdated(
+            user,
+            address(qToken),
             oldFlow.netFlowRate.add(flowRateDelta),
             oldFlow.netDeposit.toInt256().add(depositDelta).toUint256(),
             block.timestamp

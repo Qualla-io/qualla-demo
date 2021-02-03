@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "../tokens/IQtoken.sol";
 import "../tokens/IERC20.sol";
 
-struct BaseToken {
+struct TierToken {
     address creator;
     IQtoken paymentToken;
     uint256 flowRate;
@@ -28,7 +28,7 @@ struct BeamToken {
 struct NFTToken {
     string uri;
     uint256 mintStamp;
-    uint256 baseToken;
+    uint256 tierToken;
     uint256 nonce;
     address creator;
 }
@@ -40,7 +40,7 @@ struct UserFlow {
 }
 
 struct AppStorage {
-    mapping(uint256 => BaseToken) baseToken;
+    mapping(uint256 => TierToken) tierToken;
     mapping(uint256 => BeamToken) beamToken;
     mapping(address => BeamToken[]) userBeams; // This is the lazy way to do this. Should look into a more efficient way
     mapping(uint256 => NFTToken) nftToken;

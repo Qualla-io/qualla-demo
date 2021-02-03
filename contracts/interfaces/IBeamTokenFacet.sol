@@ -13,12 +13,9 @@ interface IBeamTokenFacet {
         uint256 timestamp
     ) external view returns (int256 dynamicBal, uint256 deposit);
 
-    function getBeamToken(uint256 id)
-        external
-        view
-        returns (BeamToken memory);
+    function getBeamToken(uint256 id) external view returns (BeamToken memory);
 
-    function getBaseIdFromBeamToken(uint256 id_)
+    function getTierIdFromBeamToken(uint256 id_)
         external
         pure
         returns (uint256 id);
@@ -40,4 +37,24 @@ interface IBeamTokenFacet {
         bytes32 r,
         bytes32 s
     ) external;
+
+    // --- Events ---------------------------------
+
+    event FlowUpdated(
+        address indexed account,
+        address indexed token,
+        int256 netFlow,
+        uint256 netDeposit,
+        uint256 timestamp
+    );
+
+    event BeamTransfer(
+        address indexed to,
+        address indexed from,
+        uint256 id,
+        uint256 tierId,
+        uint256 flowRate,
+        uint256 deposit,
+        uint256 timestamp
+    );
 }

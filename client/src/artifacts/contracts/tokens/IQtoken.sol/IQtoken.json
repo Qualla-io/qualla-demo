@@ -4,6 +4,25 @@
   "sourceName": "contracts/tokens/IQtoken.sol",
   "abi": [
     {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "int256",
+          "name": "amount",
+          "type": "int256"
+        }
+      ],
+      "name": "Settle",
+      "type": "event"
+    },
+    {
       "inputs": [
         {
           "internalType": "address",
@@ -42,6 +61,54 @@
           "internalType": "address",
           "name": "",
           "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "isAccoundCritical",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "critical",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "isAccountLiquid",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "liquid",
+          "type": "bool"
         }
       ],
       "stateMutability": "view",

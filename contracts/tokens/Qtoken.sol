@@ -89,9 +89,10 @@ contract Qtoken is IERC20, IQtoken, Initializable, Context {
         deposit = deposit.add(beamDeposit);
     }
 
-    function isAccoundCritical(address user, uint256 timestamp)
+    function isAccoundCritical(address account, uint256 timestamp)
         public
         view
+        override
         returns (bool critical)
     {
         (int256 availableBal, ) = realtimeBalanceOf(account, timestamp);
@@ -99,9 +100,10 @@ contract Qtoken is IERC20, IQtoken, Initializable, Context {
         return availableBal > 0;
     }
 
-    function isAccountLiquid(address user, uint256 timestamp)
+    function isAccountLiquid(address account, uint256 timestamp)
         public
         view
+        override
         returns (bool liquid)
     {
         (int256 availableBal, uint256 deposit) =
@@ -194,6 +196,7 @@ contract Qtoken is IERC20, IQtoken, Initializable, Context {
         onlyOperator
     {
         _balances[account] = _balances[account].add(amount);
+        emit Settle(account, amount);
     }
 
     // --- ERC-20 Write Functions -----------------

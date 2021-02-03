@@ -29,7 +29,7 @@ describe("Qualla Diamond Contract", function () {
     ],
   };
 
-  async function mintOneBaseToken() {
+  async function mintOneTierToken() {
     data = {
       user: charlie.address,
       nonce: 0,
@@ -118,7 +118,7 @@ describe("Qualla Diamond Contract", function () {
 
   xcontext("With minting NFTs", async () => {
     it("should mint NFTs to subscribers", async () => {
-      await mintOneBaseToken();
+      await mintOneTierToken();
 
       await buyOneSubToken();
 
@@ -149,7 +149,7 @@ describe("Qualla Diamond Contract", function () {
     });
 
     it("Should allow user to claim nft", async () => {
-      await mintOneBaseToken();
+      await mintOneTierToken();
 
       await buyOneSubToken();
 

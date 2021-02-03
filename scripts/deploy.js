@@ -38,7 +38,7 @@ async function main(scriptName) {
     diamondLoupeFacet,
     ownershipFacet,
     erc1155Facet,
-    baseTokenFacet,
+    tierTokenFacet,
     beamTokenFacet,
     nftFacet,
     factoryFacet,
@@ -47,7 +47,7 @@ async function main(scriptName) {
     "DiamondLoupeFacet",
     "OwnershipFacet",
     "ERC1155Facet",
-    "BaseTokenFacet",
+    "TierTokenFacet",
     "BeamTokenFacet",
     "NFTFacet",
     "TokenFactoryFacet"
@@ -60,7 +60,7 @@ async function main(scriptName) {
       ["DiamondLoupeFacet", diamondLoupeFacet],
       ["OwnershipFacet", ownershipFacet],
       ["ERC1155Facet", erc1155Facet],
-      ["BaseTokenFacet", baseTokenFacet],
+      ["TierTokenFacet", tierTokenFacet],
       ["BeamTokenFacet", beamTokenFacet],
       ["NFTFacet", nftFacet],
       ["TokenFactoryFacet", factoryFacet],
@@ -78,9 +78,9 @@ async function main(scriptName) {
     accounts[0]
   );
 
-  baseTokenFacet = new ethers.Contract(
+  tierTokenFacet = new ethers.Contract(
     quallaDiamond.address,
-    baseTokenFacet.interface,
+    tierTokenFacet.interface,
     accounts[0]
   );
 
@@ -119,7 +119,7 @@ async function main(scriptName) {
     diamondCutFacet: diamondCutFacet,
     ownershipFacet: ownershipFacet,
     erc1155Facet: erc1155Facet,
-    baseTokenFacet,
+    tierTokenFacet,
     beamTokenFacet,
     nftFacet,
     factoryFacet,

@@ -5,53 +5,148 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: Qualla
+    name: TokenFactoryFacet
     network: {{network}}
     source:
       address: "{{address}}"
-      abi: IERC1155
+      abi: TokenFactory
       startBlock: {{blockstart}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      entities:
-        - User
-        - BaseToken
-        - SubscriptionToken
-        - NftToken
+      file: ./src/factory-mapping.ts
+      entities: 
+        - Qtoken
       abis:
-        - name: IERC1155
-          file: ../client/src/artifacts/contracts/interfaces/IERC1155.sol/IERC1155.json
-        - name: ERC1155
-          file: ../client/src/artifacts/contracts/facets/ERC1155Facet.sol/ERC1155Facet.json
-        - name: SubscriptionFacet
-          file: ../client/src/artifacts/contracts/facets/QuallaSubscriptionFacet.sol/QuallaSubscriptionsFacet.json
+        - name: TokenFactory
+          file: ../client/src/artifacts/contracts/interfaces/ITokenFactoryFacet.sol/ITokenFactoryFacet.json
       eventHandlers:
-        - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
-          handler: handleTransferSingle
-        - event: TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
-          handler: handleTransferBatch
-      file: ./src/qualla-mapping.ts
+        - event: WrapperDeployed(indexed address,indexed address,string,string,uint8)
+          handler: handleWrapperDeployed
   - kind: ethereum/contract
-    name: Dai
+    name: BeamTokenFacet
     network: {{network}}
     source:
-      address: "{{daiAddress}}"
-      abi: TestDai
+      address: "{{address}}"
+      abi: BeamToken
       startBlock: {{blockstart}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      entities:
+      file: ./src/beamToken-mapping.ts
+      entities: 
+        - Balance
         - User
+        - BeamToken
+        - TierToken
       abis:
-        - name: TestDai
-          file: ../client/src/artifacts/contracts/TestDai.sol/TestDai.json
+        - name: BeamToken
+          file: ../client/src/artifacts/contracts/interfaces/IBeamTokenFacet.sol/IBeamTokenFacet.json
       eventHandlers:
-        - event: Approval(indexed address,indexed address,uint256)
-          handler: handleDaiApproval
+        - event: FlowUpdated(indexed address,indexed address,int256,uint256,uint256)
+          handler: handleFlowUpdated
+        - event: BeamTransfer(indexed address,indexed address,uint256,uint256,uint256,uint256,uint256)
+          handler: handleBeamTransfer
+  - kind: ethereum/contract
+    name: TierTokenFacet
+    network: {{network}}
+    source:
+      address: "{{address}}"
+      abi: TierToken
+      startBlock: {{blockstart}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/tierToken-mapping.ts
+      entities: 
+        - User
+        - TierToken
+      abis:
+        - name: TierToken
+          file: ../client/src/artifacts/contracts/interfaces/ITierTokenFacet.sol/ITierTokenFacet.json
+      eventHandlers:
+        - event: TierTransfer(indexed address,indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleTierTransfer
+        - event: BatchTierTransfer(indexed address,indexed address,address[],uint256[],uint256[],uint256[])
+          handler: handleBatchTierTransfer
+templates:
+  - name: Qtoken
+    kind: ethereum/contract
+    network: {{network}}
+    source: 
+      abi: Qtoken
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/qtoken-mapping.ts
+      entities:
+        - Qtoken
+        - User
+        - Balance
+      abis:
+        - name: Qtoken
+          file: ../client/src/artifacts/contracts/tokens/Qtoken.sol/Qtoken.json
+      eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleDaiTransfer
-      file: ./src/dai-mapping.ts
+          handler: handleTransfer
+        - event: Settle(indexed address,int256)
+          handler: handleSettle
+      
+
+  # - kind: ethereum/contract
+  #   name: Qualla
+  #   network: {{network}}
+  #   source:
+  #     address: "{{address}}"
+  #     abi: IERC1155
+  #     startBlock: {{blockstart}}
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.4
+  #     language: wasm/assemblyscript
+  #     entities:
+  #       - User
+  #       - BaseToken
+  #       - SubscriptionToken
+  #       - NftToken
+  #     abis:
+  #       - name: IERC1155
+  #         file: ../client/src/artifacts/contracts/interfaces/IERC1155.sol/IERC1155.json
+  #       - name: ERC1155
+  #         file: ../client/src/artifacts/contracts/facets/ERC1155Facet.sol/ERC1155Facet.json
+  #       - name: TierTokenFacet
+  #         file: ../client/src/artifacts/contracts/facets/TierTokenFacet.sol/TierTokenFacet.json
+  #       - name: BeamTokenFacet
+  #         file: ../client/src/artifacts/contracts/facets/BeamTokenFacet.sol/BeamTokenFacet.json
+  #     eventHandlers:
+  #       - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
+  #         handler: handleTransferSingle
+  #       - event: TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
+  #         handler: handleTransferBatch
+  #     file: ./src/qualla-mapping.ts
+  # - kind: ethereum/contract
+  #   name: Dai
+  #   network: {{network}}
+  #   source:
+  #     address: "{{daiAddress}}"
+  #     abi: TestDai
+  #     startBlock: {{blockstart}}
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.4
+  #     language: wasm/assemblyscript
+  #     entities:
+  #       - User
+  #     abis:
+  #       - name: TestDai
+  #         file: ../client/src/artifacts/contracts/TestDai.sol/TestDai.json
+  #     eventHandlers:
+  #       - event: Approval(indexed address,indexed address,uint256)
+  #         handler: handleDaiApproval
+  #       - event: Transfer(indexed address,indexed address,uint256)
+  #         handler: handleDaiTransfer
+  #     file: ./src/dai-mapping.ts

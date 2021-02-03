@@ -9,15 +9,19 @@ import "../tokens/IERC20.sol";
 import "../tokens/ERC20Info.sol";
 import "../tokens/Qtoken.sol";
 
+import "../interfaces/ITokenFactoryFacet.sol";
+
 import "hardhat/console.sol";
 
-contract TokenFactoryFacet is LibAppBase {
+contract TokenFactoryFacet is LibAppBase, ITokenFactoryFacet {
     using SafeMath for uint256;
 
-    event WrapperDeployed(address indexed qToken, address indexed token);
-
-    function getTokenWrapper(IERC20 token) public view returns (address) {
-
+    function getTokenWrapper(IERC20 token)
+        public
+        view
+        override
+        returns (address)
+    {
         return state.ERC20toWrapper[token];
     }
 
@@ -26,7 +30,7 @@ contract TokenFactoryFacet is LibAppBase {
         uint8 underlyingDecimals,
         string calldata name,
         string calldata symbol
-    ) public {
+    ) public override {
         require(address(underlyingToken) != address(0), "Qualla/zero-address");
 
         // Initialze new wrapper
@@ -37,16 +41,22 @@ contract TokenFactoryFacet is LibAppBase {
         // = deploy wrapper
 
         state.ERC20toWrapper[underlyingToken] = address(token);
-         state.isWrappedToken[address(token)] = true;
+        state.isWrappedToken[address(token)] = true;
         state.wrappedTokens.push(underlyingToken);
-        emit WrapperDeployed(address(token), address(underlyingToken));
+        emit WrapperDeployed(
+            address(token),
+            address(underlyingToken),
+            name,
+            symbol,
+            underlyingDecimals
+        );
     }
 
     function deployERC20WrapperInfo(
         ERC20Info underlyingToken,
         string calldata name,
         string calldata symbol
-    ) external {
+    ) external override {
         deployERC20Wrapper(
             underlyingToken,
             underlyingToken.decimals(),
@@ -59,7 +69,7 @@ contract TokenFactoryFacet is LibAppBase {
         IQtoken underlyingToken,
         address account,
         uint256 amount
-    ) external {
+    ) external override {
         underlyingToken.demoMint(account, amount);
     }
 }

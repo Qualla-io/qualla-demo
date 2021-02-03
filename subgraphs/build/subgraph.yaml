@@ -5,53 +5,96 @@ schema:
   file: schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: Qualla
+    name: TokenFactoryFacet
     network: develop
     source:
       address: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"
-      abi: IERC1155
+      abi: TokenFactory
       startBlock: 0
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
+      file: TokenFactoryFacet\TokenFactoryFacet.wasm
       entities:
-        - User
-        - BaseToken
-        - SubscriptionToken
-        - NftToken
+        - Qtoken
       abis:
-        - name: IERC1155
-          file: client\src\artifacts\contracts\interfaces\IERC1155.sol\IERC1155.json
-        - name: ERC1155
-          file: client\src\artifacts\contracts\facets\ERC1155Facet.sol\ERC1155Facet.json
-        - name: SubscriptionFacet
-          file: client\src\artifacts\contracts\facets\QuallaSubscriptionFacet.sol\QuallaSubscriptionsFacet.json
+        - name: TokenFactory
+          file: client\src\artifacts\contracts\interfaces\ITokenFactoryFacet.sol\ITokenFactoryFacet.json
       eventHandlers:
-        - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
-          handler: handleTransferSingle
-        - event: TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
-          handler: handleTransferBatch
-      file: Qualla\Qualla.wasm
+        - event: WrapperDeployed(indexed address,indexed address,string,string,uint8)
+          handler: handleWrapperDeployed
   - kind: ethereum/contract
-    name: Dai
+    name: BeamTokenFacet
     network: develop
     source:
-      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-      abi: TestDai
+      address: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"
+      abi: BeamToken
       startBlock: 0
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
+      file: BeamTokenFacet\BeamTokenFacet.wasm
+      entities:
+        - Balance
+        - User
+        - BeamToken
+        - TierToken
+      abis:
+        - name: BeamToken
+          file: client\src\artifacts\contracts\interfaces\IBeamTokenFacet.sol\IBeamTokenFacet.json
+      eventHandlers:
+        - event: FlowUpdated(indexed address,indexed address,int256,uint256,uint256)
+          handler: handleFlowUpdated
+        - event: BeamTransfer(indexed address,indexed
+            address,uint256,uint256,uint256,uint256,uint256)
+          handler: handleBeamTransfer
+  - kind: ethereum/contract
+    name: TierTokenFacet
+    network: develop
+    source:
+      address: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"
+      abi: TierToken
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: TierTokenFacet\TierTokenFacet.wasm
       entities:
         - User
+        - TierToken
       abis:
-        - name: TestDai
-          file: client\src\artifacts\contracts\TestDai.sol\TestDai.json
+        - name: TierToken
+          file: client\src\artifacts\contracts\interfaces\ITierTokenFacet.sol\ITierTokenFacet.json
       eventHandlers:
-        - event: Approval(indexed address,indexed address,uint256)
-          handler: handleDaiApproval
+        - event: TierTransfer(indexed address,indexed address,indexed
+            address,uint256,uint256,uint256)
+          handler: handleTierTransfer
+        - event: BatchTierTransfer(indexed address,indexed
+            address,address[],uint256[],uint256[],uint256[])
+          handler: handleBatchTierTransfer
+templates:
+  - name: Qtoken
+    kind: ethereum/contract
+    network: develop
+    source:
+      abi: Qtoken
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: templates\Qtoken\Qtoken.wasm
+      entities:
+        - Qtoken
+        - User
+        - Balance
+      abis:
+        - name: Qtoken
+          file: client\src\artifacts\contracts\tokens\Qtoken.sol\Qtoken.json
+      eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleDaiTransfer
-      file: Dai\Dai.wasm
+          handler: handleTransfer
+        - event: Settle(indexed address,int256)
+          handler: handleSettle

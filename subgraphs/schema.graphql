@@ -1,15 +1,23 @@
 type User @entity {
   id: ID!
   tierTokens: [TierToken!] @derivedFrom(field: "owner")
-  beamToekns: [BeamToken!] @derivedFrom(field: "owner")
+  beamTokens: [BeamToken!] @derivedFrom(field: "owner")
   subscribers: [BeamToken!] @derivedFrom(field: "creator")
   nonce: BigInt
   approved: Boolean
-  balance: BigInt
-  flowRate: BigInt
-  lastUpdated: BigInt
+  balances: [Balance!] @derivedFrom(field: "user")
   ownedNFTs: [NftToken!] @derivedFrom(field: "owner")
   createdNFTs: [NftToken!] @derivedFrom(field: "creator")
+}
+
+type Balance @entity {
+  id: ID! #`${user.toHexString()} - ${token.toHexString()}`
+  qtoken: Qtoken! 
+  user: User!
+  settledBalance: BigInt!
+  netFlowrate: BigInt!
+  netDeposit: BigInt!
+  lastUpdated: BigInt!
 }
 
 type TierToken @entity {
@@ -19,9 +27,6 @@ type TierToken @entity {
   flowRate: BigInt!
   paymentToken: String!
   activeTokens: [BeamToken!] @derivedFrom(field: "tierToken")
-  testID: String
-  txHash: String!
-  # index: BigInt!
   initialSupply: BigInt!
 }
 
@@ -29,11 +34,12 @@ type BeamToken @entity {
   id: ID!
   owner: User
   creator: User!
-  flowRate: BigInt
-  deposit: BigInt
-  mintStamp: BingInt
-  tierToken: TierToken
-  testID: String
+  flowRate: BigInt!
+  deposit: BigInt!
+  mintStamp: BigInt!
+  tierToken: TierToken!
+  testID: BigInt
+  paymentToken: Qtoken!
 }
 
 type NftToken @entity {
@@ -46,10 +52,19 @@ type NftToken @entity {
   testID: String
 }
 
-type Transaction @entity {
-  id: ID! #`${event.transaction.hash.toHex()} - ${event.logIndex.toString()}`
-  from: User
-  to: User!
-  amount: BigInt!
-  timestamp: BigInt!
+type Qtoken @entity {
+  id: ID!
+  underlyingToken: String!
+  name: String!
+  symbol: String!
+  decimals: BigInt!
+  totalSupply: BigInt!
 }
+
+# type Transaction @entity {
+#   id: ID! #`${event.transaction.hash.toHex()} - ${event.logIndex.toString()}`
+#   from: User
+#   to: User!
+#   amount: BigInt!
+#   timestamp: BigInt!
+# }

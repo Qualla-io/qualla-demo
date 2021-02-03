@@ -4,11 +4,11 @@ const BigNumber = require("bignumber.js");
 const { deployProject } = require("../scripts/deploy.js");
 const { shouldThrow } = require("./utils.js");
 
-describe("Qualla BaseToken Facet", function () {
+describe("Qualla BeamToken Facet", function () {
   let alice, bob, charlie, daniel;
   let _walletBob, _walletCharlie, _walletDaniel;
 
-  let baseTokenFacet, beamTokenFacet, erc1155Facet, factoryFacet;
+  let tierTokenFacet, beamTokenFacet, erc1155Facet, factoryFacet;
   let qDai;
 
   let result;
@@ -25,7 +25,7 @@ describe("Qualla BaseToken Facet", function () {
     ],
   };
 
-  async function mintOneBaseToken() {
+  async function mintOneTierToken() {
     data = {
       user: charlie.address,
       nonce: 0,
@@ -36,7 +36,7 @@ describe("Qualla BaseToken Facet", function () {
 
     signature = ethers.utils.splitSignature(signature);
 
-    await baseTokenFacet.mintBase(
+    await tierTokenFacet.mintTier(
       charlie.address,
       5,
       qDai.address,
@@ -75,7 +75,7 @@ describe("Qualla BaseToken Facet", function () {
     global.quallaDiamond = deployVars.quallaDiamond;
     global.testDai = deployVars.testDai;
 
-    baseTokenFacet = deployVars.baseTokenFacet;
+    tierTokenFacet = deployVars.tierTokenFacet;
     beamTokenFacet = deployVars.beamTokenFacet;
     factoryFacet = deployVars.factoryFacet;
     erc1155Facet = deployVars.erc1155Facet;
@@ -112,8 +112,8 @@ describe("Qualla BaseToken Facet", function () {
   });
 
   context("With minting beams", async () => {
-    it("Should mint new beam from baseToken when bought", async () => {
-      await mintOneBaseToken();
+    it("Should mint new beam from tierToken when bought", async () => {
+      await mintOneTierToken();
 
       await buyOneSubToken(bob, _walletBob);
 
@@ -154,7 +154,7 @@ describe("Qualla BaseToken Facet", function () {
     });
 
     it("Shouldn't allow minting beam to someone with funds below deposit", async () => {
-      await mintOneBaseToken();
+      await mintOneTierToken();
 
       await shouldThrow(buyOneSubToken(daniel, _walletDaniel));
 
@@ -170,7 +170,7 @@ describe("Qualla BaseToken Facet", function () {
     it("Should burn subToken when unsubscribed", async () => {
       let initalBal = await qDai.balanceOf(bob.address);
 
-      await mintOneBaseToken();
+      await mintOneTierToken();
 
       await buyOneSubToken(bob, _walletBob);
 

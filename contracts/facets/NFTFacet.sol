@@ -13,7 +13,7 @@ contract NFTFacet is INFTFacet, LibAppBase {
     using SafeMath for uint256;
 
     function mintNFTtoSubscribers(
-        uint256 baseTokenId,
+        uint256 tierTokenId,
         string memory _uri,
         uint8 v,
         bytes32 r,
@@ -21,7 +21,7 @@ contract NFTFacet is INFTFacet, LibAppBase {
     ) public override {
 
         LibERC1155.verifySignature(
-            state.baseToken[baseTokenId].creator,
+            state.tierToken[tierTokenId].creator,
             "nft",
             v,
             r,
@@ -36,16 +36,16 @@ contract NFTFacet is INFTFacet, LibAppBase {
         state.nftToken[id] = NFTToken(
             _uri,
             block.timestamp,
-            baseTokenId,
+            tierTokenId,
             1,
-            state.baseToken[baseTokenId].creator
+            state.tierToken[tierTokenId].creator
         );
 
-        // Amounts = baseToken.nonce is going to mint extra nfts for burnt sub tokens but thats ok for now.
+        // Amounts = tierToken.nonce is going to mint extra nfts for burnt sub tokens but thats ok for now.
         LibERC1155._mint(
-            state.baseToken[baseTokenId].creator,
+            state.tierToken[tierTokenId].creator,
             id,
-            state.baseToken[baseTokenId].activeBeams,
+            state.tierToken[tierTokenId].activeBeams,
             bytes("")
         );
 
@@ -53,22 +53,22 @@ contract NFTFacet is INFTFacet, LibAppBase {
     }
 
     function mintNFTtoSubscribersBatch(
-        uint256[] memory baseTokenId,
+        uint256[] memory tierTokenId,
         string memory _uri,
         uint8 v,
         bytes32 r,
         bytes32 s
     ) public override {
-        address creator = state.baseToken[baseTokenId[0]].creator;
+        address creator = state.tierToken[tierTokenId[0]].creator;
 
         LibERC1155.verifySignature(creator, "nft", v, r, s);
 
-        uint256[] memory ids = new uint256[](baseTokenId.length);
-        uint256[] memory amounts = new uint256[](baseTokenId.length);
+        uint256[] memory ids = new uint256[](tierTokenId.length);
+        uint256[] memory amounts = new uint256[](tierTokenId.length);
 
-        for (uint256 i; i < baseTokenId.length; i++) {
+        for (uint256 i; i < tierTokenId.length; i++) {
             require(
-                state.baseToken[baseTokenId[i]].creator == creator,
+                state.tierToken[tierTokenId[i]].creator == creator,
                 "Qualla/Invalid Creator"
             );
 
@@ -76,12 +76,12 @@ contract NFTFacet is INFTFacet, LibAppBase {
             ids[i] = (ids[i] | LibAppStorage.TYPE_NF_BIT);
 
             // same amounts comment as above
-            amounts[i] = state.baseToken[baseTokenId[i]].activeBeams;
+            amounts[i] = state.tierToken[tierTokenId[i]].activeBeams;
 
             state.nftToken[ids[i]] = NFTToken(
                 _uri,
                 block.timestamp,
-                baseTokenId[i],
+                tierTokenId[i],
                 1,
                 creator
             );
@@ -90,7 +90,7 @@ contract NFTFacet is INFTFacet, LibAppBase {
         }
 
         LibERC1155._mintBatch(
-            state.baseToken[baseTokenId[0]].creator,
+            state.tierToken[tierTokenId[0]].creator,
             ids,
             amounts,
             bytes("")
@@ -115,7 +115,7 @@ contract NFTFacet is INFTFacet, LibAppBase {
         );
         require(
             beamTokenId & LibAppStorage.NONCE_MASK ==
-                state.nftToken[nftTokenId].baseToken,
+                state.nftToken[nftTokenId].tierToken,
             "Qualla/Invalid Redeem"
         );
         require(
