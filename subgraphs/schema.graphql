@@ -4,7 +4,6 @@ type User @entity {
   beamTokens: [BeamToken!] @derivedFrom(field: "owner")
   subscribers: [BeamToken!] @derivedFrom(field: "creator")
   nonce: BigInt
-  approved: Boolean
   balances: [Balance!] @derivedFrom(field: "user")
   ownedNFTs: [NftToken!] @derivedFrom(field: "owner")
   createdNFTs: [NftToken!] @derivedFrom(field: "creator")

@@ -11,9 +11,9 @@ services:
     #   - "./mongodata:/data/db"
     ports:
       - 27017:27017
-  blockchain_user:
-    build: ./server/src/BlockchainUser
-    container_name: "blockchain_user"
+  user:
+    build: ./server/src/User
+    container_name: "user"
     env_file:
       - server/.env
     ports:
@@ -21,37 +21,37 @@ services:
     depends_on:
       - nats
     restart: on-failure
-  blockchain_basetoken:
-    build: ./server/src/BlockchainBaseToken
-    container_name: "blockchain_basetoken"
-    env_file:
-      - server/.env
-    ports:
-      - "4002:4002"
-    depends_on:
-      - nats
-    restart: on-failure
-  blockchain_subtoken:
-    build: ./server/src/BlockchainSubToken
-    container_name: "blockchain_subtoken"
-    env_file:
-      - server/.env
-    ports:
-      - "4003:4003"
-    depends_on:
-      - nats
-    restart: on-failure
-  local_data:
-    build: ./server/src/LocalData
-    container_name: "local_data"
-    env_file:
-      - server/.env
-    ports:
-      - "4004:4004"
-    restart: on-failure
-    depends_on:
-      - mongo
-      - nats
+  # tiertoken:
+  #   build: ./server/src/TierToken
+  #   container_name: "tiertoken"
+  #   env_file:
+  #     - server/.env
+  #   ports:
+  #     - "4002:4002"
+  #   depends_on:
+  #     - nats
+  #   restart: on-failure
+  # blockchain_subtoken:
+  #   build: ./server/src/BeamToken
+  #   container_name: "beamtoken"
+  #   env_file:
+  #     - server/.env
+  #   ports:
+  #     - "4003:4003"
+  #   depends_on:
+  #     - nats
+  #   restart: on-failure
+  # local_data:
+  #   build: ./server/src/LocalData
+  #   container_name: "local_data"
+  #   env_file:
+  #     - server/.env
+  #   ports:
+  #     - "4004:4004"
+  #   restart: on-failure
+  #   depends_on:
+  #     - mongo
+  #     - nats
   gateway:
     build: ./server/src/gateway
     container_name: "gateway"
@@ -61,10 +61,10 @@ services:
       - "4000:4000"
     restart: always
     depends_on:
-      - "blockchain_user"
-      - "blockchain_basetoken"
-      - "blockchain_subtoken"
-      - "local_data"
+      - "user"
+      # - "tiertoken"
+      # - "beamtoken"
+      # - "local_data"
   # relayer:
   #   build: ./server/src/Relayer
   #   container_name: "relayer"
