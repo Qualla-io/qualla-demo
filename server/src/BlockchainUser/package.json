@@ -18,7 +18,7 @@
     "@babel/preset-react": "^7.12.10",
     "amqplib": "^0.6.0",
     "apollo-fetch": "^0.7.0",
-    "apollo-server": "^2.19.0",
+    "apollo-server": "^2.25.3",
     "bignumber.js": "^9.0.1",
     "ethers": "5.0.18",
     "nodemon": "^2.0.6",
