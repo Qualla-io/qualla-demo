@@ -21,7 +21,7 @@
     "babel-polyfill": "^6.26.0",
     "babel-register": "^6.26.0",
     "ethers": "^5.0.24",
-    "truffle": "^5.0.4",
+    "truffle": "^5.6.5",
     "truffle-contract": "^4.0.5",
     "truffle-hdwallet-provider": "^1.0.4",
     "mustache": "^3.1.0"
